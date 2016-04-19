@@ -7,11 +7,10 @@
   ],
   "license": "LGPL-2.1+",
   "ignore": [
-    "/*",
-    "!j2s/*",
-    "!JSmol.*.js",
-    "!jsmol.htm",
-    "!LICENSE",
-    "!README.TXT"
+    "src/*",
+    "!src/j2s/*",
+    "!src/JSmol.*.js",
+    "!src/jsmol.htm",
+    "!src/README.TXT"
   ]
 }
