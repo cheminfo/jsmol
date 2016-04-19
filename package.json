@@ -1,6 +1,6 @@
 {
   "name": "jsmol",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "JavaScript-Based Molecular Viewer From Jmol",
   "scripts": {
     "build": "echo 1"
