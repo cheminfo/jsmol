@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.TextShape"], "J.shape.Echo", ["JU.PT", "JM.Text", "JU.C"], function () {
+Clazz.load (["J.shape.TextShape"], "J.shape.Echo", ["java.util.Hashtable", "JU.Lst", "$.PT", "JM.Text", "JU.C"], function () {
 c$ = Clazz.declareType (J.shape, "Echo", J.shape.TextShape);
 Clazz.overrideMethod (c$, "initShape", 
 function () {
@@ -80,6 +80,10 @@ this.currentObject.setMovableYPercent (Clazz.floatToInt (pt.y));
 if (this.currentObject != null) {
 this.currentObject.setXYZ (value, true);
 }return;
+}if ("offset" === propertyName) {
+if (this.currentObject != null) {
+this.currentObject.pymolOffset = value;
+}return;
 }if ("target" === propertyName) {
 this.thisID = null;
 var target = (value).intern ().toLowerCase ();
@@ -127,9 +131,27 @@ return true;
 return false;
 }return this.getPropShape (property, data);
 }, "~S,~A");
-Clazz.overrideMethod (c$, "getShapeState", 
+Clazz.overrideMethod (c$, "getShapeDetail", 
 function () {
-return this.vwr.getShapeState (this);
+var lst =  new java.util.Hashtable ();
+for (var e, $e = this.objects.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
+var info =  new java.util.Hashtable ();
+var t = e.getValue ();
+var name = e.getKey ();
+info.put ("boxXY", t.boxXY);
+if (t.xyz != null) info.put ("xyz", t.xyz);
+var o = t.image;
+if (o == null) {
+info.put ("text", t.text == null ? "" : t.text);
+} else {
+info.put ("imageFile", t.text);
+info.put ("imageWidth", Integer.$valueOf (this.vwr.apiPlatform.getImageWidth (o)));
+info.put ("imageHeight", Integer.$valueOf (this.vwr.apiPlatform.getImageHeight (o)));
+}lst.put (name, info);
+}
+var lst2 =  new JU.Lst ();
+lst2.addLast (lst);
+return lst2;
 });
 Clazz.defineStatics (c$,
 "FONTFACE", "Serif",

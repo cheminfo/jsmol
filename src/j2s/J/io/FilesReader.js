@@ -56,11 +56,7 @@ if (subFileList != null) this.htParams.put ("subFileList", subFileList);
 var zipDirectory = this.fm.getZipDirectory (name, true, true);
 t = this.fm.getBufferedInputStreamOrErrorMessageFromName (name, this.fullPathNamesIn[i], false, false, null, false, true);
 t = this.fm.getJzu ().getAtomSetCollectionOrBufferedReaderFromZip (this.vwr, t, name, zipDirectory, this.htParams, 1, true);
-}if (Clazz.instanceOf (t, java.io.BufferedInputStream)) {
-var jd = J.api.Interface.getInterface ("JU.BinaryDocument", this.vwr, "file");
-jd.setStream (this.vwr.getJzt (), t, true);
-return jd;
-}return (Clazz.instanceOf (t, java.io.BufferedReader) || Clazz.instanceOf (t, javajs.api.GenericBinaryDocument) ? t : t == null ? "error opening:" + this.namesAsGivenIn[i] : t);
+}return (Clazz.instanceOf (t, java.io.BufferedInputStream) ? (J.api.Interface.getInterface ("JU.BinaryDocument", this.vwr, "file")).setStream (t, true) : Clazz.instanceOf (t, java.io.BufferedReader) || Clazz.instanceOf (t, javajs.api.GenericBinaryDocument) ? t : t == null ? "error opening:" + this.namesAsGivenIn[i] : t);
 }, "~N,~B");
 Clazz.overrideMethod (c$, "getAtomSetCollection", 
 function () {

@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -76,7 +77,7 @@ Clazz_defineStatics (c$,
 Clazz_declarePackage ("javajs.awt");
 Clazz_load (null, "javajs.awt.Component", ["JU.CU"], function () {
 c$ = Clazz_decorateAsClass (function () {
-this.visible = false;
+this._visible = false;
 this.enabled = true;
 this.text = null;
 this.name = null;
@@ -154,11 +155,11 @@ SwingController.setEnabled(this);
 }}, "~B");
 Clazz_defineMethod (c$, "isVisible", 
 function () {
-return this.visible;
+return this._visible;
 });
 Clazz_defineMethod (c$, "setVisible", 
 function (visible) {
-this.visible = visible;
+this._visible = visible;
 {
 SwingController.setVisible(this);
 }}, "~B");
@@ -237,7 +238,7 @@ return component;
 }, "javajs.awt.Component,~N");
 Clazz_defineMethod (c$, "remove", 
 function (i) {
-var c = this.list.remove (i);
+var c = this.list.removeItemAt (i);
 c.parent = null;
 this.cList = null;
 }, "~N");
@@ -1638,6 +1639,7 @@ return this.buttonGroup;
 Clazz_declarePackage ("J.popup");
 Clazz_declareInterface (J.popup, "PopupHelper");
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt

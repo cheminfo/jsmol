@@ -7,15 +7,15 @@ Clazz.instantialize (this, arguments);
 }, J.g3d, "PrecisionRenderer");
 Clazz.defineMethod (c$, "getZCurrent", 
 function (a, b, x) {
-return Clazz.floatToInt (a == 1.4E-45 ? b : this.isOrthographic ? a * x + b : a / (b - x));
+return Math.round (a == 1.4E-45 ? b : this.isOrthographic ? a * x + b : a / (b - x));
 }, "~N,~N,~N");
 Clazz.defineMethod (c$, "setRastAB", 
 function (xa, za, xb, zb) {
 var zdif = (zb - za);
 var xdif = (xb - xa);
-if (zdif == 0 || xdif == 0) {
+if (xa == 1.4E-45 || zdif == 0 || xdif == 0) {
 this.a = 1.4E-45;
-this.b = za;
+this.b = zb;
 return;
 }if (this.isOrthographic) {
 this.a = zdif / xdif;

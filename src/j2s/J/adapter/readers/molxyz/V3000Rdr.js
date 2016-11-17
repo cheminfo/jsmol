@@ -89,6 +89,10 @@ var isPartial = (name.indexOf ("partial") >= 0);
 if (isPartial) {
 if (pc == null) pc = name;
  else if (!pc.equals (name)) isPartial = false;
+}if (isPartial) {
+var at = this.mr.asc.atoms;
+for (var i = this.mr.asc.getLastAtomSetAtomIndex (), n = this.mr.asc.ac; i < n; i++) at[i].partialCharge = 0;
+
 }var a = null;
 var f = 0;
 if (isPartial) f = this.mr.parseFloatStr (data);

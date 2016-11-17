@@ -86,7 +86,7 @@ function (pt) {
 this.doDebug = false;
 if (this.points == null || this.nX != 1) this.initializeOnePoint ();
 this.points[0].setT (pt);
-this.voxelDataTemp[0][0][0] = 0;
+this.voxelData[0][0][0] = this.voxelDataTemp[0][0][0] = 0;
 this.setXYZBohr (this.points);
 this.processPoints ();
 return this.voxelData[0][0][0];

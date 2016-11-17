@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.smarter");
-Clazz.load (null, "J.adapter.smarter.Resolver", ["java.lang.Float", "java.util.StringTokenizer", "javajs.api.GenericBinaryDocument", "JU.LimitedLineReader", "$.PT", "J.adapter.smarter.AtomSetCollectionReader", "$.SmarterJmolAdapter", "J.api.Interface", "JU.Logger", "JV.FileManager", "$.JC"], function () {
+Clazz.load (null, "J.adapter.smarter.Resolver", ["java.io.BufferedInputStream", "$.InputStream", "java.lang.Float", "java.util.StringTokenizer", "javajs.api.GenericBinaryDocument", "JU.LimitedLineReader", "$.PT", "$.Rdr", "J.adapter.smarter.AtomSetCollectionReader", "$.SmarterJmolAdapter", "J.api.Interface", "JU.Logger", "JV.FileManager", "$.JC"], function () {
 c$ = Clazz.declareType (J.adapter.smarter, "Resolver");
 c$.getReaderClassBase = Clazz.defineMethod (c$, "getReaderClassBase", 
 function (type) {
@@ -23,17 +23,21 @@ throw e;
 }
 }, "java.io.BufferedReader");
 c$.getAtomCollectionReader = Clazz.defineMethod (c$, "getAtomCollectionReader", 
-function (fullName, type, bufferedReader, htParams, ptFile) {
+function (fullName, type, readerOrDocument, htParams, ptFile) {
 var readerName;
 fullName = JV.FileManager.fixDOSName (fullName);
 var errMsg = null;
-if (type != null) {
+if (type == null) {
+type = htParams.get ("filter");
+var pt = (type == null ? -1 : type.toLowerCase ().indexOf ("filetype"));
+type = (pt < 0 ? null : type.substring (pt + 8, (type + ";").indexOf (";", pt)).$replace ('=', ' ').trim ());
+}if (type != null) {
 readerName = J.adapter.smarter.Resolver.getReaderFromType (type);
 if (readerName == null) readerName = J.adapter.smarter.Resolver.getReaderFromType ("Xml" + type);
 if (readerName == null) errMsg = "unrecognized file format type " + type;
  else JU.Logger.info ("The Resolver assumes " + readerName);
 } else {
-readerName = J.adapter.smarter.Resolver.determineAtomSetCollectionReader (bufferedReader, true);
+readerName = J.adapter.smarter.Resolver.determineAtomSetCollectionReader (readerOrDocument, true);
 if (readerName.charAt (0) == '\n') {
 type = htParams.get ("defaultType");
 if (type != null) {
@@ -43,7 +47,7 @@ if (type != null) readerName = type;
  else if (readerName.equals ("spt")) errMsg = "NOTE: file recognized as a script file: " + fullName + "\n";
  else if (!fullName.equals ("ligand")) JU.Logger.info ("The Resolver thinks " + readerName);
 }if (errMsg != null) {
-J.adapter.smarter.SmarterJmolAdapter.close (bufferedReader);
+J.adapter.smarter.SmarterJmolAdapter.close (readerOrDocument);
 return errMsg;
 }htParams.put ("ptFile", Integer.$valueOf (ptFile));
 if (ptFile <= 0) htParams.put ("readerName", readerName);
@@ -90,15 +94,23 @@ return J.adapter.smarter.Resolver.getReader ("XmlReader", htParams);
 }, "java.util.Map");
 c$.determineAtomSetCollectionReader = Clazz.defineMethod (c$, "determineAtomSetCollectionReader", 
  function (readerOrDocument, returnLines) {
+var readerName;
 if (Clazz.instanceOf (readerOrDocument, javajs.api.GenericBinaryDocument)) {
-return "PyMOL";
-}var readerName;
-var llr =  new JU.LimitedLineReader (readerOrDocument, 16384);
+var doc = readerOrDocument;
+readerName = J.adapter.smarter.Resolver.getBinaryType (doc.getInputStream ());
+return (readerName == null ? "binary file type not recognized" : readerName);
+}if (Clazz.instanceOf (readerOrDocument, java.io.InputStream)) {
+readerName = J.adapter.smarter.Resolver.getBinaryType (readerOrDocument);
+if (readerName != null) return readerName;
+readerOrDocument = JU.Rdr.getBufferedReader ( new java.io.BufferedInputStream (readerOrDocument), null);
+}var llr =  new JU.LimitedLineReader (readerOrDocument, 16384);
 var leader = llr.getHeader (64).trim ();
 if (leader.indexOf ("PNG") == 1 && leader.indexOf ("PNGJ") >= 0) return "pngj";
 if (leader.indexOf ("PNG") == 1 || leader.indexOf ("JPG") == 1 || leader.indexOf ("JFIF") == 6) return "spt";
-if ((readerName = J.adapter.smarter.Resolver.checkFileStart (leader)) != null) return readerName;
-var lines =  new Array (16);
+if (leader.indexOf ("\"num_pairs\"") >= 0) return "dssr";
+if ((readerName = J.adapter.smarter.Resolver.checkFileStart (leader)) != null) {
+return (readerName.equals ("Xml") ? J.adapter.smarter.Resolver.getXmlType (llr.getHeader (0)) : readerName);
+}var lines =  new Array (16);
 var nLines = 0;
 for (var i = 0; i < lines.length; ++i) {
 lines[i] = llr.readLineWithNewline ();
@@ -110,6 +122,10 @@ if ((readerName = J.adapter.smarter.Resolver.checkHeaderContains (llr.getHeader 
 if ((readerName = J.adapter.smarter.Resolver.checkSpecial2 (lines)) != null) return readerName;
 return (returnLines ? "\n" + lines[0] + "\n" + lines[1] + "\n" + lines[2] + "\n" : null);
 }, "~O,~B");
+c$.getBinaryType = Clazz.defineMethod (c$, "getBinaryType", 
+function (inputStream) {
+return (JU.Rdr.isPickleS (inputStream) ? "PyMOL" : JU.Rdr.isMessagePackS (inputStream) ? "MMTF" : null);
+}, "java.io.InputStream");
 c$.checkFileStart = Clazz.defineMethod (c$, "checkFileStart", 
  function (leader) {
 for (var i = 0; i < J.adapter.smarter.Resolver.fileStartsWithRecords.length; ++i) {
@@ -332,7 +348,7 @@ return "XmlOdyssey";
 return "XmlChem3d";
 }if (header.indexOf ("arguslab") >= 0) {
 return "XmlArgus";
-}if (header.indexOf ("jvxl") >= 0 || header.indexOf ("http://www.xml-cml.org/schema") >= 0 || header.indexOf ("cml:") >= 0) {
+}if (header.indexOf ("jvxl") >= 0 || header.indexOf ("http://www.xml-cml.org/schema") >= 0 || header.indexOf ("cml:") >= 0 || header.indexOf ("<cml>") >= 0) {
 return "XmlCml";
 }if (header.indexOf ("XSD") >= 0) {
 return "XmlXsd";
@@ -378,7 +394,7 @@ return null;
 }, "~A");
 Clazz.defineStatics (c$,
 "classBase", "J.adapter.readers.");
-c$.readerSets = c$.prototype.readerSets =  Clazz.newArray (-1, ["aflow.", ";AFLOW;", "cif.", ";Cif;MMCif;", "molxyz.", ";Mol3D;Mol;Xyz;", "more.", ";BinaryDcd;Gromacs;Jcampdx;MdCrd;MdTop;Mol2;TlsDataOnly;", "quantum.", ";Adf;Csf;Dgrid;GamessUK;GamessUS;Gaussian;GaussianFchk;GaussianWfn;Jaguar;Molden;MopacGraphf;GenNBO;NWChem;Odyssey;Psi;Qchem;Spartan;SpartanSmol;WebMO;MO;", "pdb.", ";Pdb;Pqr;P2n;JmolData;", "pymol.", ";PyMOL;", "simple.", ";Alchemy;Ampac;Cube;FoldingXyz;GhemicalMM;HyperChem;Jme;JSON;Mopac;MopacArchive;Tinker;Input;", "xtal.", ";Abinit;Aims;Bilbao;Castep;Cgd;Crystal;Dmol;Espresso;Gulp;Jana;Magres;Shelx;Siesta;VaspOutcar;VaspPoscar;Wien2k;Xcrysden;", "xml.", ";XmlArgus;XmlCml;XmlChem3d;XmlMolpro;XmlOdyssey;XmlXsd;XmlVasp;XmlQE;"]);
+c$.readerSets = c$.prototype.readerSets =  Clazz.newArray (-1, ["aflow.", ";AFLOW;", "cif.", ";Cif;MMCif;MMTF;", "molxyz.", ";Mol3D;Mol;Xyz;", "more.", ";BinaryDcd;Gromacs;Jcampdx;MdCrd;MdTop;Mol2;TlsDataOnly;", "quantum.", ";Adf;Csf;Dgrid;GamessUK;GamessUS;Gaussian;GaussianFchk;GaussianWfn;Jaguar;Molden;MopacGraphf;GenNBO;NWChem;Psi;Qchem;WebMO;MO;", "pdb.", ";Pdb;Pqr;P2n;JmolData;", "pymol.", ";PyMOL;", "simple.", ";Alchemy;Ampac;Cube;FoldingXyz;GhemicalMM;HyperChem;Jme;JSON;Mopac;MopacArchive;Tinker;Input;", "spartan.", ";Spartan;SpartanSmol;Odyssey;", "xtal.", ";Abinit;Aims;Bilbao;Castep;Cgd;Crystal;Dmol;Espresso;Gulp;Jana;Magres;Shelx;Siesta;VaspOutcar;VaspPoscar;Wien2k;Xcrysden;", "xml.", ";XmlArgus;XmlCml;XmlChem3d;XmlMolpro;XmlOdyssey;XmlXsd;XmlVasp;XmlQE;"]);
 Clazz.defineStatics (c$,
 "CML_NAMESPACE_URI", "http://www.xml-cml.org/schema",
 "LEADER_CHAR_MAX", 64,
@@ -387,10 +403,10 @@ Clazz.defineStatics (c$,
 "cubeFileStartRecords",  Clazz.newArray (-1, ["Cube", "JVXL", "#JVXL"]),
 "mol2Records",  Clazz.newArray (-1, ["Mol2", "mol2", "@<TRIPOS>"]),
 "webmoFileStartRecords",  Clazz.newArray (-1, ["WebMO", "[HEADER]"]),
-"moldenFileStartRecords",  Clazz.newArray (-1, ["Molden", "[Molden"]),
+"moldenFileStartRecords",  Clazz.newArray (-1, ["Molden", "[Molden", "MOLDEN", "[MOLDEN"]),
 "dcdFileStartRecords",  Clazz.newArray (-1, ["BinaryDcd", "T\0\0\0CORD", "\0\0\0TCORD"]),
 "tlsDataOnlyFileStartRecords",  Clazz.newArray (-1, ["TlsDataOnly", "REFMAC\n\nTL", "REFMAC\r\n\r\n", "REFMAC\r\rTL"]),
-"inputFileStartRecords",  Clazz.newArray (-1, ["Input", "#ZMATRIX", "%mem=", "AM1"]),
+"inputFileStartRecords",  Clazz.newArray (-1, ["Input", "#ZMATRIX", "%mem=", "AM1", "$rungauss"]),
 "magresFileStartRecords",  Clazz.newArray (-1, ["Magres", "#$magres", "# magres"]),
 "pymolStartRecords",  Clazz.newArray (-1, ["PyMOL", "}q"]),
 "janaStartRecords",  Clazz.newArray (-1, ["Jana", "Version Jana"]),
@@ -398,8 +414,9 @@ Clazz.defineStatics (c$,
 "jcampdxStartRecords",  Clazz.newArray (-1, ["Jcampdx", "##TITLE"]),
 "jmoldataStartRecords",  Clazz.newArray (-1, ["JmolData", "REMARK   6 Jmol"]),
 "pqrStartRecords",  Clazz.newArray (-1, ["Pqr", "REMARK   1 PQR", "REMARK    The B-factors"]),
-"p2nStartRecords",  Clazz.newArray (-1, ["P2n", "REMARK   1 P2N"]));
-c$.fileStartsWithRecords = c$.prototype.fileStartsWithRecords =  Clazz.newArray (-1, [J.adapter.smarter.Resolver.sptRecords, J.adapter.smarter.Resolver.m3dStartRecords, J.adapter.smarter.Resolver.cubeFileStartRecords, J.adapter.smarter.Resolver.mol2Records, J.adapter.smarter.Resolver.webmoFileStartRecords, J.adapter.smarter.Resolver.moldenFileStartRecords, J.adapter.smarter.Resolver.dcdFileStartRecords, J.adapter.smarter.Resolver.tlsDataOnlyFileStartRecords, J.adapter.smarter.Resolver.inputFileStartRecords, J.adapter.smarter.Resolver.magresFileStartRecords, J.adapter.smarter.Resolver.pymolStartRecords, J.adapter.smarter.Resolver.janaStartRecords, J.adapter.smarter.Resolver.jsonStartRecords, J.adapter.smarter.Resolver.jcampdxStartRecords, J.adapter.smarter.Resolver.jmoldataStartRecords, J.adapter.smarter.Resolver.pqrStartRecords, J.adapter.smarter.Resolver.p2nStartRecords]);
+"p2nStartRecords",  Clazz.newArray (-1, ["P2n", "REMARK   1 P2N"]),
+"xmlStartRecords",  Clazz.newArray (-1, ["Xml", "<?xml"]));
+c$.fileStartsWithRecords = c$.prototype.fileStartsWithRecords =  Clazz.newArray (-1, [J.adapter.smarter.Resolver.xmlStartRecords, J.adapter.smarter.Resolver.sptRecords, J.adapter.smarter.Resolver.m3dStartRecords, J.adapter.smarter.Resolver.cubeFileStartRecords, J.adapter.smarter.Resolver.mol2Records, J.adapter.smarter.Resolver.webmoFileStartRecords, J.adapter.smarter.Resolver.moldenFileStartRecords, J.adapter.smarter.Resolver.dcdFileStartRecords, J.adapter.smarter.Resolver.tlsDataOnlyFileStartRecords, J.adapter.smarter.Resolver.inputFileStartRecords, J.adapter.smarter.Resolver.magresFileStartRecords, J.adapter.smarter.Resolver.pymolStartRecords, J.adapter.smarter.Resolver.janaStartRecords, J.adapter.smarter.Resolver.jsonStartRecords, J.adapter.smarter.Resolver.jcampdxStartRecords, J.adapter.smarter.Resolver.jmoldataStartRecords, J.adapter.smarter.Resolver.pqrStartRecords, J.adapter.smarter.Resolver.p2nStartRecords]);
 Clazz.defineStatics (c$,
 "mmcifLineStartRecords",  Clazz.newArray (-1, ["MMCif", "_entry.id", "_database_PDB_", "_pdbx_", "_chem_comp.pdbx_type", "_audit_author.name", "_atom_site."]),
 "cifLineStartRecords",  Clazz.newArray (-1, ["Cif", "data_", "_publ"]),
@@ -425,7 +442,7 @@ Clazz.defineStatics (c$,
 "gamessUKContainsRecords",  Clazz.newArray (-1, ["GamessUK", "GAMESS-UK", "G A M E S S - U K"]),
 "gamessUSContainsRecords",  Clazz.newArray (-1, ["GamessUS", "GAMESS", "$CONTRL"]),
 "spartanBinaryContainsRecords",  Clazz.newArray (-1, ["SpartanSmol", "|PropertyArchive", "_spartan", "spardir", "BEGIN Directory Entry Molecule"]),
-"spartanContainsRecords",  Clazz.newArray (-1, ["Spartan", "Spartan"]),
+"spartanContainsRecords",  Clazz.newArray (-1, ["Spartan", "Spartan", "converted archive file"]),
 "adfContainsRecords",  Clazz.newArray (-1, ["Adf", "Amsterdam Density Functional"]),
 "psiContainsRecords",  Clazz.newArray (-1, ["Psi", "    PSI  3", "PSI3:"]),
 "nwchemContainsRecords",  Clazz.newArray (-1, ["NWChem", " argument  1 = "]),

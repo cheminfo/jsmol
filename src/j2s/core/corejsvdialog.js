@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -135,7 +136,7 @@ return false;
 Clazz_defineMethod (c$, "deleteIntegral", 
  function () {
 if (!this.checkSelectedIntegral ()) return;
-this.xyData.remove (this.iSelected);
+this.xyData.removeItemAt (this.iSelected);
 this.iSelected = -1;
 this.iRowColSelected = -1;
 this.applyFromFields ();
@@ -881,6 +882,7 @@ return this.tableCellAlignLeft ? 2 : column == 0 ? 0 : 4;
 Clazz_declarePackage ("JSV.api");
 Clazz_declareInterface (JSV.api, "PlatformDialog");
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt

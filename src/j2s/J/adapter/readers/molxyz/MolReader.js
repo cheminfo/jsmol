@@ -137,6 +137,8 @@ while (this.rd () != null && this.line.indexOf ("$$$$") != 0) {
 if (this.line.toUpperCase ().contains ("_PARTIAL_CHARGES")) {
 try {
 var atoms = this.asc.atoms;
+for (var i = this.asc.getLastAtomSetAtomIndex (), n = this.asc.ac; i < n; i++) atoms[i].partialCharge = 0;
+
 for (var i = this.parseIntStr (this.rd ()); --i >= 0; ) {
 var tokens = JU.PT.getTokens (this.rd ());
 var atomIndex = this.parseIntStr (tokens[0]) + this.iatom0 - 1;

@@ -70,7 +70,7 @@ var result =  new JU.Lst ();
 for (var i = 0; i <= this.xPt; i++) result.addLast (this.isSpecialAssignment ? this.xStack[i] : JS.SV.selectItemVar (this.xStack[i]));
 
 if (this.lastAssignedString != null) {
-result.remove (0);
+result.removeItemAt (0);
 result.add (0, this.lastAssignedString);
 this.lastAssignedString.intValue = this.xStack[0].intValue;
 }return JS.SV.newV (135198, result);
@@ -615,11 +615,11 @@ pt4.scale4 (-1.0);
 return this.addXPt4 (pt4);
 case 11:
 m = JU.M3.newM3 (x2.value);
-m.transpose ();
+m.invert ();
 return this.addXM3 (m);
 case 12:
 m4 = JU.M4.newM4 (x2.value);
-m4.transpose ();
+m4.invert ();
 return this.addXM4 (m4);
 case 10:
 return this.addXBs (JU.BSUtil.copyInvert (x2.value, (Clazz.instanceOf (x2.value, JM.BondSet) ? this.vwr.ms.bondCount : this.vwr.ms.ac)));
@@ -642,7 +642,7 @@ default:
 return this.addXBool (!x2.asBoolean ());
 }
 case 268435665:
-var iv = op.intValue & -481;
+var iv = (op.intValue == 805306401 ? 805306401 : op.intValue & -481);
 if (this.chk) return this.addXObj (JS.SV.newS (""));
 if (this.vwr.allowArrayDotNotation) switch (x2.tok) {
 case 6:
@@ -662,6 +662,7 @@ break;
 switch (iv) {
 case 1275068418:
 return this.addX (x2.toArray ());
+case 805306401:
 case 1073741824:
 return (x2.tok == 10 && (this.chk ? this.addXStr ("") : this.getAllProperties (x2, op.value)));
 case 1140850696:
@@ -894,7 +895,7 @@ return (this.isDecimal (x2) ? this.addXFloat (x1.intValue * x2.asFloat ()) : thi
 case 4:
 return (this.isDecimal (x2) || this.isDecimal (x1) ? this.addXFloat (x1.asFloat () * x2.asFloat ()) : this.addXInt (x1.asInt () * x2.asInt ()));
 }
-pt = (x1.tok == 11 || x1.tok == 12 ? this.ptValue (x2) : x2.tok == 11 ? this.ptValue (x1) : null);
+pt = (x1.tok == 11 || x1.tok == 12 ? this.ptValue (x2, null) : x2.tok == 11 ? this.ptValue (x1, null) : null);
 pt4 = (x1.tok == 12 ? this.planeValue (x2) : x2.tok == 12 ? this.planeValue (x1) : null);
 switch (x2.tok) {
 case 11:
@@ -1093,7 +1094,7 @@ var s;
 return (x.tok == 3 || x.tok == 4 && ((s = JS.SV.sValue (x).trim ()).indexOf (".") >= 0 || s.indexOf ("+") > 0 || s.lastIndexOf ("-") > 0));
 }, "JS.SV");
 Clazz.defineMethod (c$, "ptValue", 
-function (x) {
+function (x, bsRestrict) {
 var pt;
 switch (x.tok) {
 case 8:
@@ -1101,7 +1102,10 @@ return x.value;
 case 10:
 var bs = x.value;
 if (bs.isEmpty ()) break;
-return this.eval.getBitsetProperty (bs, 1145047050, null, null, x.value, null, false, 2147483647, false);
+if (bsRestrict != null) {
+bs = JU.BSUtil.copy (bs);
+bs.and (bsRestrict);
+}return this.eval.getBitsetProperty (bs, 1145047050, null, null, x.value, null, false, 2147483647, false);
 case 4:
 pt = JU.Escape.uP (JS.SV.sValue (x));
 if (Clazz.instanceOf (pt, JU.P3)) return pt;
@@ -1112,7 +1116,7 @@ if (Clazz.instanceOf (pt, JU.P3)) return pt;
 break;
 }
 return null;
-}, "JS.SV");
+}, "JS.SV,JU.BS");
 Clazz.defineMethod (c$, "planeValue", 
 function (x) {
 switch (x.tok) {

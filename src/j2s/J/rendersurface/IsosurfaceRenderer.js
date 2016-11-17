@@ -42,8 +42,8 @@ Clazz.defineMethod (c$, "setGlobals",
  function () {
 this.needTranslucent = false;
 this.antialias = this.g3d.isAntialiased ();
-this.iShowNormals = this.vwr.getTestFlag (4);
-this.showNumbers = this.vwr.getTestFlag (3);
+this.iShowNormals = this.vwr.getBoolean (603979965);
+this.showNumbers = this.vwr.getBoolean (603979964);
 this.isosurface = this.shape;
 this.exportPass = (this.isExport ? 2 : 0);
 this.isNavigationMode = this.vwr.getBoolean (603979889);

@@ -32,7 +32,6 @@ function () {
 this.needTranslucent = false;
 this.imageFontScaling = this.vwr.imageFontScaling;
 var draw = this.shape;
-this.isPrecision = true;
 for (var i = draw.meshCount; --i >= 0; ) {
 var mesh = this.dmesh = draw.meshes[i];
 if (mesh.connectedAtoms != null) {
@@ -266,7 +265,7 @@ var zoomDimension = this.vwr.getScreenDim ();
 var scaleFactor = zoomDimension / 20;
 this.pt1.scaleAdd2 (this.dmesh.scale * scaleFactor, this.pt1, this.pt0);
 if (this.diameter == 0) this.diameter = 1;
-if (this.diameter < 0) this.g3d.drawDottedLineBits (this.pt0, this.pt1);
+if (this.diameter < 0) this.g3d.drawDashedLineBits (8, 4, this.pt0, this.pt1);
  else this.g3d.fillCylinderBits (2, this.diameter, this.pt0, this.pt1);
 this.renderArrowHead (this.pt0, this.pt1, 0, true, false, false);
 }, "~N");
@@ -307,7 +306,7 @@ headDiameter = Math.round (this.vTemp.length () * .5);
 this.diameter = Clazz.doubleToInt (headDiameter / 5);
 }if (this.diameter < 1) this.diameter = 1;
 if (headDiameter > 2) this.g3d.fillConeScreen3f (2, headDiameter, this.s1f, this.s2f, isBarb);
-if (withShaft) this.g3d.fillCylinderScreen3I (4, this.diameter, this.s0f, this.s1f, null, null, 0);
+if (withShaft) this.g3d.fillCylinderScreen3I (2, this.diameter, this.s0f, this.s1f, null, null, 0);
 }, "JU.T3,JU.T3,~N,~B,~B,~B");
 Clazz.defineMethod (c$, "getArrowScale", 
  function () {
@@ -330,7 +329,7 @@ for (var i = this.dmesh.pc; --i >= 0; ) {
 if (!this.isPolygonDisplayable (i)) continue;
 var vertexIndexes = this.dmesh.pis[i];
 if (vertexIndexes == null) continue;
-for (var j = (this.dmesh.isTriangleSet ? 3 : vertexIndexes.length); --j >= 0; ) {
+for (var j = (this.dmesh.isDrawPolygon ? 3 : vertexIndexes.length); --j >= 0; ) {
 var k = vertexIndexes[j];
 if (this.bsHandles.get (k)) continue;
 this.bsHandles.set (k);

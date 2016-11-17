@@ -183,6 +183,8 @@ ob_start();
   	header('Access-Control-Allow-Origin: *');
   	if ($isBinary) {
   		header('Content-Type: text/plain; charset=x-user-defined');
+    } else if (strpos($output, '<html') > 0) {
+      header('Content-type: text/html; charset=utf-8');
   	} else {
   		header('Content-Type: application/json');
   	}

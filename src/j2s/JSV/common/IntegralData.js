@@ -203,6 +203,10 @@ m.setValue (factor * m.getValue ());
 }
 this.normalizationFactor = (isReset ? 1 : this.normalizationFactor * factor);
 }, "~N,~B");
+Clazz.defineMethod (c$, "remove", 
+function (i) {
+return this.removeItemAt (i);
+}, "~N");
 Clazz.defineMethod (c$, "getBitSet", 
 function () {
 var bs = JU.BS.newN (this.xyCoords.length);
@@ -290,7 +294,7 @@ Clazz.superCall (this, JSV.common.IntegralData, "getInfo", [info]);
 }, "java.util.Map");
 Clazz.defineMethod (c$, "setMinimumIntegral", 
 function (val) {
-for (var i = this.size (); --i >= 0; ) if (this.get (i).getValue () < val) this.remove (i);
+for (var i = this.size (); --i >= 0; ) if (this.get (i).getValue () < val) this.removeItemAt (i);
 
 }, "~N");
 Clazz.pu$h(self.c$);

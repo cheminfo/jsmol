@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -544,12 +545,12 @@ if (this.isSilent) JU.Logger.info (msg);
  else this.vwr.scriptEcho (msg);
 }, "~S,~B");
 Clazz_defineMethod (c$, "calculatePartialCharges", 
-function (bonds, bondCount, atoms, bsAtoms) {
+function (ms, bsAtoms) {
 var ff =  new JM.FF.ForceFieldMMFF (this);
-ff.setArrays (atoms, bsAtoms, bonds, bondCount, true, true);
+ff.setArrays (ms.at, bsAtoms, ms.bo, ms.bondCount, true, true);
 this.vwr.setAtomProperty (bsAtoms, 1086326785, 0, 0, null, null, ff.getAtomTypeDescriptions ());
 this.vwr.setAtomProperty (bsAtoms, 1111492619, 0, 0, null, ff.getPartialCharges (), null);
-}, "~A,~N,~A,JU.BS");
+}, "JM.ModelSet,JU.BS");
 });
 Clazz_declarePackage ("JM");
 c$ = Clazz_decorateAsClass (function () {
@@ -4051,6 +4052,7 @@ if (this.minimizer.minimizationOn ()) JU.Logger.error (e.toString ());
 }, "Exception");
 });
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt

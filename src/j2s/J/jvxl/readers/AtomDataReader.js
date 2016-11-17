@@ -176,7 +176,7 @@ if (getRadii) this.atomRadius[this.myAtomCount] = this.atomData.atomRadius[i];
 this.myAtomCount++;
 }
 }this.firstNearbyAtom = this.myAtomCount;
-JU.Logger.info (this.myAtomCount + " atoms will be used in the surface calculation");
+if (!this.isQuiet) JU.Logger.info (this.myAtomCount + " atoms will be used in the surface calculation");
 if (modelInvRotation != null) this.atomData.transformXYZ (modelInvRotation, bsSelected);
 if (this.myAtomCount == 0) {
 this.setBBox (JU.P3.new3 (10, 10, 10), 0);

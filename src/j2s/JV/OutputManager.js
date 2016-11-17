@@ -147,9 +147,9 @@ if (isZipData) {
 errRet[0] = this.writeZipFile (out, v, "OK JMOL", null);
 return true;
 }objImage = null;
-v.remove (0);
-v.remove (0);
-params.put ("pngImgData", v.remove (0));
+v.removeItemAt (0);
+v.removeItemAt (0);
+params.put ("pngImgData", v.removeItemAt (0));
 var oz = this.getOutputChannel (null, null);
 errRet[0] = this.writeZipFile (oz, v, "OK JMOL", null);
 params.put ("type", "PNGJ");
@@ -157,7 +157,7 @@ type = "Png";
 params.put ("pngAppPrefix", "Jmol Type");
 params.put ("pngAppData", oz.toByteArray ());
 } else if (v.size () == 1) {
-var b = v.remove (0);
+var b = v.removeItemAt (0);
 out.write (b, 0, b.length);
 return true;
 } else {
@@ -169,7 +169,7 @@ errRet[0] = "Image encoder type " + type + " not available";
 return false;
 }var doClose = true;
 try {
-if (type.equals ("Gif") && this.vwr.getTestFlag (2)) params.put ("reducedColors", Boolean.TRUE);
+if (type.equals ("Gif") && this.vwr.getBoolean (603979962)) params.put ("reducedColors", Boolean.TRUE);
 var w = objImage == null ? -1 : JU.AU.isAI (objImage) ? (params.get ("width")).intValue () : this.vwr.apiPlatform.getImageWidth (objImage);
 var h = objImage == null ? -1 : JU.AU.isAI (objImage) ? (params.get ("height")).intValue () : this.vwr.apiPlatform.getImageHeight (objImage);
 params.put ("imageWidth", Integer.$valueOf (w));
@@ -585,6 +585,7 @@ if (isLocal || includeRemoteFiles) {
 var ptSlash = name.lastIndexOf ("/");
 newName = (name.indexOf ("?") > 0 && name.indexOf ("|") < 0 ? JU.PT.replaceAllCharacters (name, "/:?\"'=&", "_") : JV.FileManager.stripPath (name));
 newName = JU.PT.replaceAllCharacters (newName, "[]", "_");
+newName = JU.PT.rep (newName, "#_DOCACHE_", "");
 var isSparDir = (fm.spardirCache != null && fm.spardirCache.containsKey (name));
 if (isLocal && name.indexOf ("|") < 0 && !isSparDir) {
 v.addLast (name);

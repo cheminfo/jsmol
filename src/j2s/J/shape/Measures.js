@@ -66,7 +66,7 @@ for (var i = this.measurements.size (); --i >= 0; ) if ((mt = this.measurements.
 return;
 }if ("select" === propertyName) {
 var bs = value;
-if (bs == null || JU.BSUtil.cardinalityOf (bs) == 0) {
+if (JU.BSUtil.cardinalityOf (bs) == 0) {
 this.bsSelected = null;
 } else {
 this.bsSelected =  new JU.BS ();
@@ -379,7 +379,7 @@ Clazz.defineMethod (c$, "deleteI",
  function (i) {
 if (i >= this.measurements.size () || i < 0) return;
 var msg = J.shape.Measures.getMessage (this.measurements.get (i), true);
-this.measurements.remove (i);
+this.measurements.removeItemAt (i);
 this.measurementCount--;
 this.vwr.setStatusMeasuring ("measureDeleted", i, msg, 0);
 }, "~N");
@@ -395,7 +395,7 @@ m.mad = md.mad;
 break;
 case 12291:
 var msg = J.shape.Measures.getMessage (this.measurements.get (i), true);
-this.measurements.remove (i);
+this.measurements.removeItemAt (i);
 this.measurementCount--;
 this.vwr.setStatusMeasuring ("measureDeleted", i, msg, 0);
 break;
@@ -485,9 +485,5 @@ if (modelIndex >= 0 && !bsModels.get (modelIndex)) continue out;
 }}
 m.isVisible = true;
 }
-});
-Clazz.overrideMethod (c$, "getShapeState", 
-function () {
-return this.vwr.getMeasurementState (this, this.measurements, this.measurementCount, this.font3d, this.defaultTickInfo);
 });
 });

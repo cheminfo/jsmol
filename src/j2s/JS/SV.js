@@ -189,6 +189,13 @@ for (var i = 0; i < f.length; i++) objects.addLast (JS.SV.newV (3, Float.$valueO
 
 return JS.SV.newV (7, objects);
 }, "~A");
+c$.getVariableAO = Clazz.defineMethod (c$, "getVariableAO", 
+function (o) {
+var objects =  new JU.Lst ();
+for (var i = 0; i < o.length; i++) objects.addLast (JS.SV.getVariable (o[i]));
+
+return JS.SV.newV (7, objects);
+}, "~A");
 c$.getVariableAS = Clazz.defineMethod (c$, "getVariableAS", 
 function (s) {
 var objects =  new JU.Lst ();
@@ -574,7 +581,7 @@ return null;
 }, "JS.SV");
 c$.toFloat = Clazz.defineMethod (c$, "toFloat", 
  function (s) {
-return (s.equalsIgnoreCase ("true") ? 1 : s.length == 0 || s.equalsIgnoreCase ("false") ? 0 : JU.PT.parseFloatStrict (s));
+return (s.equalsIgnoreCase ("true") ? 1 : s.length == 0 || s.equalsIgnoreCase ("false") ? 0 : JU.PT.parseFloatStrict (JU.PT.trim (s, " \t\n")));
 }, "~S");
 c$.concatList = Clazz.defineMethod (c$, "concatList", 
 function (x1, x2, asNew) {
@@ -1008,14 +1015,14 @@ var len = lst.size ();
 var i = JS.SV.iValue (mapKey) - 1;
 if (i < 0) i += len;
 if (i >= 0 && i < len) {
-v = lst.remove (i);
+v = lst.removeItemAt (i);
 }} else {
 v = m.remove (mapKey.asString ());
 }return (v == null ? JS.SV.newS ("") : v);
 }if (m != null) m.put (mapKey.asString (), JS.SV.newI (0).setv (value));
 } else {
 var x = this.getList ();
-if (value == null || x == null) return (x == null || x.size () == 0 ? JS.SV.newS ("") : x.remove (x.size () - 1));
+if (value == null || x == null) return (x == null || x.size () == 0 ? JS.SV.newS ("") : x.removeItemAt (x.size () - 1));
 x.addLast (JS.SV.newI (0).setv (value));
 }return this;
 }, "JS.SV,JS.SV");
@@ -1187,7 +1194,7 @@ if (map == null) {
 if (isAll) {
 var lst;
 var n;
-if ((lst = this.getList ()) != null && (n = lst.size ()) > 0) lst.get (n - 1).getKeyList (true, keys, prefix + n + ".");
+if ((lst = this.getList ()) != null && (n = lst.size ()) > 0) lst.get (n - 1).getKeyList (true, keys, prefix + "." + n + ".");
 }return;
 }for (var e, $e = map.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var k = e.getKey ();
@@ -1221,14 +1228,15 @@ c$.deepCopySV = Clazz.defineMethod (c$, "deepCopySV",
 switch (vm.tok) {
 case 6:
 case 7:
-if (vm.myName != null) {
+if ("\r".equals (vm.myName)) {
 vm.myName = null;
 vm = JS.SV.newV (vm.tok, (vm.tok == 6 ?  new java.util.Hashtable () :  new JU.Lst ()));
 } else {
-vm.myName = "recursing";
+var name0 = vm.myName;
+vm.myName = "\r";
 var vm0 = vm;
 vm = JS.SV.newV (vm.tok, JS.SV.deepCopy (vm.value, vm.tok == 6, true));
-vm0.myName = null;
+vm0.myName = name0;
 }break;
 }
 return vm;

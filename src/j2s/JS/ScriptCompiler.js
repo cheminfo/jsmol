@@ -454,7 +454,7 @@ this.thisFunction.cmdpt0 = this.iCommand;
 }if (n == 1 && this.braceCount == 1) {
 if (this.lastFlowCommand == null) {
 this.parenCount = this.setBraceCount = this.braceCount = 0;
-this.ltoken.remove (0);
+this.ltoken.removeItemAt (0);
 var t = JS.ContextToken.newContext (true);
 this.addTokenToPrefix (this.setCommand (t));
 this.pushContext (t);
@@ -462,7 +462,7 @@ this.addBrace (this.tokenCommand);
 } else {
 this.parenCount = this.setBraceCount = 0;
 this.setCommand (this.lastFlowCommand);
-if (this.lastFlowCommand.tok != 102439 && (this.tokAt (0) == 1073742332)) this.ltoken.remove (0);
+if (this.lastFlowCommand.tok != 102439 && (this.tokAt (0) == 1073742332)) this.ltoken.removeItemAt (0);
 this.lastFlowCommand = null;
 this.forceFlowContext = this.flowContext;
 }}if (this.bracketCount > 0 || this.setBraceCount > 0 || this.parenCount > 0 || this.braceCount == 1 && !this.checkFlowStartBrace (true)) {
@@ -478,7 +478,7 @@ case 4:
 case 12290:
 break;
 default:
-var t = this.ltoken.remove (2);
+var t = this.ltoken.removeItemAt (2);
 this.ltoken.add (2, JS.T.o (4, t.tok == 2 ? "" + t.intValue : t.value.toString ()));
 }
 }if (this.ltoken.size () > 0) {
@@ -638,7 +638,7 @@ this.implicitString = JS.T.tokAttr (this.tokCommand, 20480);
 }, "JS.T");
 Clazz.defineMethod (c$, "replaceCommand", 
  function (token) {
-this.ltoken.remove (0);
+this.ltoken.removeItemAt (0);
 this.ltoken.add (0, this.setCommand (token));
 }, "JS.T");
 Clazz.defineMethod (c$, "getPrefixToken", 
@@ -723,11 +723,11 @@ default:
 this.lastToken = JS.T.tokenMinus;
 return 2;
 }
-}}}switch (this.tokCommand) {
+}}}out : switch (this.tokCommand) {
 case 134222350:
 switch (this.lastToken.tok) {
 case 4120:
-case 1296041474:
+case 1296041986:
 case 1715472409:
 case 1073877010:
 if (this.nTokens == 2) this.iHaveQuotedString = true;
@@ -749,7 +749,7 @@ return 0;
 }switch (this.tokCommand) {
 case 4124:
 this.haveMacro = true;
-break;
+break out;
 case 134222849:
 if (this.nTokens == 1 || this.nTokens == 2 && (this.tokAt (1) == 1073741839)) {
 var isDataBase = JV.Viewer.isDatabaseCode (this.charAt (this.ichToken));
@@ -772,6 +772,7 @@ case 1094717454:
 case 134218757:
 case 536870926:
 case 1073741849:
+case 1073741851:
 this.addTokenToPrefix (token);
 break;
 default:
@@ -783,7 +784,7 @@ this.iHaveQuotedString = (tok == 4);
 return 2;
 }break;
 }var bs;
-if (this.script.charAt (this.ichToken) == '{' || this.parenCount > 0) break;
+if (this.script.charAt (this.ichToken) == '{' || this.parenCount > 0) break out;
 if ((bs = this.lookingAtBitset ()) != null) {
 this.addTokenToPrefix (JS.T.o (10, bs));
 return 2;
@@ -1119,7 +1120,7 @@ this.fixFlowAddLine (this.flowContext);
 if (this.lltoken.get (this.iCommand - 1)[0].tok == 102409 && this.forceFlowContext != null && this.forceFlowContext.forceEndIf && this.forceFlowContext.addLine > 0 && this.isFlowIfContextOK (this.forceFlowContext)) {
 this.flowContext = this.forceFlowContext;
 this.flowContext.forceEndIf = true;
-this.lltoken.remove (--this.iCommand);
+this.lltoken.removeItemAt (--this.iCommand);
 } else if (this.flowContext != null && this.flowContext.addLine > 0) {
 while (this.flowContext != null && !this.isFlowIfContextOK (this.flowContext)) {
 if (this.flowContext.checkForceEndIf (0)) {
@@ -1407,13 +1408,13 @@ return false;
 Clazz.defineMethod (c$, "checkFlowEndBrace", 
  function () {
 if (this.iBrace <= 0 || this.vBraces.get (this.iBrace - 1).tok != 1073742338) return 0;
-this.vBraces.remove (--this.iBrace);
-var token = this.vBraces.remove (--this.iBrace);
+this.vBraces.removeItemAt (--this.iBrace);
+var token = this.vBraces.removeItemAt (--this.iBrace);
 if (this.theTok == 1073742332) {
 this.braceCount--;
 this.parenCount--;
 }if (token.tok == 1275335685) {
-this.vPush.remove (--this.pushCount);
+this.vPush.removeItemAt (--this.pushCount);
 this.addTokenToPrefix (this.setCommand (JS.ContextToken.newContext (false)));
 this.isEndOfCommand = true;
 return 2;
@@ -1595,7 +1596,7 @@ case 102412:
 case 134320648:
 case 102439:
 case 102406:
-if (!isExplicitEnd) this.vPush.remove (--this.pushCount);
+if (!isExplicitEnd) this.vPush.removeItemAt (--this.pushCount);
 break;
 case 102436:
 case 134320141:
@@ -1603,9 +1604,9 @@ case 364558:
 if (!this.isCheckOnly) {
 this.addTokenToPrefix (JS.T.o (tok, this.thisFunction));
 JS.ScriptFunction.setFunction (this.thisFunction, this.script, pt1, this.lltoken.size (), this.lineNumbers, this.lineIndices, this.lltoken);
-}this.thisFunction = (this.vFunctionStack.size () == 0 ? null : this.vFunctionStack.remove (0));
+}this.thisFunction = (this.vFunctionStack.size () == 0 ? null : this.vFunctionStack.removeItemAt (0));
 this.tokenCommand.intValue = 0;
-if (tok == 364558) this.vPush.remove (--this.pushCount);
+if (tok == 364558) this.vPush.removeItemAt (--this.pushCount);
 break;
 default:
 return this.errorStr (19, "end " + ident);
@@ -1719,13 +1720,16 @@ if (isFileName) {
 var s = this.script.substring (this.ichToken + 1, this.ichToken + this.cchToken - 1);
 if (s.indexOf ("\\u") >= 0) s = JU.Escape.unescapeUnicode (s);
 if (s.indexOf (";base64,") != 0) return s;
-}var sb = JU.SB.newN (this.cchToken - 2);
-var ichMax = this.ichToken + this.cchToken - 1;
-var ich = this.ichToken + 1;
+}return JS.ScriptCompiler.unescapeString (this.script, this.ichToken + 1, this.cchToken - 2);
+}, "~B");
+c$.unescapeString = Clazz.defineMethod (c$, "unescapeString", 
+function (script, ich, nChar) {
+var sb = JU.SB.newN (nChar);
+var ichMax = ich + nChar;
 while (ich < ichMax) {
-var ch = this.script.charAt (ich++);
+var ch = script.charAt (ich++);
 if (ch == '\\' && ich < ichMax) {
-ch = this.script.charAt (ich++);
+ch = script.charAt (ich++);
 switch (ch) {
 case 'n':
 ch = '\n';
@@ -1745,7 +1749,7 @@ var digitCount = ch == 'x' ? 2 : 4;
 if (ich < ichMax) {
 var unicode = 0;
 for (var k = digitCount; --k >= 0 && ich < ichMax; ) {
-var chT = this.script.charAt (ich);
+var chT = script.charAt (ich);
 var hexit = JU.Escape.getHexitValue (chT);
 if (hexit < 0) break;
 unicode <<= 4;
@@ -1757,7 +1761,7 @@ ch = String.fromCharCode (unicode);
 }sb.appendC (ch);
 }
 return sb.toString ();
-}, "~B");
+}, "~S,~N,~N");
 Clazz.defineMethod (c$, "lookingAtLoadFormat", 
  function (allchar) {
 var ichT = this.ichToken;
@@ -1857,8 +1861,8 @@ var ch;
 while (JU.PT.isDigit (ch = this.charAt (ichT++))) digitSeen = true;
 
 if (ch != '.') return false;
-var ch1;
-if (!this.eol (ch1 = this.charAt (ichT))) {
+var ch1 = this.charAt (ichT);
+if (!JS.ScriptCompiler.isSpaceOrTab (ch1) && !this.eol (ch1)) {
 if (JU.PT.isLetter (ch1) || ch1 == '?' || ch1 == '*' || ch1 == '_') return false;
 if (JU.PT.isLetter (ch1 = this.charAt (ichT + 1)) || ch1 == '?') return false;
 }while (JU.PT.isDigit (this.charAt (ichT))) {

@@ -28,6 +28,7 @@ this.mapRtoA = null;
 this.deleteAtoms = null;
 this.moleculeID = null;
 this.htModelAtomMap = null;
+this.is2d = false;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xml, "XmlCmlReader", J.adapter.readers.xml.XmlReader);
 Clazz.prepareFields (c$, function () {
@@ -39,6 +40,11 @@ Clazz.makeConstructor (c$,
 function () {
 Clazz.superConstructor (this, J.adapter.readers.xml.XmlCmlReader, []);
 });
+Clazz.overrideMethod (c$, "processXml", 
+function (parent, saxReader) {
+this.is2d = parent.checkFilterKey ("2D");
+this.processXml2 (parent, saxReader);
+}, "J.adapter.readers.xml.XmlReader,~O");
 Clazz.overrideMethod (c$, "processStartElement", 
 function (name, nodeName) {
 if (!this.processing) return;
@@ -142,12 +148,14 @@ if ((val = this.atts.get ("atomid")) != null) {
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].atomName = this.tokens[i];
 
-}if ((val = this.atts.get ("x3")) != null) {
+}var is3d = (!this.is2d && (val = this.atts.get ("x3")) != null);
+if (is3d) {
+is3d = true;
 coords3D = true;
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].x = this.parseFloatStr (this.tokens[i]);
 
-}if ((val = this.atts.get ("y3")) != null) {
+if ((val = this.atts.get ("y3")) != null) {
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].y = this.parseFloatStr (this.tokens[i]);
 
@@ -155,7 +163,8 @@ for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].y = this.parseFloatS
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].z = this.parseFloatStr (this.tokens[i]);
 
-}if ((val = this.atts.get ("x2")) != null) {
+}} else {
+if ((val = this.atts.get ("x2")) != null) {
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].x = this.parseFloatStr (this.tokens[i]);
 
@@ -163,7 +172,7 @@ for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].x = this.parseFloatS
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].y = this.parseFloatStr (this.tokens[i]);
 
-}if ((val = this.atts.get ("elementtype")) != null) {
+}}if ((val = this.atts.get ("elementtype")) != null) {
 this.breakOutAtomTokens (val);
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].elementSymbol = this.tokens[i];
 
@@ -342,8 +351,6 @@ this.parent.applySymmetryToBonds = true;
 case 7:
 if (name.equals ("atomarray")) {
 this.state = 6;
-for (var i = 0; i < this.aaLen; ++i) this.addAtom (this.atomArray[i]);
-
 }break;
 case 11:
 if (name.equals ("bond")) {
@@ -527,7 +534,7 @@ Clazz.defineMethod (c$, "createNewAtomSet",
  function () {
 this.asc.newAtomSet ();
 var val;
-if (this.htModelAtomMap != null) this.htModelAtomMap.put ("" + this.asc.iSet, this.moleculeID);
+if (this.htModelAtomMap != null) this.htModelAtomMap.put ("" + this.asc.iSet, "" + this.moleculeID);
 var collectionName = ((val = this.atts.get ("title")) != null || (val = this.atts.get ("id")) != null ? val : null);
 if (collectionName != null) {
 this.asc.setAtomSetName (collectionName);

@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -1108,18 +1109,23 @@ Clazz_overrideMethod (c$, "readFileAsMap",
 function (bis, bdata, name) {
 var pt = (name == null ? -1 : name.indexOf ("|"));
 name = (pt >= 0 ? name.substring (pt + 1) : null);
+var bytes = null;
 try {
 if (JU.Rdr.isPngZipStream (bis)) {
 var isImage = "_IMAGE_".equals (name);
-if (name == null || isImage) bdata.put ((isImage ? "_DATA_" : "_IMAGE_"),  new JU.BArray (JU.ZipTools.getPngImageBytes (bis)));
-if (!isImage) this.cacheZipContents (bis, name, bdata, true);
+if (name == null || isImage) {
+bytes = JU.ZipTools.getPngImageBytes (bis);
+bdata.put ((isImage ? "_DATA_" : "_IMAGE_"),  new JU.BArray (bytes));
+}if (!isImage) this.cacheZipContents (bis, name, bdata, true);
 } else if (JU.Rdr.isZipS (bis)) {
 this.cacheZipContents (bis, name, bdata, true);
 } else if (name == null) {
-bdata.put ("_DATA_",  new JU.BArray (JU.Rdr.getLimitedStreamBytes (bis, -1)));
+bytes = JU.Rdr.getLimitedStreamBytes (JU.Rdr.getUnzippedInputStream (this, bis), -1);
+bdata.put ("_DATA_",  new JU.BArray (bytes));
 } else {
 throw  new java.io.IOException ("ZIP file " + name + " not found");
-}bdata.put ("$_BINARY_$", Boolean.TRUE);
+}if (bytes != null) bdata.put ("_LEN_", Integer.$valueOf (bytes.length));
+bdata.put ("$_BINARY_$", Boolean.TRUE);
 } catch (e) {
 if (Clazz_exceptionOf (e, java.io.IOException)) {
 bdata.clear ();
@@ -3915,7 +3921,7 @@ if (path != null) return "NOTE: file recognized as a script file: " + fileName +
 var htCollections = (haveManifest ?  new java.util.Hashtable () : null);
 var nFiles = 0;
 try {
-var spartanData = (this.isSpartanZip (zipDirectory) ? vwr.fm.getJmb ().getSpartanData (is, zipDirectory) : null);
+var spartanData = (this.isSpartanZip (zipDirectory) ? vwr.fm.spartanUtil ().getData (is, zipDirectory) : null);
 var zpt = vwr.getJzt ();
 var ret;
 if (spartanData != null) {
@@ -3969,7 +3975,7 @@ return bis;
 var sData;
 if (JU.Rdr.isCompoundDocumentB (bytes)) {
 var jd = J.api.Interface.getInterface ("JU.CompoundDocument", vwr, "file");
-jd.setStream (zpt, JU.Rdr.getBIS (bytes), true);
+jd.setDocStream (zpt, JU.Rdr.getBIS (bytes));
 sData = jd.getAllDataFiles ("Molecule", "Input").toString ();
 } else {
 sData = JU.Rdr.fixUTF (bytes);
@@ -4096,6 +4102,7 @@ return false;
 }, "~A");
 });
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt

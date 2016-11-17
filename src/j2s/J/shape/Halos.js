@@ -32,8 +32,4 @@ var bsSelected = (this.vwr.getSelectionHalosEnabled () ? this.vwr.bsA () : null)
 for (var i = this.ac; --i >= 0; ) this.atoms[i].setShapeVisibility (this.vf, bsSelected != null && bsSelected.get (i) || this.mads != null && this.mads[i] != 0);
 
 }, "JU.BS");
-Clazz.overrideMethod (c$, "getShapeState", 
-function () {
-return this.vwr.getShapeState (this);
-});
 });

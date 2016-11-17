@@ -543,6 +543,7 @@ url = JU.PT.rep (url, "\n", "");
 url = JU.PT.rep (url, "%", "%25");
 url = JU.PT.rep (url, "#", "%23");
 url = JU.PT.rep (url, "[", "%5B");
+url = JU.PT.rep (url, "\\", "%5C");
 url = JU.PT.rep (url, "]", "%5D");
 url = JU.PT.rep (url, " ", "%20");
 return url;

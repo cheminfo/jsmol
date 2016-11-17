@@ -439,9 +439,9 @@ function (id, tokType, a, b, pts) {
 switch (tokType) {
 case 134217751:
 return (pts == null ?  new JU.P3 () : pts[0]);
-case 1611272194:
+case 1073741854:
 case 1665140738:
-return (pts == null ?  new JU.V3 () : pts[tokType == 1611272194 ? 1 : 2]);
+return (pts == null ?  new JU.V3 () : pts[tokType == 1073741854 ? 1 : 2]);
 case 134217729:
 return Float.$valueOf (pts == null ? NaN : pts[3].x);
 case 135176:

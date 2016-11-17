@@ -70,7 +70,7 @@ if (path != null) return "NOTE: file recognized as a script file: " + fileName +
 var htCollections = (haveManifest ?  new java.util.Hashtable () : null);
 var nFiles = 0;
 try {
-var spartanData = (this.isSpartanZip (zipDirectory) ? vwr.fm.getJmb ().getSpartanData (is, zipDirectory) : null);
+var spartanData = (this.isSpartanZip (zipDirectory) ? vwr.fm.spartanUtil ().getData (is, zipDirectory) : null);
 var zpt = vwr.getJzt ();
 var ret;
 if (spartanData != null) {
@@ -124,7 +124,7 @@ return bis;
 var sData;
 if (JU.Rdr.isCompoundDocumentB (bytes)) {
 var jd = J.api.Interface.getInterface ("JU.CompoundDocument", vwr, "file");
-jd.setStream (zpt, JU.Rdr.getBIS (bytes), true);
+jd.setDocStream (zpt, JU.Rdr.getBIS (bytes));
 sData = jd.getAllDataFiles ("Molecule", "Input").toString ();
 } else {
 sData = JU.Rdr.fixUTF (bytes);

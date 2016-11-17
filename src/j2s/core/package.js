@@ -25,11 +25,9 @@ if (!window["java.registered"])
 // note - we don't need to list ALL the classes -- only the ones that are entry points.
 // several more classe are in each of these files -- see build_03_tojs.xml
 
-	ClazzLoader.jarClasspath (base + "coretext.z.js",	[    
-	"JM.Object2d",
-	"$.Text",
-	"J.shape.Object2dShape",
-	"$.TextShape",
+	ClazzLoader.jarClasspath (base + "coretext.z.js",	[ 
+	"JM.Text",
+	"J.shape.TextShape",
 	"$.Labels",
 	"$.Measures",
 	"$.Echo",

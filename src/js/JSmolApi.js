@@ -1,5 +1,6 @@
 // JmolApi.js -- Jmol user functions  Bob Hanson hansonr@stolaf.edu
 
+// BH 4/1/2016 12:59:45 PM fix applet_or_identifier reference in Jmol.getChemicalInfo
 // BH 5/29/2014 8:14:06 AM added default command for command input box
 // BH 3/10/2014 10:35:25 AM adds Jmol.saveImage(applet)
 // BH 1/22/2014 7:31:59 AM Jmol._Image removed -- just never found useful to have
@@ -421,13 +422,17 @@
 		}
 	}  
 
+	Jmol.resetView = function(applet, appletNot) {
+    Jmol.View.resetView(applet, appletNot);
+	}
+
 	Jmol.updateView = function(applet, param1, param2) {
 		applet._updateView(param1, param2);
 	}
 
 	Jmol.getChemicalInfo = function(appletOrIdentifier, what, fCallback) {
 		what || (what = "name");
-		if (typeof applet_or_Identifier != "string") 
+		if (typeof appletOrIdentifier != "string") 
 			appletOrIdentifier = appletOrIdentifier._getSmiles();
 		return Jmol._getNCIInfo(appletOrIdentifier, what, fCallback);
 	}

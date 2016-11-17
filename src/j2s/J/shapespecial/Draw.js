@@ -409,7 +409,7 @@ this.thisMesh.drawVertexCounts = null;
 this.thisMesh.connectedAtoms = connections;
 if (this.polygon != null) {
 if (this.polygon.size () == 0) return false;
-this.thisMesh.isTriangleSet = true;
+this.thisMesh.isDrawPolygon = true;
 this.thisMesh.vs = this.polygon.get (0);
 this.thisMesh.pis = this.polygon.get (1);
 this.thisMesh.drawVertexCount = this.thisMesh.vc = this.thisMesh.vs.length;
@@ -858,11 +858,11 @@ pt.x = x;
 pt.y = y;
 this.vwr.tm.unTransformPoint (pt, newcoord);
 move.sub2 (newcoord, coord);
-if (mesh.isTriangleSet) iVertex = ptVertex;
-var n = (!moveAll ? iVertex + 1 : mesh.isTriangleSet ? mesh.vs.length : vertexes.length);
+if (mesh.isDrawPolygon) iVertex = ptVertex;
+var n = (!moveAll ? iVertex + 1 : mesh.isDrawPolygon ? mesh.vs.length : vertexes.length);
 var bsMoved =  new JU.BS ();
 for (var i = (moveAll ? 0 : iVertex); i < n; i++) if (moveAll || i == iVertex) {
-var k = (mesh.isTriangleSet ? i : vertexes[i]);
+var k = (mesh.isDrawPolygon ? i : vertexes[i]);
 if (bsMoved.get (k)) continue;
 bsMoved.set (k);
 mesh.vs[k].add (move);
@@ -883,10 +883,10 @@ this.pickedMesh = null;
 for (var i = 0; i < this.meshCount; i++) {
 var m = this.dmeshes[i];
 if (m.visibilityFlags != 0) {
-var mCount = (m.isTriangleSet ? m.pc : m.modelFlags == null ? 1 : this.vwr.ms.mc);
+var mCount = (m.isDrawPolygon ? m.pc : m.modelFlags == null ? 1 : this.vwr.ms.mc);
 for (var iModel = mCount; --iModel >= 0; ) {
-if (m.modelFlags != null && !m.modelFlags.get (iModel) || m.pis == null || !m.isTriangleSet && (iModel >= m.pis.length || m.pis[iModel] == null)) continue;
-for (var iVertex = (m.isTriangleSet ? 3 : m.pis[iModel].length); --iVertex >= 0; ) {
+if (m.modelFlags != null && !m.modelFlags.get (iModel) || m.pis == null || !m.isDrawPolygon && (iModel >= m.pis.length || m.pis[iModel] == null)) continue;
+for (var iVertex = (m.isDrawPolygon ? 3 : m.pis[iModel].length); --iVertex >= 0; ) {
 try {
 var iv = m.pis[iModel][iVertex];
 var pt = (m.altVertices == null ? m.vs[iv] : m.altVertices[iv]);

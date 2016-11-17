@@ -57,6 +57,9 @@ this.params.script = value;
 if (this.params.script != null && this.params.script.indexOf (";#") >= 0) {
 this.params.script = JU.PT.rep (this.params.script, ";#", "; #");
 }}return false;
+}if ("silent" === propertyName) {
+this.params.isSilent = true;
+return true;
 }if ("map" === propertyName) {
 this.params.resetForMapping ((value).booleanValue ());
 if (this.surfaceReader != null) this.surfaceReader.minMax = null;
@@ -409,7 +412,7 @@ if (Float.isNaN (this.params.center.x)) this.params.center.setT (value);
 return false;
 }if ("molecular" === propertyName || "solvent" === propertyName || "sasurface" === propertyName || "nomap" === propertyName) {
 this.params.setSolvent (propertyName, (value).floatValue ());
-JU.Logger.info (this.params.calculationType);
+if (!this.params.isSilent) JU.Logger.info (this.params.calculationType);
 this.processState ();
 return true;
 }if ("moData" === propertyName) {
@@ -562,7 +565,8 @@ case 9:
 this.surfaceReader = this.newReader ("IsoFxyzReader");
 break;
 }
-JU.Logger.info ("Using surface reader " + this.surfaceReader);
+if (JU.Logger.debugging) JU.Logger.info ("Using surface reader " + this.surfaceReader);
+if (this.params.isSilent && this.surfaceReader != null) this.surfaceReader.isQuiet = true;
 return true;
 });
 Clazz.defineMethod (c$, "generateSurface", 

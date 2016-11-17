@@ -246,6 +246,7 @@ Clazz.defineMethod (c$, "setPymolLabels",
  function (labels, bsSelected) {
 this.setScaling ();
 var n = this.checkStringLength (this.ac);
+this.checkColixLength (-1, n);
 for (var i = bsSelected.nextSetBit (0); i >= 0 && i < n; i = bsSelected.nextSetBit (i + 1)) this.setPymolLabel (i, labels.get (Integer.$valueOf (i)), null);
 
 }, "java.util.Map,JU.BS");
@@ -270,7 +271,7 @@ this.scalePixelsPerMicron = (this.isScaled ? this.vwr.getScalePixelsPerAngstrom 
 Clazz.defineMethod (c$, "setPymolLabel", 
  function (i, t, format) {
 if (t == null) return;
-var label = t.getText ();
+var label = t.text;
 var atom = this.atoms[i];
 this.addString (atom, i, label, format == null ? JU.PT.rep (label, "%", "%%") : format);
 atom.setShapeVisibility (this.vf, true);
@@ -410,11 +411,6 @@ for (var i = this.strings.length; --i >= 0; ) {
 var label = this.strings[i];
 if (label != null && this.ms.at.length > i && !this.ms.isAtomHidden (i)) this.ms.at[i].setClickable (this.vf);
 }
-});
-Clazz.overrideMethod (c$, "getShapeState", 
-function () {
-if (!this.isActive || this.bsSizeSet == null) return "";
-return this.vwr.getShapeState (this);
 });
 Clazz.overrideMethod (c$, "checkObjectDragged", 
 function (prevX, prevY, x, y, dragAction, bsVisible) {

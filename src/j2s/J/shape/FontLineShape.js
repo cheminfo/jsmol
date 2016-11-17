@@ -28,11 +28,6 @@ return;
 }}, "~S,~O");
 Clazz.overrideMethod (c$, "getShapeState", 
 function () {
-return this.getShapeStateFL ();
-});
-Clazz.defineMethod (c$, "getShapeStateFL", 
-function () {
-var s = this.vwr.getFontState (this.myType, this.font3d);
-return (this.tickInfos == null ? s : this.vwr.getFontLineShapeState (s, this.myType, this.tickInfos));
+return null;
 });
 });

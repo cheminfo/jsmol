@@ -1,10 +1,11 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["java.util.Hashtable"], "JS.SpaceGroup", ["java.lang.Character", "java.util.Arrays", "JU.AU", "$.Lst", "$.M4", "$.P3", "$.PT", "$.SB", "JS.HallInfo", "$.HallTranslation", "$.SymmetryOperation", "JU.Logger"], function () {
+Clazz.load (["java.util.Hashtable"], "JS.SpaceGroup", ["java.util.Arrays", "JU.AU", "$.Lst", "$.M4", "$.P3", "$.PT", "$.SB", "JS.HallInfo", "$.HallTranslation", "$.SymmetryOperation", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.index = 0;
 this.isSSG = false;
 this.name = "unknown!";
 this.hallSymbol = null;
+this.crystalClass = null;
 this.hmSymbol = null;
 this.hmSymbolFull = null;
 this.hmSymbolExt = null;
@@ -68,7 +69,7 @@ return sg;
 }, "~N,~S,~O");
 c$.createSGFromList = Clazz.defineMethod (c$, "createSGFromList", 
  function (name, data) {
-var sg =  new JS.SpaceGroup (-1, "0;--;--;--", true);
+var sg =  new JS.SpaceGroup (-1, "0;0;--;--;--", true);
 sg.doNormalize = false;
 sg.name = name;
 var n = data.size ();
@@ -115,10 +116,9 @@ c.setT (atom);
 this.finalOperations[0].rotTrans (c);
 atom.setT (c);
 }
-}var centering = null;
-for (var i = 0; i < this.operationCount; i++) {
+}for (var i = 0; i < this.operationCount; i++) {
 this.finalOperations[i] =  new JS.SymmetryOperation (this.operations[i], atoms, atomIndex, count, doNormalize);
-centering = this.finalOperations[i].setCentering (centering, true);
+this.finalOperations[i].getCentering ();
 }
 }, "~A,~N,~N,~B");
 Clazz.defineMethod (c$, "getOperationCount", 
@@ -135,7 +135,7 @@ return (this.finalOperations == null ? this.operations[i].getXyz (doNormalize) :
 }, "~N,~B");
 Clazz.defineMethod (c$, "newPoint", 
 function (i, atom1, atom2, transX, transY, transZ) {
-this.finalOperations[i].newPoint (atom1, atom2, transX, transY, transZ);
+JS.SymmetryOperation.newPoint (this.finalOperations[i], atom1, atom2, transX, transY, transZ);
 }, "~N,JU.P3,JU.P3,~N,~N,~N");
 c$.getInfo = Clazz.defineMethod (c$, "getInfo", 
 function (sg, spaceGroup, cellInfo) {
@@ -166,7 +166,8 @@ function (cellInfo) {
 var info = this.dumpCanonicalSeitzList ();
 if (Clazz.instanceOf (info, JS.SpaceGroup)) return (info).dumpInfo (null);
 var sb =  new JU.SB ().append ("\nHermann-Mauguin symbol: ");
-sb.append (this.hmSymbol).append (this.hmSymbolExt.length > 0 ? ":" + this.hmSymbolExt : "").append ("\ninternational table number: ").append (this.intlTableNumber).append (this.intlTableNumberExt.length > 0 ? ":" + this.intlTableNumberExt : "").append ("\n\n").appendI (this.operationCount).append (" operators").append (!this.hallInfo.hallSymbol.equals ("--") ? " from Hall symbol " + this.hallInfo.hallSymbol + "  #" + this.intlTableNumberFull : "").append (": ");
+if (this.hmSymbol == null || this.hmSymbolExt == null) sb.append ("?");
+ else sb.append (this.hmSymbol).append (this.hmSymbolExt.length > 0 ? ":" + this.hmSymbolExt : "").append ("\ninternational table number: ").append (this.intlTableNumber).append (this.intlTableNumberExt.length > 0 ? ":" + this.intlTableNumberExt : "").append ("\ncrystal class: " + this.crystalClass).append ("\n\n").appendI (this.operationCount).append (" operators").append (!this.hallInfo.hallSymbol.equals ("--") ? " from Hall symbol " + this.hallInfo.hallSymbol + "  #" + this.intlTableNumberFull : "").append (": ");
 for (var i = 0; i < this.operationCount; i++) {
 sb.append ("\n").append (this.operations[i].xyz);
 }
@@ -263,10 +264,10 @@ var hallInfo;
 if (sg == null) {
 hallInfo =  new JS.HallInfo (name);
 if (hallInfo.nRotations > 0) {
-sg =  new JS.SpaceGroup (-1, "0;--;--;" + name, true);
+sg =  new JS.SpaceGroup (-1, "0;0;--;--;" + name, true);
 sg.hallInfo = hallInfo;
 } else if (name.indexOf (",") >= 0) {
-sg =  new JS.SpaceGroup (-1, "0;--;--;--", true);
+sg =  new JS.SpaceGroup (-1, "0;0;--;--;--", true);
 sg.doNormalize = false;
 sg.generateOperatorsFromXyzInfo (name);
 }}if (sg != null) sg.generateAllOperators (null);
@@ -285,10 +286,12 @@ if (xyz0.startsWith ("x1,x2,x3,x4") && this.modDim == 0) {
 this.xyzList.clear ();
 this.operationCount = 0;
 this.modDim = JU.PT.parseInt (xyz0.substring (xyz0.lastIndexOf ("x") + 1)) - 3;
-} else if (xyz0.equals ("x,y,z,m")) {
+} else if (xyz0.indexOf ("m") >= 0) {
+xyz0 = JU.PT.rep (xyz0, "+m", "m");
+if (xyz0.equals ("x,y,z,m") || xyz0.equals ("x,y,z(mx,my,mz)")) {
 this.xyzList.clear ();
 this.operationCount = 0;
-}var op =  new JS.SymmetryOperation (null, null, 0, opId, this.doNormalize);
+}}var op =  new JS.SymmetryOperation (null, null, 0, opId, this.doNormalize);
 if (!op.setMatrixFromXYZ (xyz0, this.modDim, allowScaling)) {
 JU.Logger.error ("couldn't interpret symmetry operation: " + xyz0);
 return -1;
@@ -316,6 +319,7 @@ if (this.operations == null) this.operations =  new Array (4);
 if (this.operationCount == this.operations.length) this.operations = JU.AU.arrayCopyObject (this.operations, this.operationCount * 2);
 this.operations[this.operationCount++] = op;
 op.index = this.operationCount;
+if (op.timeReversal != 0) this.operations[0].timeReversal = 1;
 if (JU.Logger.debugging) JU.Logger.debug ("\naddOperation " + this.operationCount + op.dumpInfo ());
 return this.operationCount - 1;
 }, "JS.SymmetryOperation,~S,~B");
@@ -329,8 +333,8 @@ for (var i = 0; i < terms.length; i++) this.addSymmetry (terms[i], 0, false);
 Clazz.defineMethod (c$, "generateAllOperators", 
  function (h) {
 if (h == null) {
-h = this.hallInfo;
 if (this.operationCount > 0) return;
+h = this.hallInfo;
 this.operations =  new Array (4);
 if (this.hallInfo == null || this.hallInfo.nRotations == 0) h = this.hallInfo =  new JS.HallInfo (this.hallSymbol);
 this.setLattice (this.hallInfo.latticeCode, this.hallInfo.isCentrosymmetric);
@@ -371,7 +375,7 @@ this.addSymmetrySM (xyz, operation);
 }
 }
 }
-if (this.operationCount != this.nHallOperators.intValue ()) JU.Logger.error ("Operator mismatch " + this.operationCount + " for " + this);
+if (this.nHallOperators != null && this.operationCount != this.nHallOperators.intValue ()) JU.Logger.error ("Operator mismatch " + this.operationCount + " for " + this);
 }, "JS.HallInfo");
 Clazz.defineMethod (c$, "addSymmetrySM", 
 function (xyz, operation) {
@@ -408,18 +412,24 @@ if (name.startsWith ("bilbao:")) {
 checkBilbao = true;
 name = name.substring (7);
 }var nameType = (name.startsWith ("hall:") ? 5 : name.startsWith ("hm:") ? 3 : 0);
-if (nameType > 0) name = name.substring (nameType);
- else if (name.contains ("[")) {
+switch (nameType) {
+case 3:
+case 5:
+name = name.substring (nameType);
+break;
+case 0:
+if (name.contains ("[")) {
 nameType = 5;
 name = name.substring (0, name.indexOf ("[")).trim ();
-}var nameExt = name;
+}}
+var nameExt = name;
 var i;
 var haveExtension = false;
 name = name.$replace ('_', ' ');
 if (name.length >= 2) {
 i = (name.indexOf ("-") == 0 ? 2 : 1);
 if (i < name.length && name.charAt (i) != ' ') name = name.substring (0, i) + " " + name.substring (i);
-name = name.substring (0, 2).toUpperCase () + name.substring (2);
+name = JS.SpaceGroup.toCap (name, 2);
 }var ext = "";
 if ((i = name.indexOf (":")) > 0) {
 ext = name.substring (i + 1);
@@ -497,11 +507,13 @@ this.ambiguityType = 'a';
 this.uniqueAxis = this.intlTableNumberExt.charAt (0);
 } else if (this.intlTableNumberExt.contains ("-")) {
 this.ambiguityType = '-';
-}}this.nHallOperators = Integer.$valueOf (terms[1]);
+}}if (!terms[1].equals ("0")) {
+this.nHallOperators = Integer.$valueOf (terms[1]);
 var lst = JS.SpaceGroup.htByOpCount.get (this.nHallOperators);
 if (lst == null) JS.SpaceGroup.htByOpCount.put (this.nHallOperators, lst =  new JU.Lst ());
 lst.addLast (this);
-this.hmSymbolFull = Character.toUpperCase (terms[3].charAt (0)) + terms[3].substring (1);
+}this.crystalClass = JS.SpaceGroup.toCap (JU.PT.split (terms[2], "^")[0], 1);
+this.hmSymbolFull = JS.SpaceGroup.toCap (terms[3], 1);
 parts = JU.PT.split (this.hmSymbolFull, ":");
 this.latticeType = this.hmSymbolFull.substring (0, 1);
 this.hmSymbol = parts[0];
@@ -513,12 +525,16 @@ this.hmSymbolAlternative = (this.hmSymbol.substring (0, pt) + " 3" + this.hmSymb
 this.hmSymbolAbbrShort = JU.PT.rep (this.hmSymbol, " 1", "");
 this.hmSymbolAbbrShort = JU.PT.rep (this.hmSymbolAbbrShort, " ", "");
 this.hallSymbol = terms[4];
-if (this.hallSymbol.length > 1) this.hallSymbol = this.hallSymbol.substring (0, 2).toUpperCase () + this.hallSymbol.substring (2);
+if (this.hallSymbol.length > 1) this.hallSymbol = JS.SpaceGroup.toCap (this.hallSymbol, 2);
 var info = this.intlTableNumber + this.hallSymbol;
 if (this.intlTableNumber.charAt (0) != '0' && JS.SpaceGroup.lastInfo.equals (info)) JS.SpaceGroup.ambiguousNames += this.hmSymbol + ";";
 JS.SpaceGroup.lastInfo = info;
 this.name = this.hallSymbol + " [" + this.hmSymbolFull + "] #" + this.intlTableNumber;
 }, "~S");
+c$.toCap = Clazz.defineMethod (c$, "toCap", 
+ function (s, n) {
+return s.substring (0, n).toUpperCase () + s.substring (n);
+}, "~S,~N");
 Clazz.defineMethod (c$, "toString", 
 function () {
 return "" + this.intlTableNumberFull + "[" + this.index + "," + this.nHallOperators + "] " + this.hmSymbolFull + " " + this.hallSymbol;
@@ -540,16 +556,16 @@ Clazz.defineMethod (c$, "addLatticeVectors",
 function (lattvecs) {
 if (this.latticeOp >= 0 || lattvecs.size () == 0) return false;
 var nOps = this.latticeOp = this.operationCount;
-var isMag = (lattvecs.get (0).length == this.modDim + 4);
+var isMagnetic = (lattvecs.get (0).length == this.modDim + 4);
 var magRev = -2;
 for (var j = 0; j < lattvecs.size (); j++) {
 var data = lattvecs.get (j);
-if (isMag) {
+if (isMagnetic) {
 magRev = Clazz.floatToInt (data[this.modDim + 3]);
 data = JU.AU.arrayCopyF (data, this.modDim + 3);
 }if (data.length > this.modDim + 3) return false;
 for (var i = 0; i < nOps; i++) {
-var newOp =  new JS.SymmetryOperation (null, null, 0, 0, this.doNormalize);
+var newOp =  new JS.SymmetryOperation (null, null, 0, 0, true);
 newOp.modDim = this.modDim;
 var op = this.operations[i];
 newOp.linearRotTrans = JU.AU.arrayCopyF (op.linearRotTrans, -1);
@@ -581,8 +597,9 @@ return Clazz.doubleToInt (n / pts.size ());
 }, "JU.P3,JS.UnitCell");
 Clazz.defineStatics (c$,
 "canonicalSeitzList", null,
-"NAME_HALL", 5,
+"NAME_UNK", 0,
 "NAME_HM", 3,
+"NAME_HALL", 5,
 "sgIndex", -1,
 "ambiguousNames", "",
 "lastInfo", "",

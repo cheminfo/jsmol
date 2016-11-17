@@ -33,7 +33,7 @@ if (isAll || t.isSelected (bsSelected, -1)) {
 var e = this.atomEllipsoids.get (t);
 var isNew = (size != 0 && e == null);
 if (isNew) this.atomEllipsoids.put (t, e = J.shapespecial.Ellipsoid.getEllipsoidForAtomTensor (t, this.atoms[t.atomIndex1]));
-if (e != null && (isNew || size != 2147483647)) {
+if (e != null) {
 e.setScale (size, true);
 }}}
 }, "~N,JU.BS");

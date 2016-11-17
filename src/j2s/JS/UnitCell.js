@@ -53,7 +53,7 @@ this.matrixCtoFANoOffset.rotTrans (pt);
 this.unitize (pt);
 pt.add (offset);
 this.matrixFtoCNoOffset.rotTrans (pt);
-}}, "JU.P3,JU.P3");
+}}, "JU.T3,JU.T3");
 Clazz.defineMethod (c$, "unitize", 
 function (pt) {
 switch (this.dimension) {
@@ -64,7 +64,7 @@ pt.y = JS.UnitCell.toFractionalX (pt.y);
 case 1:
 pt.x = JS.UnitCell.toFractionalX (pt.x);
 }
-}, "JU.P3");
+}, "JU.T3");
 Clazz.defineMethod (c$, "reset", 
 function () {
 this.unitCellMultiplier = null;
@@ -350,6 +350,7 @@ pts[3] = JU.V3.new3 (0, 0, 1);
 var m3 =  new JU.M3 ();
 if (Clazz.instanceOf (def, String)) {
 var sdef = def;
+if (sdef.indexOf ("a=") == 0) return JU.SimpleUnitCell.setOabc (sdef, null, pts);
 if (sdef.indexOf (";") < 0) sdef += ";0,0,0";
 isRev = sdef.startsWith ("!");
 if (isRev) sdef = sdef.substring (1);
@@ -397,20 +398,20 @@ switch (type) {
 default:
 return false;
 case 'r':
-JU.SimpleUnitCell.getReciprocal (uc, uc);
+JU.SimpleUnitCell.getReciprocal (uc, uc, 1);
 return true;
 case 'P':
 mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [1, 0, 0, 0, 1, 0, 0, 0, 1]));
 toPrimitive = true;
 break;
 case 'A':
-mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [1, 0, 0, 0, 0.5, -0.5, 0, 0.5, 0.5]));
+mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [1, 0, 0, 0, 0.5, 0.5, 0, -0.5, 0.5]));
 break;
 case 'B':
-mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.5, 0, -0.5, 0, 1, 0, 0.5, 0, 0.5]));
+mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.5, 0, 0.5, 0, 1, 0, -0.5, 0, 0.5]));
 break;
 case 'C':
-mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.5, -0.5, 0, 0.5, 0.5, 0, 0, 0, 1]));
+mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.5, 0.5, 0, -0.5, 0.5, 0, 0, 0, 1]));
 break;
 case 'R':
 mf = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.33333334, 0.33333334, -0.6666667, -0.33333334, 0.6666667, -0.33333334, 0.33333334, 0.33333334, 0.33333334]));

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JU.BNode", "$.Point3fi", "J.c.PAL"], "JM.Atom", ["java.lang.Float", "JU.BS", "$.CU", "$.P3", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JM.Group", "JU.C", "$.Elements"], function () {
+Clazz.load (["JU.Node", "$.Point3fi", "J.c.PAL"], "JM.Atom", ["java.lang.Float", "JU.BS", "$.CU", "$.P3", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JM.Group", "JU.C", "$.Elements"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.altloc = '\0';
 this.atomID = 0;
@@ -19,7 +19,7 @@ this.nBackbonesDisplayed = 0;
 this.clickabilityFlags = 0;
 this.shapeVisibilityFlags = 0;
 Clazz.instantialize (this, arguments);
-}, JM, "Atom", JU.Point3fi, JU.BNode);
+}, JM, "Atom", JU.Point3fi, JU.Node);
 Clazz.prepareFields (c$, function () {
 this.paletteID = J.c.PAL.CPK.id;
 });
@@ -150,26 +150,6 @@ Clazz.defineMethod (c$, "getRasMolRadius",
 function () {
 return Math.abs (Clazz.doubleToInt (this.madAtom / 8));
 });
-Clazz.overrideMethod (c$, "getCovalentBondCount", 
-function () {
-if (this.bonds == null) return 0;
-var n = 0;
-var b;
-for (var i = this.bonds.length; --i >= 0; ) if (((b = this.bonds[i]).order & 1023) != 0 && !b.getOtherAtom (this).isDeleted ()) ++n;
-
-return n;
-});
-Clazz.overrideMethod (c$, "getCovalentHydrogenCount", 
-function () {
-if (this.bonds == null) return 0;
-var n = 0;
-for (var i = this.bonds.length; --i >= 0; ) {
-if ((this.bonds[i].order & 1023) == 0) continue;
-var a = this.bonds[i].getOtherAtom (this);
-if (a.valence >= 0 && a.getElementNumber () == 1) ++n;
-}
-return n;
-});
 Clazz.overrideMethod (c$, "getEdges", 
 function () {
 return (this.bonds == null ?  new Array (0) : this.bonds);
@@ -240,14 +220,12 @@ return (occupancies == null || occupancies[this.i] >= 50);
 Clazz.defineMethod (c$, "getBfactor100", 
 function () {
 var bfactor100s = this.group.chain.model.ms.bfactor100s;
-if (bfactor100s == null) return 0;
-return bfactor100s[this.i];
+return (bfactor100s == null ? 0 : bfactor100s[this.i]);
 });
 Clazz.defineMethod (c$, "getHydrophobicity", 
- function () {
+function () {
 var values = this.group.chain.model.ms.hydrophobicities;
-if (values == null) return JU.Elements.getHydrophobicity (this.group.groupID);
-return values[this.i];
+return (values == null ? JU.Elements.getHydrophobicity (this.group.groupID) : values[this.i]);
 });
 Clazz.defineMethod (c$, "setRadius", 
 function (radius) {
@@ -279,13 +257,45 @@ if (n == 0 && this.bonds != null) for (var i = this.bonds.length; --i >= 0; ) n 
 
 return n;
 });
+Clazz.overrideMethod (c$, "getCovalentBondCount", 
+function () {
+if (this.bonds == null) return 0;
+var n = 0;
+var b;
+for (var i = this.bonds.length; --i >= 0; ) if (((b = this.bonds[i]).order & 1023) != 0 && !b.getOtherAtom (this).isDeleted ()) ++n;
+
+return n;
+});
+Clazz.overrideMethod (c$, "getCovalentHydrogenCount", 
+function () {
+if (this.bonds == null) return 0;
+var n = 0;
+for (var i = this.bonds.length; --i >= 0; ) {
+if ((this.bonds[i].order & 1023) == 0) continue;
+var a = this.bonds[i].getOtherAtom (this);
+if (a.valence >= 0 && a.getElementNumber () == 1) ++n;
+}
+return n;
+});
 Clazz.overrideMethod (c$, "getImplicitHydrogenCount", 
 function () {
-return this.group.chain.model.ms.getImplicitHydrogenCount (this, false);
+return this.group.chain.model.ms.getMissingHydrogenCount (this, false);
 });
-Clazz.overrideMethod (c$, "getMissingHydrogenCount", 
+Clazz.overrideMethod (c$, "getTotalHydrogenCount", 
 function () {
-return 0;
+return this.getCovalentHydrogenCount () + this.getImplicitHydrogenCount ();
+});
+Clazz.overrideMethod (c$, "getTotalValence", 
+function () {
+var v = this.getValence ();
+if (v < 0) return v;
+var h = this.getImplicitHydrogenCount ();
+var sp2 = this.group.chain.model.ms.aaRet[4];
+return v + h + sp2;
+});
+Clazz.overrideMethod (c$, "getCovalentBondCountPlusMissingH", 
+function () {
+return this.getCovalentBondCount () + this.getImplicitHydrogenCount ();
 });
 Clazz.defineMethod (c$, "getTargetValence", 
 function () {
@@ -442,7 +452,7 @@ Clazz.overrideMethod (c$, "getModelIndex",
 function () {
 return this.mi;
 });
-Clazz.defineMethod (c$, "getMoleculeNumber", 
+Clazz.overrideMethod (c$, "getMoleculeNumber", 
 function (inModel) {
 return (this.group.chain.model.ms.getMoleculeIndex (this.i, inModel) + 1);
 }, "~B");
@@ -498,7 +508,7 @@ c.toFractional (ptTemp2, true);
 c.toUnitCell (ptTemp1, null);
 c.toUnitCell (ptTemp2, null);
 }return ptTemp1.distance (ptTemp2);
-}, "JU.P3,JU.P3,JU.P3");
+}, "JU.T3,JU.T3,JU.T3");
 Clazz.defineMethod (c$, "setFractionalCoord", 
 function (tok, fValue, asAbsolute) {
 var c = this.getUnitCell ();
@@ -762,7 +772,7 @@ case 1237320707:
 return this.group.getProteinStructureSubType ().getId ();
 case 1094713367:
 return this.group.getStrucNo ();
-case 1296041474:
+case 1296041986:
 return this.getSymOp ();
 case 1094715417:
 return this.getValence ();
@@ -931,7 +941,7 @@ case 1086326786:
 return this.getAtomName ();
 case 1086326785:
 return this.getAtomType ();
-case 1086324740:
+case 1086326788:
 return this.getChainIDStr ();
 case 1086324744:
 return this.getGroup1 ('?');
@@ -969,6 +979,10 @@ return this.getSymmetryOperatorList (true);
 }
 return "";
 }, "JV.Viewer,~N");
+Clazz.overrideMethod (c$, "getInsertionCode", 
+function () {
+return this.group.getInsertionCode ();
+});
 Clazz.defineMethod (c$, "atomPropertyTuple", 
 function (vwr, tok, ptTemp) {
 switch (tok) {
@@ -1001,7 +1015,7 @@ return this.group.getAtomIndex (name, offset);
 Clazz.overrideMethod (c$, "isCrossLinked", 
 function (node) {
 return this.group.isCrossLinked ((node).group);
-}, "JU.BNode");
+}, "JU.Node");
 Clazz.overrideMethod (c$, "getCrossLinkVector", 
 function (vReturn, crosslinkCovalent, crosslinkHBond) {
 return this.group.getCrossLinkVector (vReturn, crosslinkCovalent, crosslinkHBond);
@@ -1022,7 +1036,7 @@ return (m.isBioModel ? (m).getUnitID (this, flags) : "");
 Clazz.overrideMethod (c$, "getFloatProperty", 
 function (property) {
 var data = this.group.chain.model.ms.vwr.getDataObj (property, null, 1);
-var f = 0;
+var f = NaN;
 if (data != null) {
 try {
 f = (data)[this.i];

@@ -346,8 +346,11 @@
 		this._readyFunction && this._readyFunction(this);
 		Jmol._setReady(this);
 		var app = this._2dapplet;
-		if (app && app._isEmbedded && app._ready && app.__Info.visible)
-			this._show2d(true);
+		if (app && app._isEmbedded && app._ready && app.__Info.visible) {
+      var me = this;
+      // for some reason, JSME doesn't get the width/height correctly the first time
+			me._show2d(true);me._show2d(false);me._show2d(true);
+    }
     Jmol._hideLoadingSpinner(this);
 	}
 
@@ -704,6 +707,10 @@
 		}
 	}
 
+  proto._reset = function(_jmol_resetView) {
+    this._scriptWait("zap", true);
+  }
+  
 	proto._updateView = function(_jmol_updateView) {
 		if (this._viewSet == null || !this._applet)
 			return;
@@ -785,7 +792,7 @@
   }
 
   proto._getMol2D = function() {
-		return jmol._evaluate("script('select visible;show chemical sdf')"); // 2D equivalent
+		return this._evaluate("script('select visible;show chemical sdf')"); // 2D equivalent no longer!
   }
   
   

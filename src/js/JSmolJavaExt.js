@@ -7,6 +7,7 @@
 // (local scope) Clazz_xxx, allowing them to be further compressed using
 // Google Closure Compiler in that same ANT task.
 
+// BH 10/15/2016 9:28:13 AM adds Float.floatToIntBits(f)
 // BH 3/9/2016 6:25:08 PM at least allow Error() by itself to work as before (inchi.js uses this)
 // BH 12/21/2015 1:31:41 PM fixing String.instantialize for generic typed array
 // BH 9/19/2015 11:05:45 PM Float.isInfinite(), Float.isNaN(), Double.isInfinite(), Double.isNaN() all not implemented
@@ -561,6 +562,14 @@ return"class java.lang.Float";
 }
 return Clazz._floatToString(this.valueOf());
 };
+
+Clazz._a32 = null;
+
+Float.floatToIntBits = function(f) {
+var a = Clazz._a32 || (Clazz._a32 = new Float32Array(1));
+a[0] = f;
+return new Int32Array(a.buffer)[0]; 
+}
 
 Clazz.overrideConstructor(Float, function(v){
  v == null && (v = 0);

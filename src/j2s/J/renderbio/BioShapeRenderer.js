@@ -92,10 +92,11 @@ if (this.cartoonsFancy && val >= 16) val = 4;
 if (this.wireframeOnly || this.hermiteLevel == 0) val = 0;
 if (val != this.aspectRatio && val != 0 && val1 != 0) this.invalidateMesh = true;
 this.aspectRatio = val;
-if (this.aspectRatio > 0 && this.meshRenderer == null) {
+if (this.aspectRatio > 0) {
+if (this.meshRenderer == null) {
 this.meshRenderer = javajs.api.Interface.getInterface ("J.renderbio.BioMeshRenderer");
-this.meshRenderer.setup (this.g3d, this.vwr.ms, this.shape);
 this.meshRenderer.setViewerG3dShapeID (this.vwr, this.shape.shapeID);
+}this.meshRenderer.setup (this.g3d, this.vwr.ms, this.shape);
 }TF = this.vwr.getBoolean (603979966);
 if (TF != this.isTraceAlpha) this.invalidateMesh = true;
 this.isTraceAlpha = TF;
@@ -245,9 +246,9 @@ if (!thisTypeOnly || this.structureTypes[i] === this.structureTypes[this.iNext])
 }this.diameterBeg = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.controlPointScreens[i].z), this.madBeg));
 this.diameterMid = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.monomers[i].getLeadAtom ().sZ, this.madMid));
 this.diameterEnd = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.controlPointScreens[this.iNext].z), this.madEnd));
-var doCap0 = (i == this.iPrev || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iPrev]);
-var doCap1 = (this.iNext == this.iNext2 || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iNext]);
-return (this.meshRenderer != null && this.meshRenderer.check (doCap0, doCap1));
+var doCap0 = (i == this.iPrev || !this.bsVisible.get (this.iPrev) || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iPrev]);
+var doCap1 = (this.iNext == this.iNext2 || !this.bsVisible.get (this.iNext) || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iNext]);
+return (this.aspectRatio > 0 && this.meshRenderer != null && this.meshRenderer.check (doCap0, doCap1));
 }, "~N,~B");
 Clazz.defineMethod (c$, "renderHermiteCylinder", 
 function (screens, i) {

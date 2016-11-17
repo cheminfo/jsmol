@@ -60,7 +60,7 @@ if (propertyName === "setProperties") {
 if (bsSelected == null) bsSelected = this.vwr.bsA ();
 var propertyList = value;
 while (propertyList.size () > 0) {
-var data = propertyList.remove (0);
+var data = propertyList.removeItemAt (0);
 this.setProperty ((data[0]).intern (), data[1], bsSelected);
 }
 return;

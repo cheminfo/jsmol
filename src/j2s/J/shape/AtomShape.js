@@ -84,7 +84,6 @@ if (this.mads == null && i0 >= 0) this.mads =  Clazz.newShortArray (this.ac, 0);
 var n = this.checkColixLength (colixes == null ? 0 : 4, bs.length ());
 for (var i = i0, pt = 0; i >= 0 && i < n; i = bs.nextSetBit (i + 1), pt++) {
 var colix = (colixes == null ? 0 : colixes[pt]);
-if (colix == 0) colix = 0;
 var f = (atrans == null ? 0 : atrans[pt]);
 if (f > 0.01) colix = JU.C.getColixTranslucent3 (colix, true, f);
 this.setColixAndPalette (colix, J.c.PAL.UNKNOWN.id, i);
@@ -128,8 +127,9 @@ return n;
 }, "~N,~N");
 Clazz.defineMethod (c$, "setColixAndPalette", 
 function (colix, paletteID, atomIndex) {
+if (this.colixes == null) System.out.println ("ATOMSHAPE ERROR");
 this.colixes[atomIndex] = colix = this.getColixI (colix, paletteID, atomIndex);
-this.bsColixSet.setBitTo (atomIndex, colix != 0);
+this.bsColixSet.setBitTo (atomIndex, colix != 0 || this.shapeID == 0);
 this.paletteIDs[atomIndex] = paletteID;
 }, "~N,~N,~N");
 Clazz.overrideMethod (c$, "setAtomClickability", 
@@ -141,12 +141,12 @@ if ((atom.shapeVisibilityFlags & this.vf) == 0 || this.ms.isAtomHidden (i)) cont
 atom.setClickable (this.vf);
 }
 });
-Clazz.overrideMethod (c$, "getShapeState", 
-function () {
-return (this.isActive ? this.vwr.getAtomShapeState (this) : "");
-});
 Clazz.defineMethod (c$, "getInfoAsString", 
 function (i) {
 return null;
 }, "~N");
+Clazz.overrideMethod (c$, "getShapeState", 
+function () {
+return null;
+});
 });

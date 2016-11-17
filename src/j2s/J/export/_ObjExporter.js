@@ -117,7 +117,7 @@ this.debugPrint ("  radius=" + radius);
 this.debugPrint ("  Not done owing to surfacesOnly");
 return;
 }this.outputEllipsoid1 (center, radius, radius, radius, null, colix);
-}, "JU.T3,~N,~N,~B");
+}, "JU.P3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputTextPixel", 
 function (pt, argb) {
 }, "JU.P3,~N");

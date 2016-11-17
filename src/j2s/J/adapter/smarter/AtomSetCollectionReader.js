@@ -16,6 +16,8 @@ this.isConcatenated = false;
 this.addedData = null;
 this.addedDataKey = null;
 this.fixJavaFloat = true;
+this.thisBiomolecule = null;
+this.lstNCS = null;
 this.line = null;
 this.prevline = null;
 this.next = null;
@@ -101,6 +103,8 @@ this.doSetOrientation = false;
 this.doCentralize = false;
 this.addVibrations = false;
 this.useAltNames = false;
+this.ignoreStructure = false;
+this.isDSSP1 = false;
 this.allowPDBFilter = false;
 this.doReadMolecularOrbitals = false;
 this.reverseModels = false;
@@ -122,19 +126,19 @@ this.next =  Clazz.newIntArray (1, 0);
 this.loadNote =  new JU.SB ();
 });
 Clazz.defineMethod (c$, "setup", 
-function (fullPath, htParams, reader) {
-this.setupASCR (fullPath, htParams, reader);
+function (fullPath, htParams, readerOrDocument) {
+this.setupASCR (fullPath, htParams, readerOrDocument);
 }, "~S,java.util.Map,~O");
 Clazz.defineMethod (c$, "setupASCR", 
-function (fullPath, htParams, reader) {
+function (fullPath, htParams, readerOrDocument) {
 if (fullPath == null) return;
 this.debugging = JU.Logger.debugging;
 this.htParams = htParams;
 this.filePath = "" + htParams.get ("fullPathName");
 var i = this.filePath.lastIndexOf ('/');
 this.fileName = this.filePath.substring (i + 1);
-if (Clazz.instanceOf (reader, java.io.BufferedReader)) this.reader = reader;
- else if (Clazz.instanceOf (reader, javajs.api.GenericBinaryDocument)) this.binaryDoc = reader;
+if (Clazz.instanceOf (readerOrDocument, java.io.BufferedReader)) this.reader = readerOrDocument;
+ else if (Clazz.instanceOf (readerOrDocument, javajs.api.GenericBinaryDocument)) this.binaryDoc = readerOrDocument;
 }, "~S,java.util.Map,~O");
 Clazz.defineMethod (c$, "readData", 
 function () {
@@ -461,7 +465,7 @@ this.unitCellParams = this.previousUnitCell;
 }, "~N,~A");
 Clazz.defineMethod (c$, "setSpaceGroupName", 
 function (name) {
-if (this.ignoreFileSpaceGroupName) return;
+if (this.ignoreFileSpaceGroupName || name == null) return;
 var s = name.trim ();
 if (s.equals (this.sgName)) return;
 if (!s.equals ("P1")) JU.Logger.info ("Setting space group name to " + s);
@@ -544,7 +548,8 @@ if (!this.iHaveUnitCell) return null;
 if (this.symmetry == null) {
 this.getNewSymmetry ().setUnitCell (this.unitCellParams, false);
 this.checkUnitCellOffset ();
-}return this.symmetry;
+}if (this.symmetry == null) this.iHaveUnitCell = false;
+return this.symmetry;
 });
 Clazz.defineMethod (c$, "checkUnitCellOffset", 
  function () {
@@ -554,6 +559,16 @@ if (this.unitCellOffsetFractional != this.fileCoordinatesAreFractional) {
 if (this.unitCellOffsetFractional) this.symmetry.toCartesian (this.fileOffset, false);
  else this.symmetry.toFractional (this.fileOffset, false);
 }});
+Clazz.defineMethod (c$, "fractionalizeCoordinates", 
+function (toFrac) {
+if (this.getSymmetry () == null) return;
+var a = this.asc.atoms;
+if (toFrac) for (var i = this.asc.ac; --i >= 0; ) this.symmetry.toFractional (a[i], false);
+
+ else for (var i = this.asc.ac; --i >= 0; ) this.symmetry.toCartesian (a[i], false);
+
+this.setFractionalCoordinates (toFrac);
+}, "~B");
 Clazz.defineMethod (c$, "getNewSymmetry", 
 function () {
 return this.symmetry = this.getInterface ("JS.Symmetry");
@@ -579,6 +594,8 @@ this.filter = filter0;
 this.doSetOrientation = !this.checkFilterKey ("NOORIENT");
 this.doCentralize = (!this.checkFilterKey ("NOCENTER") && this.checkFilterKey ("CENTER"));
 this.addVibrations = !this.checkFilterKey ("NOVIB");
+this.ignoreStructure = this.checkFilterKey ("DSSP");
+this.isDSSP1 = this.checkFilterKey ("DSSP1");
 this.doReadMolecularOrbitals = !this.checkFilterKey ("NOMO");
 this.useAltNames = this.checkFilterKey ("ALTNAME");
 this.reverseModels = this.checkFilterKey ("REVERSEMODELS");

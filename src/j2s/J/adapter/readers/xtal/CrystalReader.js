@@ -263,7 +263,7 @@ if (indexToPrimitive[iAtom] < 0) {
 indexToPrimitive[iAtom] = nPrim++;
 }}
 }
-if (bsInputAtomsIgnore.nextSetBit (0) >= 0) for (var i = n; --i >= 0; ) if (bsInputAtomsIgnore.get (i)) this.vCoords.remove (i);
+if (bsInputAtomsIgnore.nextSetBit (0) >= 0) for (var i = n; --i >= 0; ) if (bsInputAtomsIgnore.get (i)) this.vCoords.removeItemAt (i);
 
 this.ac = this.vCoords.size ();
 JU.Logger.info (nPrim + " primitive atoms and " + this.ac + " conventionalAtoms");

@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -63,9 +64,9 @@
 ){
 var $t$;
 //var c$;
-Jmol.___JmolDate="$Date: 2016-03-31 18:00:09 -0500 (Thu, 31 Mar 2016) $"
+Jmol.___JmolDate="$Date: 2016-11-05 10:17:33 -0500 (Sat, 05 Nov 2016) $"
 Jmol.___fullJmolProperties="src/org/jmol/viewer/Jmol.properties"
-Jmol.___JmolVersion="14.4.4_2016.03.31"
+Jmol.___JmolVersion="14.6.4_2016.11.05"
 // JSmolJavaExt.js
  
 
@@ -75,6 +76,7 @@ Jmol.___JmolVersion="14.4.4_2016.03.31"
 // (local scope) Clazz_xxx, allowing them to be further compressed using
 // Google Closure Compiler in that same ANT task.
 
+// BH 10/15/2016 9:28:13 AM adds Float.floatToIntBits(f)
 // BH 3/9/2016 6:25:08 PM at least allow Error() by itself to work as before (inchi.js uses this)
 // BH 12/21/2015 1:31:41 PM fixing String.instantialize for generic typed array
 // BH 9/19/2015 11:05:45 PM Float.isInfinite(), Float.isNaN(), Double.isInfinite(), Double.isNaN() all not implemented
@@ -629,6 +631,14 @@ return"class java.lang.Float";
 }
 return Clazz._floatToString(this.valueOf());
 };
+
+Clazz._a32 = null;
+
+Float.floatToIntBits = function(f) {
+var a = Clazz._a32 || (Clazz._a32 = new Float32Array(1));
+a[0] = f;
+return new Int32Array(a.buffer)[0]; 
+}
 
 Clazz_overrideConstructor(Float, function(v){
  v == null && (v = 0);
@@ -4747,6 +4757,14 @@ Clazz_superConstructor (this, java.net.MalformedURLException, []);
 });
 });
 Clazz_declarePackage ("java.net");
+Clazz_load (["java.io.IOException"], "java.net.UnknownServiceException", null, function () {
+c$ = Clazz_declareType (java.net, "UnknownServiceException", java.io.IOException);
+Clazz_makeConstructor (c$, 
+function () {
+Clazz_superConstructor (this, java.net.UnknownServiceException, []);
+});
+});
+Clazz_declarePackage ("java.net");
 Clazz_load (["java.util.Hashtable"], "java.net.URL", ["java.lang.Character", "$.Error", "java.net.MalformedURLException"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.protocol = null;
@@ -5261,6 +5279,370 @@ Clazz_defineMethod(c$,"format",
 function(obj){
 return java.text.MessageFormat.format(this.pattern,[obj]);
 },"~O");
+Clazz_load(null,"java.util.Random",["java.lang.IllegalArgumentException"],function(){
+c$=Clazz_decorateAsClass(function(){
+this.haveNextNextGaussian=false;
+this.seed=0;
+this.nextNextGaussian=0;
+Clazz_instantialize(this,arguments);
+},java.util,"Random",null,java.io.Serializable);
+Clazz_makeConstructor(c$,
+function(){
+this.setSeed(System.currentTimeMillis());
+});
+Clazz_makeConstructor(c$,
+function(seed){
+this.setSeed(seed);
+},"~N");
+Clazz_defineMethod(c$,"next",
+function(bits){
+this.seed=(this.seed*25214903917+0xb)&(281474976710655);
+return(this.seed>>>(48-bits));
+},"~N");
+Clazz_defineMethod(c$,"nextBoolean",
+function(){
+return Math.random()>0.5;
+});
+Clazz_defineMethod(c$,"nextBytes",
+function(buf){
+for(var i=0;i<bytes.length;i++){
+bytes[i]=Math.round(0x100*Math.random());
+}
+},"~A");
+Clazz_defineMethod(c$,"nextDouble",
+function(){
+return Math.random();
+});
+Clazz_defineMethod(c$,"nextFloat",
+function(){
+return Math.random();
+});
+Clazz_defineMethod(c$,"nextGaussian",
+function(){
+if(this.haveNextNextGaussian){
+this.haveNextNextGaussian=false;
+return this.nextNextGaussian;
+}var v1;
+var v2;
+var s;
+do{
+v1=2*this.nextDouble()-1;
+v2=2*this.nextDouble()-1;
+s=v1*v1+v2*v2;
+}while(s>=1);
+var norm=Math.sqrt(-2*Math.log(s)/s);
+this.nextNextGaussian=v2*norm;
+this.haveNextNextGaussian=true;
+return v1*norm;
+});
+Clazz_defineMethod(c$,"nextInt",
+function(){
+return Math.ceil(0xffff*Math.random())-0x8000;
+});
+Clazz_defineMethod(c$,"nextInt",
+function(n){
+if(n>0){
+n = Math.min(n, 31);
+return Math.floor((2 << (n - 1)) * Math.random())
+
+/*
+if((n&-n)==n){
+return((n*this.next(31))>>31);
+}var bits;
+var val;
+do{
+bits=this.next(31);
+val=bits%n;
+}while(bits-val+(n-1)<0);
+
+
+return val;
+
+*/
+}
+throw new IllegalArgumentException();
+},"~N");
+Clazz_defineMethod(c$,"nextLong",
+function(){
+return Math.ceil(0xffffffff*Math.random())-0x80000000;
+});
+Clazz_defineMethod(c$,"setSeed",
+function(seed){
+Math.seedrandom(seed);
+//this.seed=(seed^25214903917)&(281474976710655);
+//this.haveNextNextGaussian=false;
+},"~N");
+Clazz_defineStatics(c$,
+"multiplier",0x5deece66d);
+});
+
+// seedrandom.js
+// Author: David Bau 3/11/2010
+//
+// Defines a method Math.seedrandom() that, when called, substitutes
+// an explicitly seeded RC4-based algorithm for Math.random().  Also
+// supports automatic seeding from local or network sources of entropy.
+//
+// Usage:
+//
+//   <script src=http://davidbau.com/encode/seedrandom-min.js></script>
+//
+//   Math.seedrandom('yipee'); Sets Math.random to a function that is
+//                             initialized using the given explicit seed.
+//
+//   Math.seedrandom();        Sets Math.random to a function that is
+//                             seeded using the current time, dom state,
+//                             and other accumulated local entropy.
+//                             The generated seed string is returned.
+//
+//   Math.seedrandom('yowza', true);
+//                             Seeds using the given explicit seed mixed
+//                             together with accumulated entropy.
+//
+//   <script src="http://bit.ly/srandom-512"></script>
+//                             Seeds using physical random bits downloaded
+//                             from random.org.
+//
+// Examples:
+//
+//   Math.seedrandom("hello");            // Use "hello" as the seed.
+//   document.write(Math.random());       // Always 0.5463663768140734
+//   document.write(Math.random());       // Always 0.43973793770592234
+//   var rng1 = Math.random;              // Remember the current prng.
+//
+//   var autoseed = Math.seedrandom();    // New prng with an automatic seed.
+//   document.write(Math.random());       // Pretty much unpredictable.
+//
+//   Math.random = rng1;                  // Continue "hello" prng sequence.
+//   document.write(Math.random());       // Always 0.554769432473455
+//
+//   Math.seedrandom(autoseed);           // Restart at the previous seed.
+//   document.write(Math.random());       // Repeat the 'unpredictable' value.
+//
+// Notes:
+//
+// Each time seedrandom('arg') is called, entropy from the passed seed
+// is accumulated in a pool to help generate future seeds for the
+// zero-argument form of Math.seedrandom, so entropy can be injected over
+// time by calling seedrandom with explicit data repeatedly.
+//
+// On speed - This javascript implementation of Math.random() is about
+// 3-10x slower than the built-in Math.random() because it is not native
+// code, but this is typically fast enough anyway.  Seeding is more expensive,
+// especially if you use auto-seeding.  Some details (timings on Chrome 4):
+//
+// Our Math.random()            - avg less than 0.002 milliseconds per call
+// seedrandom('explicit')       - avg less than 0.5 milliseconds per call
+// seedrandom('explicit', true) - avg less than 2 milliseconds per call
+// seedrandom()                 - avg about 38 milliseconds per call
+//
+// LICENSE (BSD):
+//
+// Copyright 2010 David Bau, all rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//   1. Redistributions of source code must retain the above copyright
+//      notice, this list of conditions and the following disclaimer.
+//
+//   2. Redistributions in binary form must reproduce the above copyright
+//      notice, this list of conditions and the following disclaimer in the
+//      documentation and/or other materials provided with the distribution.
+//
+//   3. Neither the name of this module nor the names of its contributors may
+//      be used to endorse or promote products derived from this software
+//      without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+/**
+ * All code is in an anonymous closure to keep the global namespace clean.
+ *
+ * @param {number=} overflow
+ * @param {number=} startdenom
+ */
+(function (pool, math, width, chunks, significance, overflow, startdenom) {
+
+var copyright = "Copyright 2010 David Bau, all rights reserved. (BSD)"
+//
+// seedrandom()
+// This is the seedrandom function described above.
+//
+math['seedrandom'] = function seedrandom(seed, use_entropy) {
+  var key = [];
+  var arc4;
+
+  // Flatten the seed string or build one from local entropy if needed.
+  seed = mixkey(flatten(
+    use_entropy ? [seed, pool] :
+    arguments.length ? seed :
+    [new Date().getTime(), pool, window], 3), key);
+
+  // Use the seed to initialize an ARC4 generator.
+  arc4 = new ARC4(key);
+
+  // Mix the randomness into accumulated entropy.
+  mixkey(arc4.S, pool);
+
+  // Override Math.random
+
+  // This function returns a random double in [0, 1) that contains
+  // randomness in every bit of the mantissa of the IEEE 754 value.
+
+  math['random'] = function random() {  // Closure to return a random double:
+    var n = arc4.g(chunks);             // Start with a numerator n < 2 ^ 48
+    var d = startdenom;                 //   and denominator d = 2 ^ 48.
+    var x = 0;                          //   and no 'extra last byte'.
+    while (n < significance) {          // Fill up all significant digits by
+      n = (n + x) * width;              //   shifting numerator and
+      d *= width;                       //   denominator and generating a
+      x = arc4.g(1);                    //   new least-significant-byte.
+    }
+    while (n >= overflow) {             // To avoid rounding up, before adding
+      n /= 2;                           //   last byte, shift everything
+      d /= 2;                           //   right using integer math until
+      x >>>= 1;                         //   we have exactly the desired bits.
+    }
+    return (n + x) / d;                 // Form the number within [0, 1).
+  };
+
+  // Return the seed that was used
+  return seed;
+};
+
+//
+// ARC4
+//
+// An ARC4 implementation.  The constructor takes a key in the form of
+// an array of at most (width) integers that should be 0 <= x < (width).
+//
+// The g(count) method returns a pseudorandom integer that concatenates
+// the next (count) outputs from ARC4.  Its return value is a number x
+// that is in the range 0 <= x < (width ^ count).
+//
+/** @constructor */
+function ARC4(key) {
+  var t, u, me = this, keylen = key.length;
+  var i = 0, j = me.i = me.j = me.m = 0;
+  me.S = [];
+  me.c = [];
+
+  // The empty key [] is treated as [0].
+  if (!keylen) { key = [keylen++]; }
+
+  // Set up S using the standard key scheduling algorithm.
+  while (i < width) { me.S[i] = i++; }
+  for (i = 0; i < width; i++) {
+    t = me.S[i];
+    j = lowbits(j + t + key[i % keylen]);
+    u = me.S[j];
+    me.S[i] = u;
+    me.S[j] = t;
+  }
+
+  // The "g" method returns the next (count) outputs as one number.
+  me.g = function getnext(count) {
+    var s = me.S;
+    var i = lowbits(me.i + 1); var t = s[i];
+    var j = lowbits(me.j + t); var u = s[j];
+    s[i] = u;
+    s[j] = t;
+    var r = s[lowbits(t + u)];
+    while (--count) {
+      i = lowbits(i + 1); t = s[i];
+      j = lowbits(j + t); u = s[j];
+      s[i] = u;
+      s[j] = t;
+      r = r * width + s[lowbits(t + u)];
+    }
+    me.i = i;
+    me.j = j;
+    return r;
+  };
+  // For robust unpredictability discard an initial batch of values.
+  // See http://www.rsa.com/rsalabs/node.asp?id=2009
+  me.g(width);
+}
+
+//
+// flatten()
+// Converts an object tree to nested arrays of strings.
+//
+/** @param {Object=} result
+  * @param {string=} prop */
+function flatten(obj, depth, result, prop) {
+  result = [];
+  if (depth && typeof(obj) == 'object') {
+    for (prop in obj) {
+      if (prop.indexOf('S') < 5) {    // Avoid FF3 bug (local/sessionStorage)
+        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+      }
+    }
+  }
+  return result.length ? result : '' + obj;
+}
+
+//
+// mixkey()
+// Mixes a string seed into a key that is an array of integers, and
+// returns a shortened string seed that is equivalent to the result key.
+//
+/** @param {number=} smear
+  * @param {number=} j */
+function mixkey(seed, key, smear, j) {
+  seed += '';                         // Ensure the seed is a string
+  smear = 0;
+  for (j = 0; j < seed.length; j++) {
+    key[lowbits(j)] =
+      lowbits((smear ^= key[lowbits(j)] * 19) + seed.charCodeAt(j));
+  }
+  seed = '';
+  for (j in key) { seed += String.fromCharCode(key[j]); }
+  return seed;
+}
+
+//
+// lowbits()
+// A quick "n mod width" for width a power of 2.
+//
+function lowbits(n) { return n & (width - 1); }
+
+//
+// The following constants are related to IEEE 754 limits.
+//
+startdenom = math.pow(width, chunks);
+significance = math.pow(2, significance);
+overflow = significance * 2;
+
+//
+// When seedrandom.js is loaded, we immediately mix a few bits
+// from the built-in RNG into the entropy pool.  Because we do
+// not want to intefere with determinstic PRNG state later,
+// seedrandom will not call math.random on its own again after
+// initialization.
+//
+mixkey(math.random(), pool);
+
+// End anonymous scope, and pass initial values.
+})(
+  [],   // pool: entropy pool starts empty
+  Math, // math: package containing random, pow, and seedrandom
+  256,  // width: each RC4 output is 0 <= x < 256
+  6,    // chunks: at least six RC4 outputs for each double
+  52    // significance: there are 52 significant digits in a double
+);
+
 Clazz_load(["java.util.Collection"],"java.util.AbstractCollection",["java.lang.StringBuilder","$.UnsupportedOperationException","java.lang.reflect.Array"],function(){
 c$=Clazz_declareType(java.util,"AbstractCollection",null,java.util.Collection);
 Clazz_makeConstructor(c$,
@@ -6176,6 +6558,7 @@ result=this.remove(it.next())||result;
 },"java.util.Collection");
 });
 //BH 12/18/2015 7:30:28 AM using slice for toArray()
+//BH 7/4/2016 3:16:31 PM adding _removeItemAt and _removeObject
 
 Clazz_load(["java.util.AbstractList","$.List","$.RandomAccess"],"java.util.ArrayList",["java.lang.IllegalArgumentException","$.IndexOutOfBoundsException","java.lang.reflect.Array","java.util.Arrays"],function(){
 c$=Clazz_decorateAsClass(function(){
@@ -6489,6 +6872,11 @@ return i-this.firstIndex;
 },"~O");
 Clazz_overrideMethod(c$,"remove",
 function(location){
+return (typeof location == "number" ? this._removeItemAt(location) : this._removeObject(location));
+},"~N"); 
+
+Clazz_overrideMethod(c$,"_removeItemAt",
+function(location){
 var result;
 var size=this.size();
 if(0<=location&&location<size){
@@ -6513,10 +6901,10 @@ throw new IndexOutOfBoundsException();
 return result;
 },"~N"); 
 
-Clazz_defineMethod(c$, "removeObject", function(o) {
+Clazz_defineMethod(c$, "_removeObject", function(o) {
 	var i = this.indexOf(o);
 	if (i < 0)return null;
-	return this.remove(i);
+	return this._removeItemAt(i);
 }, "~O");
 
 Clazz_overrideMethod(c$,"removeRange",
@@ -9851,370 +10239,6 @@ Clazz_defineStatics(c$,
 "lineSeparator",null);
 
 });
-Clazz_load(null,"java.util.Random",["java.lang.IllegalArgumentException"],function(){
-c$=Clazz_decorateAsClass(function(){
-this.haveNextNextGaussian=false;
-this.seed=0;
-this.nextNextGaussian=0;
-Clazz_instantialize(this,arguments);
-},java.util,"Random",null,java.io.Serializable);
-Clazz_makeConstructor(c$,
-function(){
-this.setSeed(System.currentTimeMillis());
-});
-Clazz_makeConstructor(c$,
-function(seed){
-this.setSeed(seed);
-},"~N");
-Clazz_defineMethod(c$,"next",
-function(bits){
-this.seed=(this.seed*25214903917+0xb)&(281474976710655);
-return(this.seed>>>(48-bits));
-},"~N");
-Clazz_defineMethod(c$,"nextBoolean",
-function(){
-return Math.random()>0.5;
-});
-Clazz_defineMethod(c$,"nextBytes",
-function(buf){
-for(var i=0;i<bytes.length;i++){
-bytes[i]=Math.round(0x100*Math.random());
-}
-},"~A");
-Clazz_defineMethod(c$,"nextDouble",
-function(){
-return Math.random();
-});
-Clazz_defineMethod(c$,"nextFloat",
-function(){
-return Math.random();
-});
-Clazz_defineMethod(c$,"nextGaussian",
-function(){
-if(this.haveNextNextGaussian){
-this.haveNextNextGaussian=false;
-return this.nextNextGaussian;
-}var v1;
-var v2;
-var s;
-do{
-v1=2*this.nextDouble()-1;
-v2=2*this.nextDouble()-1;
-s=v1*v1+v2*v2;
-}while(s>=1);
-var norm=Math.sqrt(-2*Math.log(s)/s);
-this.nextNextGaussian=v2*norm;
-this.haveNextNextGaussian=true;
-return v1*norm;
-});
-Clazz_defineMethod(c$,"nextInt",
-function(){
-return Math.ceil(0xffff*Math.random())-0x8000;
-});
-Clazz_defineMethod(c$,"nextInt",
-function(n){
-if(n>0){
-n = Math.min(n, 31);
-return Math.floor((2 << (n - 1)) * Math.random())
-
-/*
-if((n&-n)==n){
-return((n*this.next(31))>>31);
-}var bits;
-var val;
-do{
-bits=this.next(31);
-val=bits%n;
-}while(bits-val+(n-1)<0);
-
-
-return val;
-
-*/
-}
-throw new IllegalArgumentException();
-},"~N");
-Clazz_defineMethod(c$,"nextLong",
-function(){
-return Math.ceil(0xffffffff*Math.random())-0x80000000;
-});
-Clazz_defineMethod(c$,"setSeed",
-function(seed){
-Math.seedrandom(seed);
-//this.seed=(seed^25214903917)&(281474976710655);
-//this.haveNextNextGaussian=false;
-},"~N");
-Clazz_defineStatics(c$,
-"multiplier",0x5deece66d);
-});
-
-// seedrandom.js
-// Author: David Bau 3/11/2010
-//
-// Defines a method Math.seedrandom() that, when called, substitutes
-// an explicitly seeded RC4-based algorithm for Math.random().  Also
-// supports automatic seeding from local or network sources of entropy.
-//
-// Usage:
-//
-//   <script src=http://davidbau.com/encode/seedrandom-min.js></script>
-//
-//   Math.seedrandom('yipee'); Sets Math.random to a function that is
-//                             initialized using the given explicit seed.
-//
-//   Math.seedrandom();        Sets Math.random to a function that is
-//                             seeded using the current time, dom state,
-//                             and other accumulated local entropy.
-//                             The generated seed string is returned.
-//
-//   Math.seedrandom('yowza', true);
-//                             Seeds using the given explicit seed mixed
-//                             together with accumulated entropy.
-//
-//   <script src="http://bit.ly/srandom-512"></script>
-//                             Seeds using physical random bits downloaded
-//                             from random.org.
-//
-// Examples:
-//
-//   Math.seedrandom("hello");            // Use "hello" as the seed.
-//   document.write(Math.random());       // Always 0.5463663768140734
-//   document.write(Math.random());       // Always 0.43973793770592234
-//   var rng1 = Math.random;              // Remember the current prng.
-//
-//   var autoseed = Math.seedrandom();    // New prng with an automatic seed.
-//   document.write(Math.random());       // Pretty much unpredictable.
-//
-//   Math.random = rng1;                  // Continue "hello" prng sequence.
-//   document.write(Math.random());       // Always 0.554769432473455
-//
-//   Math.seedrandom(autoseed);           // Restart at the previous seed.
-//   document.write(Math.random());       // Repeat the 'unpredictable' value.
-//
-// Notes:
-//
-// Each time seedrandom('arg') is called, entropy from the passed seed
-// is accumulated in a pool to help generate future seeds for the
-// zero-argument form of Math.seedrandom, so entropy can be injected over
-// time by calling seedrandom with explicit data repeatedly.
-//
-// On speed - This javascript implementation of Math.random() is about
-// 3-10x slower than the built-in Math.random() because it is not native
-// code, but this is typically fast enough anyway.  Seeding is more expensive,
-// especially if you use auto-seeding.  Some details (timings on Chrome 4):
-//
-// Our Math.random()            - avg less than 0.002 milliseconds per call
-// seedrandom('explicit')       - avg less than 0.5 milliseconds per call
-// seedrandom('explicit', true) - avg less than 2 milliseconds per call
-// seedrandom()                 - avg about 38 milliseconds per call
-//
-// LICENSE (BSD):
-//
-// Copyright 2010 David Bau, all rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-//   1. Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
-//
-//   2. Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//   3. Neither the name of this module nor the names of its contributors may
-//      be used to endorse or promote products derived from this software
-//      without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-/**
- * All code is in an anonymous closure to keep the global namespace clean.
- *
- * @param {number=} overflow
- * @param {number=} startdenom
- */
-(function (pool, math, width, chunks, significance, overflow, startdenom) {
-
-var copyright = "Copyright 2010 David Bau, all rights reserved. (BSD)"
-//
-// seedrandom()
-// This is the seedrandom function described above.
-//
-math['seedrandom'] = function seedrandom(seed, use_entropy) {
-  var key = [];
-  var arc4;
-
-  // Flatten the seed string or build one from local entropy if needed.
-  seed = mixkey(flatten(
-    use_entropy ? [seed, pool] :
-    arguments.length ? seed :
-    [new Date().getTime(), pool, window], 3), key);
-
-  // Use the seed to initialize an ARC4 generator.
-  arc4 = new ARC4(key);
-
-  // Mix the randomness into accumulated entropy.
-  mixkey(arc4.S, pool);
-
-  // Override Math.random
-
-  // This function returns a random double in [0, 1) that contains
-  // randomness in every bit of the mantissa of the IEEE 754 value.
-
-  math['random'] = function random() {  // Closure to return a random double:
-    var n = arc4.g(chunks);             // Start with a numerator n < 2 ^ 48
-    var d = startdenom;                 //   and denominator d = 2 ^ 48.
-    var x = 0;                          //   and no 'extra last byte'.
-    while (n < significance) {          // Fill up all significant digits by
-      n = (n + x) * width;              //   shifting numerator and
-      d *= width;                       //   denominator and generating a
-      x = arc4.g(1);                    //   new least-significant-byte.
-    }
-    while (n >= overflow) {             // To avoid rounding up, before adding
-      n /= 2;                           //   last byte, shift everything
-      d /= 2;                           //   right using integer math until
-      x >>>= 1;                         //   we have exactly the desired bits.
-    }
-    return (n + x) / d;                 // Form the number within [0, 1).
-  };
-
-  // Return the seed that was used
-  return seed;
-};
-
-//
-// ARC4
-//
-// An ARC4 implementation.  The constructor takes a key in the form of
-// an array of at most (width) integers that should be 0 <= x < (width).
-//
-// The g(count) method returns a pseudorandom integer that concatenates
-// the next (count) outputs from ARC4.  Its return value is a number x
-// that is in the range 0 <= x < (width ^ count).
-//
-/** @constructor */
-function ARC4(key) {
-  var t, u, me = this, keylen = key.length;
-  var i = 0, j = me.i = me.j = me.m = 0;
-  me.S = [];
-  me.c = [];
-
-  // The empty key [] is treated as [0].
-  if (!keylen) { key = [keylen++]; }
-
-  // Set up S using the standard key scheduling algorithm.
-  while (i < width) { me.S[i] = i++; }
-  for (i = 0; i < width; i++) {
-    t = me.S[i];
-    j = lowbits(j + t + key[i % keylen]);
-    u = me.S[j];
-    me.S[i] = u;
-    me.S[j] = t;
-  }
-
-  // The "g" method returns the next (count) outputs as one number.
-  me.g = function getnext(count) {
-    var s = me.S;
-    var i = lowbits(me.i + 1); var t = s[i];
-    var j = lowbits(me.j + t); var u = s[j];
-    s[i] = u;
-    s[j] = t;
-    var r = s[lowbits(t + u)];
-    while (--count) {
-      i = lowbits(i + 1); t = s[i];
-      j = lowbits(j + t); u = s[j];
-      s[i] = u;
-      s[j] = t;
-      r = r * width + s[lowbits(t + u)];
-    }
-    me.i = i;
-    me.j = j;
-    return r;
-  };
-  // For robust unpredictability discard an initial batch of values.
-  // See http://www.rsa.com/rsalabs/node.asp?id=2009
-  me.g(width);
-}
-
-//
-// flatten()
-// Converts an object tree to nested arrays of strings.
-//
-/** @param {Object=} result
-  * @param {string=} prop */
-function flatten(obj, depth, result, prop) {
-  result = [];
-  if (depth && typeof(obj) == 'object') {
-    for (prop in obj) {
-      if (prop.indexOf('S') < 5) {    // Avoid FF3 bug (local/sessionStorage)
-        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
-      }
-    }
-  }
-  return result.length ? result : '' + obj;
-}
-
-//
-// mixkey()
-// Mixes a string seed into a key that is an array of integers, and
-// returns a shortened string seed that is equivalent to the result key.
-//
-/** @param {number=} smear
-  * @param {number=} j */
-function mixkey(seed, key, smear, j) {
-  seed += '';                         // Ensure the seed is a string
-  smear = 0;
-  for (j = 0; j < seed.length; j++) {
-    key[lowbits(j)] =
-      lowbits((smear ^= key[lowbits(j)] * 19) + seed.charCodeAt(j));
-  }
-  seed = '';
-  for (j in key) { seed += String.fromCharCode(key[j]); }
-  return seed;
-}
-
-//
-// lowbits()
-// A quick "n mod width" for width a power of 2.
-//
-function lowbits(n) { return n & (width - 1); }
-
-//
-// The following constants are related to IEEE 754 limits.
-//
-startdenom = math.pow(width, chunks);
-significance = math.pow(2, significance);
-overflow = significance * 2;
-
-//
-// When seedrandom.js is loaded, we immediately mix a few bits
-// from the built-in RNG into the entropy pool.  Because we do
-// not want to intefere with determinstic PRNG state later,
-// seedrandom will not call math.random on its own again after
-// initialization.
-//
-mixkey(math.random(), pool);
-
-// End anonymous scope, and pass initial values.
-})(
-  [],   // pool: entropy pool starts empty
-  Math, // math: package containing random, pow, and seedrandom
-  256,  // width: each RC4 output is 0 <= x < 256
-  6,    // chunks: at least six RC4 outputs for each double
-  52    // significance: there are 52 significant digits in a double
-);
-
 Clazz_load(["java.util.Map"],"java.util.SortedMap",null,function(){
 Clazz_declareInterface(java.util,"SortedMap",java.util.Map);
 });
@@ -10318,6 +10342,8 @@ Clazz_declarePackage ("javajs.api");
 Clazz_declareInterface (javajs.api, "GenericMenuInterface");
 Clazz_declarePackage ("javajs.api");
 Clazz_declareInterface (javajs.api, "GenericMouseInterface");
+Clazz_declarePackage ("javajs.api");
+Clazz_declareInterface (javajs.api, "GenericOutputChannel");
 Clazz_declarePackage ("javajs.api");
 Clazz_load (["javajs.api.FontManager"], "javajs.api.GenericPlatform", null, function () {
 c$ = Clazz_declareInterface (javajs.api, "GenericPlatform", javajs.api.FontManager);
@@ -10624,7 +10650,7 @@ this.angle = Math.atan2 (sin, cos);
 }}, "~N,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz_overrideMethod (c$, "hashCode", 
 function () {
-return JU.T3.floatToIntBits0 (this.x) ^ JU.T3.floatToIntBits0 (this.y) ^ JU.T3.floatToIntBits0 (this.z) ^ JU.T3.floatToIntBits0 (this.angle);
+return JU.T3.floatToIntBits (this.x) ^ JU.T3.floatToIntBits (this.y) ^ JU.T3.floatToIntBits (this.z) ^ JU.T3.floatToIntBits (this.angle);
 });
 Clazz_overrideMethod (c$, "equals", 
 function (o) {
@@ -11630,8 +11656,8 @@ c$.toRGB = Clazz_defineMethod (c$, "toRGB",
 return ((h = (h + (h < 0 ? 6 : h > 6 ? -6 : 0))) < 1 ? p + q * h : h < 3 ? p + q : h < 4 ? p + q * (4 - h) : p);
 }, "~N,~N,~N");
 Clazz_defineStatics (c$,
-"colorNames",  Clazz_newArray (-1, ["black", "pewhite", "pecyan", "pepurple", "pegreen", "peblue", "peviolet", "pebrown", "pepink", "peyellow", "pedarkgreen", "peorange", "pelightblue", "pedarkcyan", "pedarkgray", "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue", "darkslategray", "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray", "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "green", "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory", "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow", "lightgreen", "lightgrey", "lightpink", "lightsalmon", "lightseagreen", "lightskyblue", "lightslategray", "lightsteelblue", "lightyellow", "lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "snow", "springgreen", "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white", "whitesmoke", "yellow", "yellowgreen", "bluetint", "greenblue", "greentint", "grey", "pinktint", "redorange", "yellowtint"]),
-"colorArgbs",  Clazz_newIntArray (-1, [0xFF000000, 0xFFffffff, 0xFF00ffff, 0xFFd020ff, 0xFF00ff00, 0xFF6060ff, 0xFFff80c0, 0xFFa42028, 0xFFffd8d8, 0xFFffff00, 0xFF00c000, 0xFFffb000, 0xFFb0b0ff, 0xFF00a0a0, 0xFF606060, 0xFFF0F8FF, 0xFFFAEBD7, 0xFF00FFFF, 0xFF7FFFD4, 0xFFF0FFFF, 0xFFF5F5DC, 0xFFFFE4C4, 0xFFFFEBCD, 0xFF0000FF, 0xFF8A2BE2, 0xFFA52A2A, 0xFFDEB887, 0xFF5F9EA0, 0xFF7FFF00, 0xFFD2691E, 0xFFFF7F50, 0xFF6495ED, 0xFFFFF8DC, 0xFFDC143C, 0xFF00FFFF, 0xFF00008B, 0xFF008B8B, 0xFFB8860B, 0xFFA9A9A9, 0xFF006400, 0xFFBDB76B, 0xFF8B008B, 0xFF556B2F, 0xFFFF8C00, 0xFF9932CC, 0xFF8B0000, 0xFFE9967A, 0xFF8FBC8F, 0xFF483D8B, 0xFF2F4F4F, 0xFF00CED1, 0xFF9400D3, 0xFFFF1493, 0xFF00BFFF, 0xFF696969, 0xFF1E90FF, 0xFFB22222, 0xFFFFFAF0, 0xFF228B22, 0xFFFF00FF, 0xFFDCDCDC, 0xFFF8F8FF, 0xFFFFD700, 0xFFDAA520, 0xFF808080, 0xFF008000, 0xFFADFF2F, 0xFFF0FFF0, 0xFFFF69B4, 0xFFCD5C5C, 0xFF4B0082, 0xFFFFFFF0, 0xFFF0E68C, 0xFFE6E6FA, 0xFFFFF0F5, 0xFF7CFC00, 0xFFFFFACD, 0xFFADD8E6, 0xFFF08080, 0xFFE0FFFF, 0xFFFAFAD2, 0xFF90EE90, 0xFFD3D3D3, 0xFFFFB6C1, 0xFFFFA07A, 0xFF20B2AA, 0xFF87CEFA, 0xFF778899, 0xFFB0C4DE, 0xFFFFFFE0, 0xFF00FF00, 0xFF32CD32, 0xFFFAF0E6, 0xFFFF00FF, 0xFF800000, 0xFF66CDAA, 0xFF0000CD, 0xFFBA55D3, 0xFF9370DB, 0xFF3CB371, 0xFF7B68EE, 0xFF00FA9A, 0xFF48D1CC, 0xFFC71585, 0xFF191970, 0xFFF5FFFA, 0xFFFFE4E1, 0xFFFFE4B5, 0xFFFFDEAD, 0xFF000080, 0xFFFDF5E6, 0xFF808000, 0xFF6B8E23, 0xFFFFA500, 0xFFFF4500, 0xFFDA70D6, 0xFFEEE8AA, 0xFF98FB98, 0xFFAFEEEE, 0xFFDB7093, 0xFFFFEFD5, 0xFFFFDAB9, 0xFFCD853F, 0xFFFFC0CB, 0xFFDDA0DD, 0xFFB0E0E6, 0xFF800080, 0xFFFF0000, 0xFFBC8F8F, 0xFF4169E1, 0xFF8B4513, 0xFFFA8072, 0xFFF4A460, 0xFF2E8B57, 0xFFFFF5EE, 0xFFA0522D, 0xFFC0C0C0, 0xFF87CEEB, 0xFF6A5ACD, 0xFF708090, 0xFFFFFAFA, 0xFF00FF7F, 0xFF4682B4, 0xFFD2B48C, 0xFF008080, 0xFFD8BFD8, 0xFFFF6347, 0xFF40E0D0, 0xFFEE82EE, 0xFFF5DEB3, 0xFFFFFFFF, 0xFFF5F5F5, 0xFFFFFF00, 0xFF9ACD32, 0xFFAFD7FF, 0xFF2E8B57, 0xFF98FFB3, 0xFF808080, 0xFFFFABBB, 0xFFFF4500, 0xFFF6F675]));
+"colorNames",  Clazz_newArray (-1, ["black", "pewhite", "pecyan", "pepurple", "pegreen", "peblue", "peviolet", "pebrown", "pepink", "peyellow", "pedarkgreen", "peorange", "pelightblue", "pedarkcyan", "pedarkgray", "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue", "darkslategray", "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray", "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "green", "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory", "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow", "lightgreen", "lightgrey", "lightgray", "lightpink", "lightsalmon", "lightseagreen", "lightskyblue", "lightslategray", "lightsteelblue", "lightyellow", "lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "snow", "springgreen", "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white", "whitesmoke", "yellow", "yellowgreen", "bluetint", "greenblue", "greentint", "grey", "gray", "pinktint", "redorange", "yellowtint"]),
+"colorArgbs",  Clazz_newIntArray (-1, [0xFF000000, 0xFFffffff, 0xFF00ffff, 0xFFd020ff, 0xFF00ff00, 0xFF6060ff, 0xFFff80c0, 0xFFa42028, 0xFFffd8d8, 0xFFffff00, 0xFF00c000, 0xFFffb000, 0xFFb0b0ff, 0xFF00a0a0, 0xFF606060, 0xFFF0F8FF, 0xFFFAEBD7, 0xFF00FFFF, 0xFF7FFFD4, 0xFFF0FFFF, 0xFFF5F5DC, 0xFFFFE4C4, 0xFFFFEBCD, 0xFF0000FF, 0xFF8A2BE2, 0xFFA52A2A, 0xFFDEB887, 0xFF5F9EA0, 0xFF7FFF00, 0xFFD2691E, 0xFFFF7F50, 0xFF6495ED, 0xFFFFF8DC, 0xFFDC143C, 0xFF00FFFF, 0xFF00008B, 0xFF008B8B, 0xFFB8860B, 0xFFA9A9A9, 0xFF006400, 0xFFBDB76B, 0xFF8B008B, 0xFF556B2F, 0xFFFF8C00, 0xFF9932CC, 0xFF8B0000, 0xFFE9967A, 0xFF8FBC8F, 0xFF483D8B, 0xFF2F4F4F, 0xFF00CED1, 0xFF9400D3, 0xFFFF1493, 0xFF00BFFF, 0xFF696969, 0xFF1E90FF, 0xFFB22222, 0xFFFFFAF0, 0xFF228B22, 0xFFFF00FF, 0xFFDCDCDC, 0xFFF8F8FF, 0xFFFFD700, 0xFFDAA520, 0xFF808080, 0xFF008000, 0xFFADFF2F, 0xFFF0FFF0, 0xFFFF69B4, 0xFFCD5C5C, 0xFF4B0082, 0xFFFFFFF0, 0xFFF0E68C, 0xFFE6E6FA, 0xFFFFF0F5, 0xFF7CFC00, 0xFFFFFACD, 0xFFADD8E6, 0xFFF08080, 0xFFE0FFFF, 0xFFFAFAD2, 0xFF90EE90, 0xFFD3D3D3, 0xFFD3D3D3, 0xFFFFB6C1, 0xFFFFA07A, 0xFF20B2AA, 0xFF87CEFA, 0xFF778899, 0xFFB0C4DE, 0xFFFFFFE0, 0xFF00FF00, 0xFF32CD32, 0xFFFAF0E6, 0xFFFF00FF, 0xFF800000, 0xFF66CDAA, 0xFF0000CD, 0xFFBA55D3, 0xFF9370DB, 0xFF3CB371, 0xFF7B68EE, 0xFF00FA9A, 0xFF48D1CC, 0xFFC71585, 0xFF191970, 0xFFF5FFFA, 0xFFFFE4E1, 0xFFFFE4B5, 0xFFFFDEAD, 0xFF000080, 0xFFFDF5E6, 0xFF808000, 0xFF6B8E23, 0xFFFFA500, 0xFFFF4500, 0xFFDA70D6, 0xFFEEE8AA, 0xFF98FB98, 0xFFAFEEEE, 0xFFDB7093, 0xFFFFEFD5, 0xFFFFDAB9, 0xFFCD853F, 0xFFFFC0CB, 0xFFDDA0DD, 0xFFB0E0E6, 0xFF800080, 0xFFFF0000, 0xFFBC8F8F, 0xFF4169E1, 0xFF8B4513, 0xFFFA8072, 0xFFF4A460, 0xFF2E8B57, 0xFFFFF5EE, 0xFFA0522D, 0xFFC0C0C0, 0xFF87CEEB, 0xFF6A5ACD, 0xFF708090, 0xFFFFFAFA, 0xFF00FF7F, 0xFF4682B4, 0xFFD2B48C, 0xFF008080, 0xFFD8BFD8, 0xFFFF6347, 0xFF40E0D0, 0xFFEE82EE, 0xFFF5DEB3, 0xFFFFFFFF, 0xFFF5F5F5, 0xFFFFFF00, 0xFF9ACD32, 0xFFAFD7FF, 0xFF2E8B57, 0xFF98FFB3, 0xFF808080, 0xFF808080, 0xFFFFABBB, 0xFFFF4500, 0xFFF6F675]));
 c$.mapJavaScriptColors = c$.prototype.mapJavaScriptColors =  new java.util.Hashtable ();
 {
 for (var i = JU.CU.colorNames.length; --i >= 0; ) JU.CU.mapJavaScriptColors.put (JU.CU.colorNames[i], Integer.$valueOf (JU.CU.colorArgbs[i]));
@@ -11742,10 +11768,15 @@ function (v) {
 {
 return this.add1(v);
 }}, "~O");
+Clazz_defineMethod (c$, "removeItemAt", 
+function (location) {
+{
+return this._removeItemAt(location);
+}}, "~N");
 Clazz_defineMethod (c$, "removeObj", 
 function (v) {
 {
-return this.removeObject(v);
+return this._removeObject(v);
 }}, "~O");
 });
 Clazz_declarePackage ("JU");
@@ -12330,7 +12361,7 @@ return this.m00 == m.m00 && this.m01 == m.m01 && this.m02 == m.m02 && this.m10 =
 }, "~O");
 Clazz_overrideMethod (c$, "hashCode", 
 function () {
-return JU.T3.floatToIntBits0 (this.m00) ^ JU.T3.floatToIntBits0 (this.m01) ^ JU.T3.floatToIntBits0 (this.m02) ^ JU.T3.floatToIntBits0 (this.m10) ^ JU.T3.floatToIntBits0 (this.m11) ^ JU.T3.floatToIntBits0 (this.m12) ^ JU.T3.floatToIntBits0 (this.m20) ^ JU.T3.floatToIntBits0 (this.m21) ^ JU.T3.floatToIntBits0 (this.m22);
+return JU.T3.floatToIntBits (this.m00) ^ JU.T3.floatToIntBits (this.m01) ^ JU.T3.floatToIntBits (this.m02) ^ JU.T3.floatToIntBits (this.m10) ^ JU.T3.floatToIntBits (this.m11) ^ JU.T3.floatToIntBits (this.m12) ^ JU.T3.floatToIntBits (this.m20) ^ JU.T3.floatToIntBits (this.m21) ^ JU.T3.floatToIntBits (this.m22);
 });
 Clazz_defineMethod (c$, "setZero", 
 function () {
@@ -12761,7 +12792,7 @@ function () {
 return (this.m00 * this.m11 - this.m01 * this.m10) * (this.m22 * this.m33 - this.m23 * this.m32) - (this.m00 * this.m12 - this.m02 * this.m10) * (this.m21 * this.m33 - this.m23 * this.m31) + (this.m00 * this.m13 - this.m03 * this.m10) * (this.m21 * this.m32 - this.m22 * this.m31) + (this.m01 * this.m12 - this.m02 * this.m11) * (this.m20 * this.m33 - this.m23 * this.m30) - (this.m01 * this.m13 - this.m03 * this.m11) * (this.m20 * this.m32 - this.m22 * this.m30) + (this.m02 * this.m13 - this.m03 * this.m12) * (this.m20 * this.m31 - this.m21 * this.m30);
 });
 Clazz_defineMethod (c$, "scale", 
- function (scalar) {
+function (scalar) {
 this.mul33 (scalar);
 this.m03 *= scalar;
 this.m13 *= scalar;
@@ -12837,7 +12868,7 @@ return (this.m00 == m.m00 && this.m01 == m.m01 && this.m02 == m.m02 && this.m03 
 }, "~O");
 Clazz_overrideMethod (c$, "hashCode", 
 function () {
-return JU.T3.floatToIntBits0 (this.m00) ^ JU.T3.floatToIntBits0 (this.m01) ^ JU.T3.floatToIntBits0 (this.m02) ^ JU.T3.floatToIntBits0 (this.m03) ^ JU.T3.floatToIntBits0 (this.m10) ^ JU.T3.floatToIntBits0 (this.m11) ^ JU.T3.floatToIntBits0 (this.m12) ^ JU.T3.floatToIntBits0 (this.m13) ^ JU.T3.floatToIntBits0 (this.m20) ^ JU.T3.floatToIntBits0 (this.m21) ^ JU.T3.floatToIntBits0 (this.m22) ^ JU.T3.floatToIntBits0 (this.m23) ^ JU.T3.floatToIntBits0 (this.m30) ^ JU.T3.floatToIntBits0 (this.m31) ^ JU.T3.floatToIntBits0 (this.m32) ^ JU.T3.floatToIntBits0 (this.m33);
+return JU.T3.floatToIntBits (this.m00) ^ JU.T3.floatToIntBits (this.m01) ^ JU.T3.floatToIntBits (this.m02) ^ JU.T3.floatToIntBits (this.m03) ^ JU.T3.floatToIntBits (this.m10) ^ JU.T3.floatToIntBits (this.m11) ^ JU.T3.floatToIntBits (this.m12) ^ JU.T3.floatToIntBits (this.m13) ^ JU.T3.floatToIntBits (this.m20) ^ JU.T3.floatToIntBits (this.m21) ^ JU.T3.floatToIntBits (this.m22) ^ JU.T3.floatToIntBits (this.m23) ^ JU.T3.floatToIntBits (this.m30) ^ JU.T3.floatToIntBits (this.m31) ^ JU.T3.floatToIntBits (this.m32) ^ JU.T3.floatToIntBits (this.m33);
 });
 Clazz_overrideMethod (c$, "toString", 
 function () {
@@ -12869,7 +12900,7 @@ return (Math.abs (n) < f ? 0 : n);
 }, "~N,~N");
 });
 Clazz_declarePackage ("JU");
-Clazz_load (["java.io.OutputStream"], "JU.OC", ["java.io.BufferedWriter", "$.ByteArrayOutputStream", "$.OutputStreamWriter", "JU.Base64", "$.SB"], function () {
+Clazz_load (["java.io.OutputStream", "javajs.api.GenericOutputChannel"], "JU.OC", ["java.io.BufferedWriter", "$.ByteArrayOutputStream", "$.OutputStreamWriter", "JU.Base64", "$.SB"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.bytePoster = null;
 this.fileName = null;
@@ -12884,8 +12915,17 @@ this.type = null;
 this.$isBase64 = false;
 this.os0 = null;
 this.bytes = null;
+this.bigEndian = true;
 Clazz_instantialize (this, arguments);
-}, JU, "OC", java.io.OutputStream);
+}, JU, "OC", java.io.OutputStream, javajs.api.GenericOutputChannel);
+Clazz_overrideMethod (c$, "isBigEndian", 
+function () {
+return this.bigEndian;
+});
+Clazz_defineMethod (c$, "setBigEndian", 
+function (TF) {
+this.bigEndian = TF;
+}, "~B");
 Clazz_defineMethod (c$, "setParams", 
 function (bytePoster, fileName, asWriter, os) {
 this.bytePoster = bytePoster;
@@ -12947,7 +12987,7 @@ throw e;
 this.byteCount += s.length;
 return this;
 }, "~S");
-Clazz_defineMethod (c$, "reset", 
+Clazz_overrideMethod (c$, "reset", 
 function () {
 this.sb = null;
 this.initOS ();
@@ -12975,6 +13015,13 @@ throw e;
 }
 this.byteCount = 0;
 });
+Clazz_overrideMethod (c$, "writeByteAsInt", 
+function (b) {
+if (this.os == null) this.initOS ();
+{
+this.os.writeByteAsInt(b);
+}this.byteCount++;
+}, "~N");
 Clazz_overrideMethod (c$, "write", 
 function (buf, i, len) {
 if (this.os == null) this.initOS ();
@@ -12988,19 +13035,36 @@ throw e;
 }
 this.byteCount += len;
 }, "~A,~N,~N");
-Clazz_overrideMethod (c$, "writeByteAsInt", 
+Clazz_overrideMethod (c$, "writeShort", 
+function (i) {
+if (this.isBigEndian ()) {
+this.writeByteAsInt (i >> 8);
+this.writeByteAsInt (i);
+} else {
+this.writeByteAsInt (i);
+this.writeByteAsInt (i >> 8);
+}}, "~N");
+Clazz_overrideMethod (c$, "writeLong", 
 function (b) {
-if (this.os == null) this.initOS ();
-{
-this.os.writeByteAsInt(b);
-}this.byteCount++;
-}, "~N");
+if (this.isBigEndian ()) {
+this.writeInt (((b >> 32) & 0xFFFFFFFF));
+this.writeInt ((b & 0xFFFFFFFF));
+} else {
+this.writeByteAsInt ((b >> 56));
+this.writeByteAsInt ((b >> 48));
+this.writeByteAsInt ((b >> 40));
+this.writeByteAsInt ((b >> 32));
+this.writeByteAsInt ((b >> 24));
+this.writeByteAsInt ((b >> 16));
+this.writeByteAsInt ((b >> 8));
+this.writeByteAsInt (b);
+}}, "~N");
 Clazz_defineMethod (c$, "cancel", 
 function () {
 this.isCanceled = true;
 this.closeChannel ();
 });
-Clazz_defineMethod (c$, "closeChannel", 
+Clazz_overrideMethod (c$, "closeChannel", 
 function () {
 if (this.closed) return null;
 try {
@@ -13037,7 +13101,7 @@ return this.closeChannel ();
 var jmol = null;
 var _function = null;
 {
-jmol = Jmol; _function = (typeof this.fileName == "function" ?
+jmol = self.J2S || Jmol; _function = (typeof this.fileName == "function" ?
 this.fileName : null);
 }if (jmol != null) {
 var data = (this.sb == null ? this.toByteArray () : this.sb.toString ());
@@ -13100,6 +13164,19 @@ return i;
 }}
 return -1;
 }, "~S");
+Clazz_overrideMethod (c$, "writeInt", 
+function (i) {
+if (this.bigEndian) {
+this.writeByteAsInt (i >> 24);
+this.writeByteAsInt (i >> 16);
+this.writeByteAsInt (i >> 8);
+this.writeByteAsInt (i);
+} else {
+this.writeByteAsInt (i);
+this.writeByteAsInt (i >> 8);
+this.writeByteAsInt (i >> 16);
+this.writeByteAsInt (i >> 24);
+}}, "~N");
 Clazz_defineStatics (c$,
 "urlPrefixes",  Clazz_newArray (-1, ["http:", "https:", "sftp:", "ftp:", "file:"]),
 "URL_LOCAL", 4);
@@ -13711,6 +13788,7 @@ url = JU.PT.rep (url, "\n", "");
 url = JU.PT.rep (url, "%", "%25");
 url = JU.PT.rep (url, "#", "%23");
 url = JU.PT.rep (url, "[", "%5B");
+url = JU.PT.rep (url, "\\", "%5C");
 url = JU.PT.rep (url, "]", "%5D");
 url = JU.PT.rep (url, " ", "%20");
 return url;
@@ -14188,8 +14266,7 @@ this.s += data.toString();
 Clazz_defineMethod (c$, "appendCB", 
 function (cb, off, len) {
 {
-for (var i = len,j=off; --i >= 0;)
-this.s += cb[j++];
+this.s += cb.slice(off,off+len).join("");
 }}, "~A,~N,~N");
 Clazz_overrideMethod (c$, "toString", 
 function () {
@@ -14243,11 +14320,11 @@ return this.s.substring(i, j);
 }}, "~N,~N");
 Clazz_defineMethod (c$, "toBytes", 
 function (off, len) {
-if (len < 0) len = this.length () - off;
-var b =  Clazz_newByteArray (len, 0);
-for (var i = off + len, j = i - off; --i >= off; ) b[--j] = (this.charAt (i)).charCodeAt (0);
-
-return b;
+if (len == 0) return  Clazz_newByteArray (0, 0);
+var cs;
+{
+cs = "UTF-8";
+}return (len > 0 ? this.substring2 (off, off + len) : off == 0 ? this.toString () : this.substring2 (off, this.length () - off)).getBytes (cs);
 }, "~N,~N");
 Clazz_defineMethod (c$, "replace", 
 function (start, end, str) {
@@ -14259,7 +14336,7 @@ function (offset, str) {
 this.replace (offset, offset, str);
 }, "~N,~S");
 Clazz_declarePackage ("JU");
-Clazz_load (["javajs.api.JSONEncodable"], "JU.T3", null, function () {
+Clazz_load (["javajs.api.JSONEncodable"], "JU.T3", ["java.lang.Float"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.x = 0;
 this.y = 0;
@@ -14375,14 +14452,14 @@ this.set (v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1
 Clazz_overrideMethod (c$, "hashCode", 
 function () {
 var bits = 1;
-bits = 31 * bits + JU.T3.floatToIntBits0 (this.x);
-bits = 31 * bits + JU.T3.floatToIntBits0 (this.y);
-bits = 31 * bits + JU.T3.floatToIntBits0 (this.z);
+bits = 31 * bits + JU.T3.floatToIntBits (this.x);
+bits = 31 * bits + JU.T3.floatToIntBits (this.y);
+bits = 31 * bits + JU.T3.floatToIntBits (this.z);
 return (bits ^ (bits >> 32));
 });
-c$.floatToIntBits0 = Clazz_defineMethod (c$, "floatToIntBits0", 
-function (f) {
-return (f == 0 ? 0 : String.valueOf (f).hashCode ());
+c$.floatToIntBits = Clazz_defineMethod (c$, "floatToIntBits", 
+function (x) {
+return (x == 0 ? 0 : Float.floatToIntBits (x));
 }, "~N");
 Clazz_overrideMethod (c$, "equals", 
 function (t1) {
@@ -14467,7 +14544,7 @@ this.w *= s;
 }, "~N");
 Clazz_overrideMethod (c$, "hashCode", 
 function () {
-return JU.T3.floatToIntBits0 (this.x) ^ JU.T3.floatToIntBits0 (this.y) ^ JU.T3.floatToIntBits0 (this.z) ^ JU.T3.floatToIntBits0 (this.w);
+return JU.T3.floatToIntBits (this.x) ^ JU.T3.floatToIntBits (this.y) ^ JU.T3.floatToIntBits (this.z) ^ JU.T3.floatToIntBits (this.w);
 });
 Clazz_overrideMethod (c$, "equals", 
 function (o) {
@@ -15046,7 +15123,7 @@ Clazz_defineMethod (c$, "findRecord",
  function (tag) {
 if (this.line == null) this.readLine ();
 if (this.line.indexOf ("<" + tag) < 0) this.line = this.loader.discardLinesUntilContains2 ("<" + tag, "##");
-return (this.line.indexOf ("<" + tag) >= 0);
+return (this.line != null && this.line.indexOf ("<" + tag) >= 0);
 }, "~S");
 Clazz_defineMethod (c$, "readLine", 
  function () {
@@ -15477,9 +15554,9 @@ function (id, x, y, modifiers, time) {
 if (this.pd == null) {
 if (!this.disposed && id == 501 && (modifiers & 4) != 0) this.jsvp.showMenu (x, y);
 return true;
-}if (id != -1) modifiers = JSV.app.GenericMouse.applyLeftMouse (modifiers);
+}if (id != 507) modifiers = JSV.app.GenericMouse.applyLeftMouse (modifiers);
 switch (id) {
-case -1:
+case 507:
 this.wheeled (time, x, modifiers | 32);
 break;
 case 501:
@@ -16934,7 +17011,7 @@ if (this.annotations == null) this.annotations =  new JU.Lst ();
 var removed = false;
 for (var i = this.annotations.size (); --i >= 0; ) if (annotation.is2D ? this.isNearby (this.annotations.get (i), annotation, this.imageView, 10) : annotation.equals (this.annotations.get (i))) {
 removed = true;
-this.annotations.remove (i);
+this.annotations.removeItemAt (i);
 }
 if (annotation.text.length > 0 && (!removed || !isToggle)) this.annotations.addLast (annotation);
 }, "JSV.common.Annotation,~B");
@@ -17218,7 +17295,7 @@ throw e;
 Clazz_defineMethod (c$, "removeAllHighlights", 
  function (spec) {
 if (spec == null) this.highlights.clear ();
- else for (var i = this.highlights.size (); --i >= 0; ) if (this.highlights.get (i).spectrum === spec) this.highlights.remove (i);
+ else for (var i = this.highlights.size (); --i >= 0; ) if (this.highlights.get (i).spectrum === spec) this.highlights.removeItemAt (i);
 
 }, "JSV.common.Spectrum");
 Clazz_defineMethod (c$, "setCoordClicked", 
@@ -17438,7 +17515,7 @@ this.pd.notifySubSpectrumChange (i, this.getSpectrum ());
 }, "~N");
 Clazz_defineMethod (c$, "addCurrentZoom", 
  function () {
-if (this.viewList.size () > this.currentZoomIndex + 1) for (var i = this.viewList.size () - 1; i > this.currentZoomIndex; i--) this.viewList.remove (i);
+if (this.viewList.size () > this.currentZoomIndex + 1) for (var i = this.viewList.size () - 1; i > this.currentZoomIndex; i--) this.viewList.removeItemAt (i);
 
 this.viewList.addLast (this.viewData);
 this.currentZoomIndex++;
@@ -17454,7 +17531,7 @@ function () {
 if (this.isLinked) {
 this.pd.clearLinkViews (this);
 }this.setZoom (0, 0, 0, 0);
-for (var i = this.viewList.size (); --i >= 1; ) this.viewList.remove (i);
+for (var i = this.viewList.size (); --i >= 1; ) this.viewList.removeItemAt (i);
 
 });
 Clazz_defineMethod (c$, "drawAll", 
@@ -18806,13 +18883,13 @@ this.removeAllHighlights (null);
 });
 Clazz_defineMethod (c$, "removeHighlight", 
 function (index) {
-this.highlights.remove (index);
+this.highlights.removeItemAt (index);
 }, "~N");
 Clazz_defineMethod (c$, "removeHighlight", 
 function (x1, x2) {
 for (var i = this.highlights.size (); --i >= 0; ) {
 var h = this.highlights.get (i);
-if (h.x1 == x1 && h.x2 == x2) this.highlights.remove (i);
+if (h.x1 == x1 && h.x2 == x2) this.highlights.removeItemAt (i);
 }
 }, "~N,~N");
 Clazz_defineMethod (c$, "scaleYBy", 
@@ -18935,7 +19012,7 @@ this.showAllStacked = false;
 Clazz_defineMethod (c$, "setSpectrumJDX", 
 function (spec) {
 var pt = this.getFixedSelectedSpectrumIndex ();
-this.spectra.remove (pt);
+this.spectra.removeItemAt (pt);
 this.spectra.add (pt, spec);
 this.pendingMeasurement = null;
 this.clearViews ();
@@ -19888,6 +19965,10 @@ m.setValue (factor * m.getValue ());
 }
 this.normalizationFactor = (isReset ? 1 : this.normalizationFactor * factor);
 }, "~N,~B");
+Clazz_defineMethod (c$, "remove", 
+function (i) {
+return this.removeItemAt (i);
+}, "~N");
 Clazz_defineMethod (c$, "getBitSet", 
 function () {
 var bs = JU.BS.newN (this.xyCoords.length);
@@ -19975,7 +20056,7 @@ Clazz_superCall (this, JSV.common.IntegralData, "getInfo", [info]);
 }, "java.util.Map");
 Clazz_defineMethod (c$, "setMinimumIntegral", 
 function (val) {
-for (var i = this.size (); --i >= 0; ) if (this.get (i).getValue () < val) this.remove (i);
+for (var i = this.size (); --i >= 0; ) if (this.get (i).getValue () < val) this.removeItemAt (i);
 
 }, "~N");
 Clazz_pu$h(self.c$);
@@ -20140,7 +20221,12 @@ return (this.selectedPeak != null ? this.selectedPeak.getTitle () : this.highlig
 Clazz_defineMethod (c$, "getTitleLabel", 
 function () {
 var type = (this.peakList == null || this.peakList.size () == 0 ? this.getQualifiedDataType () : this.peakList.get (0).getType ());
-return (type != null && type.length > 0 ? type + " " : "") + this.getTitle ();
+if (type != null && type.startsWith ("NMR")) {
+if (this.nucleusY != null && !this.nucleusY.equals ("?")) {
+type = "2D" + type;
+} else {
+type = this.nucleusX + type;
+}}return (type != null && type.length > 0 ? type + " " : "") + this.getTitle ();
 });
 Clazz_defineMethod (c$, "setNextPeak", 
 function (coord, istep) {
@@ -20493,7 +20579,7 @@ tmpSVN = (tmpSVN == null ? "" : "/SVN" + tmpSVN.substring (22, 27));
 JSV.common.JSVersion.VERSION_SHORT = (tmpVersion != null ? tmpVersion : "(Unknown version)");
 JSV.common.JSVersion.VERSION = JSV.common.JSVersion.VERSION_SHORT + tmpSVN + "/" + (tmpDate != null ? tmpDate : "(Unknown date)");
 }Clazz_declarePackage ("JSV.common");
-Clazz_load (["java.util.Hashtable"], "JSV.common.JSVFileManager", ["java.io.BufferedInputStream", "$.BufferedReader", "$.InputStreamReader", "$.StringReader", "java.net.URL", "JU.AU", "$.Encoding", "$.PT", "$.SB", "JSV.common.JSVersion", "$.JSViewer", "JSV.exception.JSVException", "JU.Logger"], function () {
+Clazz_load (["java.util.Hashtable"], "JSV.common.JSVFileManager", ["java.io.BufferedInputStream", "$.BufferedReader", "$.InputStreamReader", "$.StringReader", "java.net.URL", "JU.AU", "$.BS", "$.Encoding", "$.JSJSONParser", "$.P3", "$.PT", "$.SB", "JSV.common.JSVersion", "$.JSViewer", "JSV.exception.JSVException", "JU.Logger"], function () {
 c$ = Clazz_declareType (JSV.common, "JSVFileManager");
 Clazz_defineMethod (c$, "isApplet", 
 function () {
@@ -20611,31 +20697,40 @@ throw e;
 }, "~S,~S");
 c$.getAbbrSimulationFileName = Clazz_defineMethod (c$, "getAbbrSimulationFileName", 
 function (name) {
-var filename = JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, true);
-if (name.indexOf ("MOL=") >= 0) {
-var data = JSV.common.JSVFileManager.htCorrelationCache.get (name);
-if (data != null) JSV.common.JSVFileManager.htCorrelationCache.put (filename, data);
-}return filename;
+var type = JSV.common.JSVFileManager.getSimulationType (name);
+var filename = JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, type, true);
+return filename;
 }, "~S");
 c$.getAbbreviatedSimulationName = Clazz_defineMethod (c$, "getAbbreviatedSimulationName", 
-function (name, addProtocol) {
-return (name.indexOf ("MOL=") >= 0 ? (addProtocol ? "http://SIMULATION/" : "") + "MOL=" + JSV.common.JSVFileManager.getSimulationHash (name) : name);
-}, "~S,~B");
+function (name, type, addProtocol) {
+return (name.indexOf ("MOL=") >= 0 ? (addProtocol ? "http://SIMULATION/" : "") + "MOL=" + JSV.common.JSVFileManager.getSimulationHash (name, type) : name);
+}, "~S,~S,~B");
 c$.getSimulationHash = Clazz_defineMethod (c$, "getSimulationHash", 
- function (name) {
-return "" + Math.abs (name.substring (name.indexOf ("V2000") + 1).hashCode ());
-}, "~S");
+ function (name, type) {
+var code = type + Math.abs (name.substring (name.indexOf ("V2000") + 1).hashCode ());
+if (JU.Logger.debugging) System.out.println ("JSVFileManager hash for " + name + " = " + code);
+return code;
+}, "~S,~S");
 c$.getSimulationFileData = Clazz_defineMethod (c$, "getSimulationFileData", 
-function (name) {
-return JSV.common.JSVFileManager.htCorrelationCache.get (name.startsWith ("MOL=") ? name.substring (4) : JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, false));
+function (name, type) {
+return JSV.common.JSVFileManager.cacheGet (name.startsWith ("MOL=") ? name.substring (4) : JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, type, false));
+}, "~S,~S");
+c$.cachePut = Clazz_defineMethod (c$, "cachePut", 
+function (name, data) {
+if (JU.Logger.debugging) JU.Logger.debug ("JSVFileManager cachePut " + data + " for " + name);
+if (data != null) JSV.common.JSVFileManager.htCorrelationCache.put (name, data);
+}, "~S,~S");
+c$.cacheGet = Clazz_defineMethod (c$, "cacheGet", 
+function (key) {
+var data = JSV.common.JSVFileManager.htCorrelationCache.get (key);
+if (JU.Logger.debugging) JU.Logger.info ("JSVFileManager cacheGet " + data + " for " + key);
+return data;
 }, "~S");
 c$.getSimulationReader = Clazz_defineMethod (c$, "getSimulationReader", 
  function (name) {
-var data = JSV.common.JSVFileManager.htCorrelationCache.get (name);
-if (data == null) {
-data = JSV.common.JSVFileManager.getNMRSimulationJCampDX (name.substring ("http://SIMULATION/".length));
-if (data != null) JSV.common.JSVFileManager.htCorrelationCache.put (name, data);
-}return JSV.common.JSVFileManager.getBufferedReaderForData (data);
+var data = JSV.common.JSVFileManager.cacheGet (name);
+if (data == null) JSV.common.JSVFileManager.cachePut (name, data = JSV.common.JSVFileManager.getNMRSimulationJCampDX (name.substring ("http://SIMULATION/".length)));
+return JSV.common.JSVFileManager.getBufferedReaderForData (data);
 }, "~S");
 c$.isAB = Clazz_defineMethod (c$, "isAB", 
 function (x) {
@@ -20796,45 +20891,133 @@ return $in;
 }, "~S,~B,~A");
 c$.getNMRSimulationJCampDX = Clazz_defineMethod (c$, "getNMRSimulationJCampDX", 
  function (name) {
-var key = "" + JSV.common.JSVFileManager.getSimulationHash (name);
-var jcamp = JSV.common.JSVFileManager.htCorrelationCache.get (key);
-if (jcamp != null) return jcamp;
+var pt = 0;
+var molFile = null;
+var type = JSV.common.JSVFileManager.getSimulationType (name);
+if (name.startsWith (type)) name = name.substring (type.length + 1);
 var isInline = name.startsWith ("MOL=");
-var molFile;
+if (isInline) {
+name = name.substring (4);
+pt = name.indexOf ("/n__Jmol");
+if (pt > 0) name = name.substring (0, pt) + JU.PT.rep (name.substring (pt), "/n", "\n");
+molFile = name = JU.PT.rep (name, "\\n", "\n");
+}var key = "" + JSV.common.JSVFileManager.getSimulationHash (name, type);
+if (JU.Logger.debugging) JU.Logger.info ("JSVFileManager type=" + type + " key=" + key + " name=" + name);
+var jcamp = JSV.common.JSVFileManager.cacheGet (key);
+if (jcamp != null) return jcamp;
 var src = (isInline ? null : JU.PT.rep (JSV.common.JSVFileManager.nciResolver, "%FILE", JU.PT.escapeUrl (name)));
-if ((molFile = (isInline ? JU.PT.rep (name.substring (4), "\\n", "\n") : JSV.common.JSVFileManager.getFileAsString (src))) == null) JU.Logger.info ("no data returned");
-var json = JSV.common.JSVFileManager.getFileAsString (JSV.common.JSVFileManager.nmrdbServer + molFile);
-JSV.common.JSVFileManager.htCorrelationCache.put ("json", json);
-JU.Logger.debug (json);
-if (json.indexOf ("\"error\":") >= 0) return null;
-json = JU.PT.rep (json, "\\r\\n", "\n");
-json = JU.PT.rep (json, "\\t", "\t");
-json = JU.PT.rep (json, "\\n", "\n");
-var jsonMolFile = JSV.common.JSVFileManager.getQuotedJSONAttribute (json, "molfile", null);
-JSV.common.JSVFileManager.htCorrelationCache.put ("mol", jsonMolFile);
+if (!isInline && (molFile = JSV.common.JSVFileManager.getFileAsString (src)) == null || molFile.indexOf ("<html") >= 0) {
+JU.Logger.error ("no MOL data returned by NCI");
+return null;
+}var is13C = type.equals ("C13");
+var url = (is13C ? JSV.common.JSVFileManager.nmrdbServerC13 : JSV.common.JSVFileManager.nmrdbServerH1);
+var json = JSV.common.JSVFileManager.getFileAsString (url + molFile);
+var map = ( new JU.JSJSONParser ()).parseMap (json, true);
+JSV.common.JSVFileManager.cachePut ("json", json);
+if (is13C) map = map.get ("result");
+var jsonMolFile = map.get ("molfile");
+if (jsonMolFile == null) {
+System.out.println ("JSVFileManager: no MOL file returned from EPFL");
+jsonMolFile = molFile;
+} else {
+System.out.println ("JSVFileManager: MOL file hash=" + jsonMolFile.hashCode ());
+}var atomMap = JSV.common.JSVFileManager.getAtomMap (jsonMolFile, molFile);
+JSV.common.JSVFileManager.cachePut ("mol", molFile);
 {
-if (!isInline) Jmol.Cache.put("http://SIMULATION/" + name + "#molfile", jsonMolFile.getBytes());
-}var xml = JSV.common.JSVFileManager.getQuotedJSONAttribute (json, "xml", null);
-xml = JU.PT.rep (xml, "<Signals>", "<Signals src=" + JU.PT.esc (JU.PT.rep (JSV.common.JSVFileManager.nmrdbServer, "?POST?molfile=", "")) + ">");
-xml = JU.PT.rep (xml, "</", "\n</");
+if (!isInline) Jmol.Cache.put("http://SIMULATION/" + type +
+"/" + name + "#molfile", molFile.getBytes());
+}var xml = "<Signals src=" + JU.PT.esc (JU.PT.rep (is13C ? JSV.common.JSVFileManager.nmrdbServerC13 : JSV.common.JSVFileManager.nmrdbServerH1, "?POST?molfile=", "")) + ">\n";
+if (is13C) {
+var spec = map.get ("spectrum13C");
+jcamp = (spec.get ("jcamp")).get ("value");
+var lst = spec.get ("predCSNuc");
+var sb =  new JU.SB ();
+for (var i = lst.size (); --i >= 0; ) {
+map = lst.get (i);
+sb.append ("<Signal ");
+JSV.common.JSVFileManager.setAttr (sb, "type", "nucleus", map);
+if (atomMap == null) JSV.common.JSVFileManager.setAttr (sb, "atoms", "assignment", map);
+ else sb.append ("atoms=\"").appendI (atomMap[JU.PT.parseInt (map.get ("assignment"))]).append ("\" ");
+JSV.common.JSVFileManager.setAttr (sb, "multiplicity", "multiplicity", map);
+map = map.get ("integralData");
+JSV.common.JSVFileManager.setAttr (sb, "xMin", "from", map);
+JSV.common.JSVFileManager.setAttr (sb, "xMax", "to", map);
+JSV.common.JSVFileManager.setAttr (sb, "integral", "value", map);
+sb.append ("></Signal>\n");
+}
+sb.append ("</Signals>");
+xml += sb.toString ();
+} else {
+xml = JU.PT.rep (map.get ("xml"), "<Signals>", xml);
+if (atomMap != null) {
+var sb =  new JU.SB ();
+var signals = JU.PT.split (xml, " atoms=\"");
+sb.append (signals[0]);
+for (var i = 1; i < signals.length; i++) {
+var s = signals[i];
+var a = JU.PT.parseInt (s);
+sb.append (" atoms=\"").appendI (atomMap[a]).append (s.substring (s.indexOf ("\"")));
+}
+xml = sb.toString ();
+}xml = JU.PT.rep (xml, "</", "\n</");
 xml = JU.PT.rep (xml, "><", ">\n<");
 xml = JU.PT.rep (xml, "\\\"", "\"");
-JSV.common.JSVFileManager.htCorrelationCache.put ("xml", xml);
-jcamp = JSV.common.JSVFileManager.getQuotedJSONAttribute (json, "jcamp", null);
-jcamp = "##TITLE=" + (isInline ? "JMOL SIMULATION" : name) + "\n" + jcamp.substring (jcamp.indexOf ("\n##") + 1);
-var pt = molFile.indexOf ("\n");
+jcamp = map.get ("jcamp");
+}if (JU.Logger.debugging) JU.Logger.info (xml);
+JSV.common.JSVFileManager.cachePut ("xml", xml);
+jcamp = "##TITLE=" + (isInline ? "JMOL SIMULATION/" + type : name) + "\n" + jcamp.substring (jcamp.indexOf ("\n##") + 1);
+pt = molFile.indexOf ("\n");
 pt = molFile.indexOf ("\n", pt + 1);
 if (pt > 0 && pt == molFile.indexOf ("\n \n")) molFile = molFile.substring (0, pt + 1) + "Created " + JSV.common.JSVFileManager.viewer.apiPlatform.getDateFormat ("8824") + " by JSpecView " + JSV.common.JSVersion.VERSION + molFile.substring (pt + 1);
 pt = 0;
 pt = jcamp.indexOf ("##.");
-var id = JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, false);
+var id = JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, type, false);
 var pt1 = id.indexOf ("id='");
 if (isInline && pt1 > 0) id = id.substring (pt1 + 4, (id + "'").indexOf ("'", pt1 + 4));
 jcamp = jcamp.substring (0, pt) + "##$MODELS=\n<Models>\n" + "<ModelData id=" + JU.PT.esc (id) + " type=\"MOL\" src=" + JU.PT.esc (src) + ">\n" + molFile + "</ModelData>\n</Models>\n" + "##$SIGNALS=\n" + xml + "\n" + jcamp.substring (pt);
-JSV.common.JSVFileManager.htCorrelationCache.put ("jcamp", jcamp);
-JSV.common.JSVFileManager.htCorrelationCache.put (key, jcamp);
+JSV.common.JSVFileManager.cachePut ("jcamp", jcamp);
+JSV.common.JSVFileManager.cachePut (key, jcamp);
 return jcamp;
 }, "~S");
+c$.getAtomMap = Clazz_defineMethod (c$, "getAtomMap", 
+ function (jsonMolFile, jmolMolFile) {
+var acJson = JSV.common.JSVFileManager.getCoord (jsonMolFile);
+var acJmol = JSV.common.JSVFileManager.getCoord (jmolMolFile);
+var n = acJson.length;
+if (n != acJmol.length) return null;
+var map =  Clazz_newIntArray (n, 0);
+var bs =  new JU.BS ();
+bs.setBits (0, n);
+var haveMap = false;
+for (var i = 0; i < n; i++) {
+var a = acJson[i];
+for (var j = bs.nextSetBit (0); j >= 0; j = bs.nextSetBit (j + 1)) {
+if (a.distanceSquared (acJmol[j]) < 0.1) {
+bs.clear (j);
+map[i] = j;
+if (i != j) haveMap = true;
+break;
+}}
+}
+return (haveMap ? map : null);
+}, "~S,~S");
+c$.getCoord = Clazz_defineMethod (c$, "getCoord", 
+ function (mol) {
+var lines = JU.PT.split (mol, "\n");
+var data =  Clazz_newFloatArray (3, 0);
+var n = Integer.parseInt (lines[3].substring (0, 3).trim ());
+var pts =  new Array (n);
+for (var i = 0; i < n; i++) {
+var line = lines[4 + i];
+JU.PT.parseFloatArrayInfested (JU.PT.getTokens (line.substring (0, 31)), data);
+pts[i] = JU.P3.new3 (data[0], data[1], data[2]);
+}
+return pts;
+}, "~S");
+c$.setAttr = Clazz_defineMethod (c$, "setAttr", 
+ function (sb, mykey, lucsKey, map) {
+sb.append (mykey + "=\"").appendO (map.get (lucsKey)).append ("\" ");
+}, "JU.SB,~S,~S,java.util.Map");
 c$.getResource = Clazz_defineMethod (c$, "getResource", 
  function (object, fileName, error) {
 var url = null;
@@ -20903,31 +21086,28 @@ throw e;
 }
 }return JSV.common.JSVFileManager.viewer.apiPlatform.newFile (fileName).getName ();
 }, "~S");
-c$.getQuotedJSONAttribute = Clazz_defineMethod (c$, "getQuotedJSONAttribute", 
-function (json, key1, key2) {
-if (key2 == null) key2 = key1;
-key1 = "\"" + key1 + "\":";
-key2 = "\"" + key2 + "\":";
-var pt1 = json.indexOf (key1);
-var pt2 = json.indexOf (key2, pt1);
-return (pt1 < 0 || pt2 < 0 ? null : JU.PT.getQuotedStringAt (json, pt2 + key2.length));
-}, "~S,~S,~S");
 c$.setDocumentBase = Clazz_defineMethod (c$, "setDocumentBase", 
 function (v, documentBase) {
 JSV.common.JSVFileManager.viewer = v;
 JSV.common.JSVFileManager.appletDocumentBase = documentBase;
 }, "JSV.common.JSViewer,java.net.URL");
+c$.getSimulationType = Clazz_defineMethod (c$, "getSimulationType", 
+function (filePath) {
+return (filePath.indexOf ("C13/") >= 0 ? "C13" : "H1");
+}, "~S");
 Clazz_defineStatics (c$,
 "SIMULATION_PROTOCOL", "http://SIMULATION/",
 "appletDocumentBase", null,
 "viewer", null,
 "jsDocumentBase", "");
-c$.htCorrelationCache = c$.prototype.htCorrelationCache =  new java.util.Hashtable ();
 c$.urlPrefixes = c$.prototype.urlPrefixes =  Clazz_newArray (-1, ["http:", "https:", "ftp:", "http://SIMULATION/", "file:"]);
 Clazz_defineStatics (c$,
-"URL_LOCAL", 4,
-"nciResolver", "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True",
-"nmrdbServer", "http://www.nmrdb.org/tools/jmol/predict.php?POST?molfile=",
+"URL_LOCAL", 4);
+c$.htCorrelationCache = c$.prototype.htCorrelationCache =  new java.util.Hashtable ();
+Clazz_defineStatics (c$,
+"nciResolver", "https://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True",
+"nmrdbServerH1", "http://www.nmrdb.org/tools/jmol/predict.php?POST?molfile=",
+"nmrdbServerC13", "http://www.nmrdb.org/service/jsmol13c?POST?molfile=",
 "stringCount", 0);
 });
 Clazz_declarePackage ("JSV.common");
@@ -21700,7 +21880,7 @@ if ("SOURCEID".equalsIgnoreCase (key)) {
 map.put (key, (this.pd () == null ? "" : this.pd ().getSpectrum ().sourceID));
 return map;
 }if (key != null && key.startsWith ("DATA_")) {
-map.put (key, "" + JSV.common.JSVFileManager.htCorrelationCache.get (key.substring (5)));
+map.put (key, "" + JSV.common.JSVFileManager.cacheGet (key.substring (5)));
 return map;
 }var isAll = false;
 if (key != null && key.toUpperCase ().startsWith ("ALL ") || "all".equalsIgnoreCase (key)) {
@@ -21972,22 +22152,26 @@ if (isAppend || isCheck) pt++;
 if (pt > 0) filename = tokens.get (pt);
 if (script == null) script = this.defaultLoadScript;
 if (filename.equals ("?")) {
-this.openFileFromDialog (isAppend, false, false, script);
+this.openFileFromDialog (isAppend, false, null, script);
 return;
 }if (filename.equals ("http://?")) {
-this.openFileFromDialog (isAppend, true, false, null);
+this.openFileFromDialog (isAppend, true, null, null);
 return;
-}if (filename.equals ("$?")) {
-this.openFileFromDialog (isAppend, true, true, null);
+}if (filename.equals ("$?") || filename.equals ("$H1?")) {
+this.openFileFromDialog (isAppend, true, "H1", null);
 return;
-}var isMOL = filename.equalsIgnoreCase ("MOL");
-if (isMOL) filename = "http://SIMULATION/" + "MOL=" + JU.PT.trimQuotes (tokens.get (++pt));
+}if (filename.equals ("$C13?")) {
+this.openFileFromDialog (isAppend, true, "C13", null);
+return;
+}var isH1 = filename.equalsIgnoreCase ("MOL") || filename.equalsIgnoreCase ("H1");
+var isC13 = filename.equalsIgnoreCase ("C13");
+if (isH1 || isC13) filename = "http://SIMULATION/" + (isH1 ? "H1/" : "C13/") + "MOL=" + JU.PT.trimQuotes (tokens.get (++pt));
 if (!isCheck && !isAppend) {
 if (filename.equals ("\"\"") && this.currentSource != null) filename = this.currentSource.getFilePath ();
 this.close ("all");
 }filename = JU.PT.trimQuotes (filename);
 if (filename.startsWith ("$")) {
-isMOL = true;
+if (!filename.startsWith ("$H1") && !filename.startsWith ("$C13")) filename = "$H1/" + filename.substring (3);
 filename = "http://SIMULATION/" + filename.substring (1);
 }var firstSpec = (pt + 1 < tokens.size () ? Integer.$valueOf (tokens.get (++pt)).intValue () : -1);
 var lastSpec = (pt + 1 < tokens.size () ? Integer.$valueOf (tokens.get (++pt)).intValue () : firstSpec);
@@ -22112,7 +22296,7 @@ this.jsvpPopupMenu.jpiDispose ();
 this.jsvpPopupMenu = null;
 }if (this.panelNodes != null) for (var i = this.panelNodes.size (); --i >= 0; ) {
 this.panelNodes.get (i).dispose ();
-this.panelNodes.remove (i);
+this.panelNodes.removeItemAt (i);
 }
 });
 Clazz_defineMethod (c$, "runScript", 
@@ -22354,13 +22538,13 @@ function (msg) {
 if (this.selectedPanel != null && msg != null) this.selectedPanel.showMessage (msg, null);
 }, "~S");
 Clazz_defineMethod (c$, "openFileFromDialog", 
-function (isAppend, isURL, isSimulation, script) {
+function (isAppend, isURL, simulationType, script) {
 var url = null;
-if (isSimulation) {
+if (simulationType != null) {
 url = this.fileHelper.getUrlFromDialog ("Enter the name or identifier of a compound", this.recentSimulation);
 if (url == null) return;
 this.recentSimulation = url;
-this.load ((isAppend ? "APPEND " : "") + "\"$" + url + "\"", script);
+this.load ((isAppend ? "APPEND " : "") + "\"$" + simulationType + "/" + url + "\"", script);
 } else if (isURL) {
 url = this.fileHelper.getUrlFromDialog ("Enter the URL of a JCAMP-DX File", this.recentURL == null ? this.recentOpenURL : this.recentURL);
 if (url == null) return;
@@ -22370,7 +22554,7 @@ this.load ((isAppend ? "APPEND " : "") + "\"" + url + "\"", script);
 var userData =  Clazz_newArray (-1, [Boolean.$valueOf (isAppend), script]);
 var file = this.fileHelper.showFileOpenDialog (this.mainPanel, userData);
 if (file != null) this.openFile (file.getFullPath (), !isAppend);
-}}, "~B,~B,~B,~S");
+}}, "~B,~B,~S,~S");
 Clazz_defineMethod (c$, "openFile", 
 function (fileName, closeFirst) {
 if (closeFirst && this.panelNodes != null) {
@@ -22661,7 +22845,7 @@ function (x1, x2) {
 for (var i = this.size (); --i >= 0; ) {
 var $in = this.get (i);
 if ($in.text.length == 0 || $in.overlaps (x1, x2)) {
-this.remove (i);
+this.removeItemAt (i);
 }}
 }, "~N,~N");
 Clazz_overrideMethod (c$, "setSpecShift", 
@@ -26814,6 +26998,10 @@ Clazz_overrideMethod (c$, "getImageDialog",
 function (title, imageMap) {
 return null;
 }, "~S,java.util.Map");
+Clazz_overrideMethod (c$, "forceAsyncLoad", 
+function (filename) {
+return false;
+}, "~S");
 });
 Clazz_declarePackage ("JSV.js2d");
 Clazz_load (["JSV.api.JSVMainPanel"], "JSV.js2d.JsMainPanel", null, function () {
@@ -26923,9 +27111,7 @@ Clazz_instantialize (this, arguments);
 }, JSV.source, "JDXDataObject", JSV.source.JDXHeader);
 Clazz_defineMethod (c$, "setFilePath", 
 function (filePath) {
-if (filePath == null) return;
-this.filePath = filePath.trim ();
-this.filePathForwardSlash = this.filePath.$replace ('\\', '/');
+if (filePath != null) this.filePathForwardSlash = (this.filePath = filePath.trim ()).$replace ('\\', '/');
 }, "~S");
 Clazz_defineMethod (c$, "getFilePath", 
 function () {
@@ -27935,7 +28121,7 @@ JU.Logger.info ("Failed to create peak data: " + e);
 throw e;
 }
 }
-}if (this.acdMolFile != null) JSV.common.JSVFileManager.htCorrelationCache.put ("mol", this.acdMolFile);
+}if (this.acdMolFile != null) JSV.common.JSVFileManager.cachePut ("mol", this.acdMolFile);
 }if (!Float.isNaN (this.nmrMaxY)) spectrum.doNormalize (this.nmrMaxY);
  else if (spectrum.getMaxY () >= 10000) spectrum.doNormalize (1000);
 if (this.isSimulation) spectrum.setSimulated (this.filePath);
@@ -28881,6 +29067,7 @@ Clazz._coreLoaded = true;
 
 
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt

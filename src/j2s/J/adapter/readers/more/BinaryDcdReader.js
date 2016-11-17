@@ -22,7 +22,7 @@ this.initializeTrajectoryFile ();
 Clazz.overrideMethod (c$, "processBinaryDocument", 
 function () {
 var bytes =  Clazz.newByteArray (40, 0);
-this.binaryDoc.setStream (this.vwr.getJzt (), null, this.binaryDoc.readInt () == 0x54);
+this.binaryDoc.setStream (null, this.binaryDoc.readInt () == 0x54);
 this.binaryDoc.readInt ();
 this.nModels = this.binaryDoc.readInt ();
 this.binaryDoc.readInt ();

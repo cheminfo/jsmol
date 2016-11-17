@@ -147,9 +147,12 @@ if (bs != null) return bs;
 bs =  new JU.BS ();
 if (doCache) annotationCache.put (key, bs);
 try {
+var pt = key.toLowerCase ().indexOf (" where ");
+if (pt < 0) {
 key = key.toLowerCase ();
-var pt = "..bulges.nts_long..coaxstacks.stems.pairs.nt*..hairpins.nts_long..hbonds.atom1_id;atom2_id..helices.pairs.nt*..iloops.nts_long..isocanonpairs.nt*..junctions.nts_long..kissingloops.hairpins.nts_long..multiplets.nts_long..nonstack.nts_long..nts.nt_id..pairs.nt*..sssegments.nts_long..stacks.nts_long..stems.pairs.nt*..".indexOf (".." + key) + 2;
+pt = "..bulges.nts_long..coaxstacks.stems.pairs.nt*..hairpins.nts_long..hbonds.atom1_id;atom2_id..helices.pairs.nt*..iloops.nts_long..isocanonpairs.nt*..junctions.nts_long..kissingloops.hairpins.nts_long..multiplets.nts_long..nonstack.nts_long..nts.nt_id..pairs.nt*..sssegments.nts_long..stacks.nts_long..stems.pairs.nt*..".indexOf (".." + key) + 2;
 var len = key.length;
+if (pt < 2) return bs;
 while (pt >= 2 && len > 0) {
 if ("..bulges.nts_long..coaxstacks.stems.pairs.nt*..hairpins.nts_long..hbonds.atom1_id;atom2_id..helices.pairs.nt*..iloops.nts_long..isocanonpairs.nt*..junctions.nts_long..kissingloops.hairpins.nts_long..multiplets.nts_long..nonstack.nts_long..nts.nt_id..pairs.nt*..sssegments.nts_long..stacks.nts_long..stems.pairs.nt*..".substring (pt + len, pt + len + 2).equals ("..")) key = "[select (" + key + ")]";
 dbObj = vwr.extractProperty (dbObj, key, -1);
@@ -158,7 +161,10 @@ var pt1 = "..bulges.nts_long..coaxstacks.stems.pairs.nt*..hairpins.nts_long..hbo
 key = "..bulges.nts_long..coaxstacks.stems.pairs.nt*..hairpins.nts_long..hbonds.atom1_id;atom2_id..helices.pairs.nt*..iloops.nts_long..isocanonpairs.nt*..junctions.nts_long..kissingloops.hairpins.nts_long..multiplets.nts_long..nonstack.nts_long..nts.nt_id..pairs.nt*..sssegments.nts_long..stacks.nts_long..stems.pairs.nt*..".substring (pt, pt1);
 len = key.length;
 }
-bs.or (vwr.ms.getAtoms (1086324744, dbObj.toString ()));
+} else {
+key = key.substring (0, pt).trim () + "[select * " + key.substring (pt + 1) + "]";
+dbObj = vwr.extractProperty (dbObj, key, -1);
+}bs.or (vwr.ms.getAtoms (1086324744, dbObj.toString ()));
 bs.and (bsModel);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -221,7 +227,7 @@ var map = list.get (i);
 var ch = (map.get ("nt_code")).charAt (0);
 if (!Character.isLowerCase (ch)) continue;
 var unit1 = map.get ("nt_id");
-m.getAllSequenceBits (unit1, bsAtoms, bs);
+ms.bioModelset.getAllSequenceBits (unit1, bsAtoms, bs);
 JU.Logger.info ("" + ch + " " + unit1 + " " + bs);
 atoms[bsAtoms.nextSetBit (0)].group.group1 = ch;
 bs.clearAll ();

@@ -423,7 +423,7 @@ if (this.annotations == null) this.annotations =  new JU.Lst ();
 var removed = false;
 for (var i = this.annotations.size (); --i >= 0; ) if (annotation.is2D ? this.isNearby (this.annotations.get (i), annotation, this.imageView, 10) : annotation.equals (this.annotations.get (i))) {
 removed = true;
-this.annotations.remove (i);
+this.annotations.removeItemAt (i);
 }
 if (annotation.text.length > 0 && (!removed || !isToggle)) this.annotations.addLast (annotation);
 }, "JSV.common.Annotation,~B");
@@ -707,7 +707,7 @@ throw e;
 Clazz.defineMethod (c$, "removeAllHighlights", 
  function (spec) {
 if (spec == null) this.highlights.clear ();
- else for (var i = this.highlights.size (); --i >= 0; ) if (this.highlights.get (i).spectrum === spec) this.highlights.remove (i);
+ else for (var i = this.highlights.size (); --i >= 0; ) if (this.highlights.get (i).spectrum === spec) this.highlights.removeItemAt (i);
 
 }, "JSV.common.Spectrum");
 Clazz.defineMethod (c$, "setCoordClicked", 
@@ -927,7 +927,7 @@ this.pd.notifySubSpectrumChange (i, this.getSpectrum ());
 }, "~N");
 Clazz.defineMethod (c$, "addCurrentZoom", 
  function () {
-if (this.viewList.size () > this.currentZoomIndex + 1) for (var i = this.viewList.size () - 1; i > this.currentZoomIndex; i--) this.viewList.remove (i);
+if (this.viewList.size () > this.currentZoomIndex + 1) for (var i = this.viewList.size () - 1; i > this.currentZoomIndex; i--) this.viewList.removeItemAt (i);
 
 this.viewList.addLast (this.viewData);
 this.currentZoomIndex++;
@@ -943,7 +943,7 @@ function () {
 if (this.isLinked) {
 this.pd.clearLinkViews (this);
 }this.setZoom (0, 0, 0, 0);
-for (var i = this.viewList.size (); --i >= 1; ) this.viewList.remove (i);
+for (var i = this.viewList.size (); --i >= 1; ) this.viewList.removeItemAt (i);
 
 });
 Clazz.defineMethod (c$, "drawAll", 
@@ -2295,13 +2295,13 @@ this.removeAllHighlights (null);
 });
 Clazz.defineMethod (c$, "removeHighlight", 
 function (index) {
-this.highlights.remove (index);
+this.highlights.removeItemAt (index);
 }, "~N");
 Clazz.defineMethod (c$, "removeHighlight", 
 function (x1, x2) {
 for (var i = this.highlights.size (); --i >= 0; ) {
 var h = this.highlights.get (i);
-if (h.x1 == x1 && h.x2 == x2) this.highlights.remove (i);
+if (h.x1 == x1 && h.x2 == x2) this.highlights.removeItemAt (i);
 }
 }, "~N,~N");
 Clazz.defineMethod (c$, "scaleYBy", 
@@ -2424,7 +2424,7 @@ this.showAllStacked = false;
 Clazz.defineMethod (c$, "setSpectrumJDX", 
 function (spec) {
 var pt = this.getFixedSelectedSpectrumIndex ();
-this.spectra.remove (pt);
+this.spectra.removeItemAt (pt);
 this.spectra.add (pt, spec);
 this.pendingMeasurement = null;
 this.clearViews ();

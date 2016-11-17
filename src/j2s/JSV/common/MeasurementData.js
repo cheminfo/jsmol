@@ -94,7 +94,7 @@ function (x1, x2) {
 for (var i = this.size (); --i >= 0; ) {
 var $in = this.get (i);
 if ($in.text.length == 0 || $in.overlaps (x1, x2)) {
-this.remove (i);
+this.removeItemAt (i);
 }}
 }, "~N,~N");
 Clazz.overrideMethod (c$, "setSpecShift", 

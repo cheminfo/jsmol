@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -2658,6 +2659,7 @@ c$.static_bl_desc = c$.prototype.static_bl_desc =  new JU.StaticTree (null, JU.T
 Clazz_declarePackage ("JU");
 Clazz_declareInterface (JU, "Checksum");
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt
