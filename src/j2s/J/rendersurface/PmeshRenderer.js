@@ -3,7 +3,6 @@ Clazz.load (["J.rendersurface.IsosurfaceRenderer"], "J.rendersurface.PmeshRender
 c$ = Clazz.declareType (J.rendersurface, "PmeshRenderer", J.rendersurface.IsosurfaceRenderer);
 Clazz.overrideMethod (c$, "render", 
 function () {
-this.forceShowTriangles = this.vwr.getBoolean (603979964);
 return this.renderIso ();
 });
 });

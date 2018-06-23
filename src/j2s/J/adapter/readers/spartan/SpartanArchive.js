@@ -2,6 +2,7 @@ Clazz.declarePackage ("J.adapter.readers.spartan");
 Clazz.load (null, "J.adapter.readers.spartan.SpartanArchive", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.Lst", "$.PT", "$.V3", "J.adapter.smarter.AtomSetCollectionReader", "$.Bond", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.modelCount = 0;
+this.modelAtomCount = 0;
 this.ac = 0;
 this.bondData = null;
 this.moCount = 0;
@@ -11,16 +12,16 @@ this.gaussianCount = 0;
 this.endCheck = null;
 this.isSMOL = false;
 this.r = null;
-this.modelAtomCount = 0;
 this.line = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.spartan, "SpartanArchive");
 Clazz.makeConstructor (c$, 
-function (r, bondData, endCheck) {
+function (r, bondData, endCheck, smolAtomCount) {
 this.initialize (r, bondData);
+this.modelAtomCount = smolAtomCount;
 this.endCheck = endCheck;
 this.isSMOL = (endCheck != null);
-}, "J.adapter.readers.quantum.BasisFunctionReader,~S,~S");
+}, "J.adapter.readers.quantum.BasisFunctionReader,~S,~S,~N");
 Clazz.defineMethod (c$, "initialize", 
  function (r, bondData) {
 this.r = r;
@@ -64,7 +65,7 @@ break;
 }this.readLine ();
 }
 if (haveMOData) this.r.finalizeMOData (this.r.moData);
-return this.ac;
+return this.modelAtomCount;
 }, "~S,~B,~N,~B");
 Clazz.defineMethod (c$, "readEnergy", 
  function () {
@@ -125,7 +126,7 @@ for (var i = 0; i < this.shellCount; i++) {
 var tokens = JU.PT.getTokens (this.readLine ());
 var isSpherical = (tokens[4].charAt (0) == '1');
 var slater =  Clazz.newIntArray (4, 0);
-slater[0] = this.parseInt (tokens[3]) - 1;
+slater[0] = this.parseInt (tokens[3]);
 var iBasis = this.parseInt (tokens[0]);
 switch (iBasis) {
 case 0:
@@ -142,7 +143,8 @@ iBasis = (isSpherical ? 5 : 6);
 break;
 }
 slater[1] = iBasis;
-var gaussianPtr = slater[2] = this.parseInt (tokens[2]) - 1;
+slater[2] = this.parseInt (tokens[2]);
+var gaussianPtr = slater[2] - 1;
 var nGaussians = slater[3] = this.parseInt (tokens[1]);
 for (var j = 0; j < nGaussians; j++) typeArray[gaussianPtr + j] = iBasis;
 
@@ -182,7 +184,7 @@ gaussians[i] = data;
 var nCoeff = 0;
 for (var i = 0; i < this.shellCount; i++) {
 var slater = shells.get (i);
-switch (typeArray[slater[2]]) {
+switch (typeArray[slater[2] - 1]) {
 case 0:
 nCoeff++;
 break;
@@ -333,7 +335,7 @@ JU.Logger.debug ("reading VIBFREQ vibration records: frequencyCount = " + freque
 }var ignore =  Clazz.newBooleanArray (frequencyCount, false);
 for (var i = 0; i < frequencyCount; ++i) {
 var ac0 = this.r.asc.ac;
-ignore[i] = !this.r.doGetVibration (i + 1);
+ignore[i] = !this.r.doGetVibration (++this.r.vibrationNumber);
 if (!ignore[i] && this.r.desiredVibrationNumber <= 0) {
 this.r.asc.cloneLastAtomSet ();
 this.addBonds (this.bondData, ac0);
@@ -344,10 +346,10 @@ info.put ("freq", Float.$valueOf (freq));
 if (this.line.length > 15 && !(label = this.line.substring (15, this.line.length)).equals ("???")) info.put ("label", label);
 freqs.addLast (info);
 if (!ignore[i]) {
-this.r.asc.setAtomSetFrequency (null, label, "" + freq, null);
+this.r.asc.setAtomSetFrequency (this.r.vibrationNumber, null, label, "" + freq, null);
 }}
 this.r.asc.setInfo ("VibFreqs", freqs);
-var ac = this.r.asc.atomSetAtomCounts[0];
+var ac = this.r.asc.getAtomSetAtomCount (0);
 var vib =  new JU.Lst ();
 var vibatom =  new JU.Lst ();
 var ifreq = 0;
@@ -405,7 +407,7 @@ this.r.asc.setAtomSetModelProperty ("Frequency", freq + " cm^-1");
 this.r.asc.setAtomSetModelProperty (".PATH", "Frequencies");
 }
 this.r.asc.setInfo ("VibFreqs", freqs);
-var ac = this.r.asc.atomSetAtomCounts[0];
+var ac = this.r.asc.getAtomSetAtomCount (0);
 var iatom = ac;
 for (var i = 0; i < frequencyCount; i++) {
 if (!this.r.doGetVibration (i + 1)) continue;

@@ -48,10 +48,10 @@ this.updateAboutSubmenu ();
 });
 Clazz.overrideMethod (c$, "appCheckItem", 
 function (item, newMenu) {
-}, "~S,javajs.api.SC");
+}, "~S,javajs.awt.SC");
 Clazz.overrideMethod (c$, "appCheckSpecialMenu", 
 function (item, subMenu, word) {
-}, "~S,javajs.api.SC,~S");
+}, "~S,javajs.awt.SC,~S");
 Clazz.overrideMethod (c$, "appFixLabel", 
 function (label) {
 if (label.startsWith ("_")) label = label.substring (label.indexOf ("_", 2) + 1);
@@ -77,7 +77,7 @@ return false;
 Clazz.overrideMethod (c$, "appIsSpecialCheckBox", 
 function (item, basename, what, TF) {
 return false;
-}, "javajs.api.SC,~S,~S,~B");
+}, "javajs.awt.SC,~S,~S,~B");
 Clazz.overrideMethod (c$, "appRestorePopupMenu", 
 function () {
 this.thisPopup = this.popupMenu;
@@ -98,7 +98,7 @@ this.updateAboutSubmenu ();
 });
 Clazz.overrideMethod (c$, "appUpdateSpecialCheckBoxValue", 
 function (item, what, TF) {
-}, "javajs.api.SC,~S,~B");
+}, "javajs.awt.SC,~S,~B");
 Clazz.defineMethod (c$, "getViewerData", 
  function () {
 });
@@ -139,7 +139,7 @@ if (atoms != null) this.menuCreateItem (menu, title, "select visible & (@" + JU.
 }
 this.menuEnable (menu, true);
 return true;
-}, "javajs.api.SC,JU.Lst");
+}, "javajs.awt.SC,JU.Lst");
 Clazz.defineMethod (c$, "updateAboutSubmenu", 
  function () {
 var menu = this.htMenus.get ("aboutComputedMenu");
@@ -209,7 +209,7 @@ this.menuEnable (item, true);
 Clazz.overrideMethod (c$, "menuSetCheckBoxOption", 
 function (item, name, what) {
 return null;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz.defineStatics (c$,
 "dumpList", false,
 "UPDATE_NEVER", -1,

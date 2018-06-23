@@ -530,6 +530,7 @@ sb.append (tabs);
 var key = keys[i];
 sb.append (JU.PT.esc (key)).append ("  :");
 var sb2 =  new JU.SB ();
+if (!(Clazz.instanceOf (ht.get (key), JS.SV))) ht.put (key, JS.SV.getVariable (ht.get (key)));
 var v = ht.get (key);
 isEscaped = JS.SV.isRawType (v.tok);
 JS.SV.sValueArray (sb2, v, path, tabs, isEscaped, false, addValues, maxLevels, skipEmpty);
@@ -960,8 +961,17 @@ return (allowNull ? null :  new JU.BS ());
 c$.unEscapeBitSetArray = Clazz.defineMethod (c$, "unEscapeBitSetArray", 
 function (x, allowNull) {
 var bs =  new JU.BS ();
-for (var i = 0; i < x.size (); i++) if (!JS.SV.unEscapeBitSet (x.get (i), bs)) return (allowNull ? null : bs);
-
+for (var i = 0; i < x.size (); i++) {
+var v = x.get (i);
+if (v.tok == 2 && v.intValue >= 0) {
+bs.set (v.intValue);
+} else if (v.tok == 7) {
+var bs2 = JS.SV.unEscapeBitSetArray (v.getList (), true);
+if (bs2 == null) return (allowNull ? null :  new JU.BS ());
+bs.or (bs2);
+} else if (!JS.SV.unEscapeBitSet (v, bs)) {
+return (allowNull ? null :  new JU.BS ());
+}}
 return bs;
 }, "JU.Lst,~B");
 c$.areEqual = Clazz.defineMethod (c$, "areEqual", 
@@ -1004,8 +1014,21 @@ java.util.Collections.sort (this.getList (), Clazz.innerTypeInstance (JS.SV.Sort
 }}return this;
 }, "~N");
 Clazz.defineMethod (c$, "pushPop", 
-function (value, mapKey) {
-if (mapKey != null) {
+function (mapKey, value) {
+if (mapKey == null) {
+var m = this.getMap ();
+if (m == null) {
+var x = this.getList ();
+if (value == null || x == null) {
+return (x == null || x.size () == 0 ? JS.SV.newS ("") : x.removeItemAt (x.size () - 1));
+}x.addLast (JS.SV.newI (0).setv (value));
+} else {
+if (value == null) {
+m.clear ();
+} else {
+var m1 = value.getMap ();
+if (m1 != null) m.putAll (m1);
+}}} else {
 var m = this.getMap ();
 if (value == null) {
 var v = null;
@@ -1019,12 +1042,9 @@ v = lst.removeItemAt (i);
 }} else {
 v = m.remove (mapKey.asString ());
 }return (v == null ? JS.SV.newS ("") : v);
-}if (m != null) m.put (mapKey.asString (), JS.SV.newI (0).setv (value));
-} else {
-var x = this.getList ();
-if (value == null || x == null) return (x == null || x.size () == 0 ? JS.SV.newS ("") : x.removeItemAt (x.size () - 1));
-x.addLast (JS.SV.newI (0).setv (value));
-}return this;
+}if (m != null) {
+m.put (mapKey.asString (), JS.SV.newI (0).setv (value));
+}}return this;
 }, "JS.SV,JS.SV");
 c$.unEscapeBitSet = Clazz.defineMethod (c$, "unEscapeBitSet", 
  function (x, bs) {

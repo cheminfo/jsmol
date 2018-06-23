@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.io");
-Clazz.load (["J.api.JmolFilesReaderInterface"], "J.io.FilesReader", ["java.io.BufferedInputStream", "$.BufferedReader", "java.util.zip.ZipInputStream", "javajs.api.GenericBinaryDocument", "JU.PT", "J.api.Interface", "J.io.FileReader", "JU.Logger"], function () {
+Clazz.load (["J.api.JmolFilesReaderInterface"], "J.io.FilesReader", ["java.io.BufferedInputStream", "$.BufferedReader", "javajs.api.GenericBinaryDocument", "JU.PT", "$.Rdr", "J.api.Interface", "J.io.FileReader", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.fm = null;
 this.vwr = null;
@@ -51,7 +51,7 @@ subFileList = JU.PT.split (name, "|");
 name = subFileList[0];
 }if (name.contains ("#_DOCACHE_")) return J.io.FileReader.getChangeableReader (this.vwr, this.namesAsGivenIn[i], name);
 var t = this.fm.getUnzippedReaderOrStreamFromName (name, null, true, forceBinary, false, true, this.htParams);
-if (Clazz.instanceOf (t, java.util.zip.ZipInputStream)) {
+if (Clazz.instanceOf (t, java.io.BufferedInputStream) && JU.Rdr.isZipS (t)) {
 if (subFileList != null) this.htParams.put ("subFileList", subFileList);
 var zipDirectory = this.fm.getZipDirectory (name, true, true);
 t = this.fm.getBufferedInputStreamOrErrorMessageFromName (name, this.fullPathNamesIn[i], false, false, null, false, true);

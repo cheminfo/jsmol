@@ -365,7 +365,7 @@ this.appendLoadNote ("PyMOL movie frameCount = " + frameCount);
 if (haveFrames && !haveCommands && !haveViews) {
 this.isMovie = true;
 this.pymolScene.setReaderObjectInfo (null, 0, null, false, null, null, null);
-this.pymolScene.setFrameObject (1073742032, movie);
+this.pymolScene.setFrameObject (1073742031, movie);
 } else {
 }}, "JU.Lst,~N");
 c$.fixMovieViews = Clazz.defineMethod (c$, "fixMovieViews", 

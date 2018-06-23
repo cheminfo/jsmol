@@ -31,6 +31,7 @@ this.isBio = false;
 this.isBilbao = false;
 this.latticeType = "P";
 this.nHallOperators = null;
+this.info = null;
 Clazz.instantialize (this, arguments);
 }, JS, "SpaceGroup");
 c$.getNull = Clazz.defineMethod (c$, "getNull", 
@@ -56,17 +57,17 @@ this.operationCount = 0;
 if (addXYZ) this.addSymmetry ("x,y,z", 0, false);
 }, "~B");
 c$.createSpaceGroup = Clazz.defineMethod (c$, "createSpaceGroup", 
-function (desiredSpaceGroupIndex, name, data) {
+function (desiredSpaceGroupIndex, name, data, modDim) {
 var sg = null;
 if (desiredSpaceGroupIndex >= 0) {
 sg = JS.SpaceGroup.getSpaceGroups ()[desiredSpaceGroupIndex];
 } else {
 if (Clazz.instanceOf (data, JU.Lst)) sg = JS.SpaceGroup.createSGFromList (name, data);
  else sg = JS.SpaceGroup.determineSpaceGroupNA (name, data);
-if (sg == null) sg = JS.SpaceGroup.createSpaceGroupN (name);
+if (sg == null) sg = JS.SpaceGroup.createSpaceGroupN (modDim <= 0 ? name : "x1,x2,x3,x4,x5,x6,x7,x8,x9".substring (0, modDim * 3 + 8));
 }if (sg != null) sg.generateAllOperators (null);
 return sg;
-}, "~N,~S,~O");
+}, "~N,~S,~O,~N");
 c$.createSGFromList = Clazz.defineMethod (c$, "createSGFromList", 
  function (name, data) {
 var sg =  new JS.SpaceGroup (-1, "0;0;--;--;--", true);
@@ -138,7 +139,7 @@ function (i, atom1, atom2, transX, transY, transZ) {
 JS.SymmetryOperation.newPoint (this.finalOperations[i], atom1, atom2, transX, transY, transZ);
 }, "~N,JU.P3,JU.P3,~N,~N,~N");
 c$.getInfo = Clazz.defineMethod (c$, "getInfo", 
-function (sg, spaceGroup, cellInfo) {
+function (sg, spaceGroup, cellInfo, asMap) {
 if (cellInfo != null) {
 if (sg == null) {
 if (spaceGroup.indexOf ("[") >= 0) spaceGroup = spaceGroup.substring (0, spaceGroup.indexOf ("[")).trim ();
@@ -155,26 +156,51 @@ sg = JS.SpaceGroup.createSpaceGroupN (spaceGroup);
 } else {
 var sb =  new JU.SB ();
 while (sg != null) {
-sb.append (sg.dumpInfo (null));
+sb.append (sg.dumpInfo ());
 sg = JS.SpaceGroup.determineSpaceGroupNS (spaceGroup, sg);
 }
 return sb.toString ();
-}}return sg == null ? "?" : sg.dumpInfo (cellInfo);
-}, "JS.SpaceGroup,~S,J.api.SymmetryInterface");
+}}return (asMap ? (sg == null ? null : sg.getInfo (cellInfo)) : sg == null ? "?" : sg.dumpInfo ());
+}, "JS.SpaceGroup,~S,J.api.SymmetryInterface,~B");
+Clazz.defineMethod (c$, "getInfo", 
+ function (cellInfo) {
+if (this.info == null) {
+if (this.hmSymbol == null || this.hmSymbolExt == null) {
+this.info =  new java.util.Hashtable ();
+this.info.put ("HMSymbol", "??");
+} else {
+var seitz = this.dumpCanonicalSeitzList ();
+this.info.put ("SeitzList", seitz == null ? "" : seitz);
+this.info.put ("HMSymbol", this.hmSymbolExt.length > 0 ? ":" + this.hmSymbolExt : "");
+this.info.put ("ITSNumber", Integer.$valueOf (this.intlTableNumber));
+this.info.put ("ITSNumberFull", this.intlTableNumberFull);
+this.info.put ("crystalClass", this.crystalClass);
+this.info.put ("HallSymbol", this.hallInfo.hallSymbol.equals ("--") ? "" : this.hallInfo.hallSymbol);
+}this.info.put ("operationCount", Integer.$valueOf (this.operationCount));
+var ops =  new JU.Lst ();
+this.info.put ("operationInfo", ops);
+for (var i = 0; i < this.operationCount; i++) ops.addLast (this.operations[i].getInfo ());
+
+}var ucmap = (cellInfo == null ? null : cellInfo.getUnitCellInfoMap ());
+if (ucmap != null) this.info.put ("unitCell", ucmap);
+return this.info;
+}, "J.api.SymmetryInterface");
 Clazz.defineMethod (c$, "dumpInfo", 
-function (cellInfo) {
+function () {
 var info = this.dumpCanonicalSeitzList ();
-if (Clazz.instanceOf (info, JS.SpaceGroup)) return (info).dumpInfo (null);
+if (Clazz.instanceOf (info, JS.SpaceGroup)) return (info).dumpInfo ();
 var sb =  new JU.SB ().append ("\nHermann-Mauguin symbol: ");
 if (this.hmSymbol == null || this.hmSymbolExt == null) sb.append ("?");
- else sb.append (this.hmSymbol).append (this.hmSymbolExt.length > 0 ? ":" + this.hmSymbolExt : "").append ("\ninternational table number: ").append (this.intlTableNumber).append (this.intlTableNumberExt.length > 0 ? ":" + this.intlTableNumberExt : "").append ("\ncrystal class: " + this.crystalClass).append ("\n\n").appendI (this.operationCount).append (" operators").append (!this.hallInfo.hallSymbol.equals ("--") ? " from Hall symbol " + this.hallInfo.hallSymbol + "  #" + this.intlTableNumberFull : "").append (": ");
-for (var i = 0; i < this.operationCount; i++) {
+ else sb.append (this.hmSymbol).append (this.hmSymbolExt.length > 0 ? ":" + this.hmSymbolExt : "");
+if (this.intlTableNumber != null) {
+sb.append ("\ninternational table number: ").append (this.intlTableNumber).append (this.intlTableNumberExt.length > 0 ? ":" + this.intlTableNumberExt : "").append ("\ncrystal class: " + this.crystalClass).append ("\n\n").appendI (this.operationCount).append (" operators").append (!this.hallInfo.hallSymbol.equals ("--") ? " from Hall symbol " + this.hallInfo.hallSymbol + "  #" + this.intlTableNumberFull : "").append (": ");
+}for (var i = 0; i < this.operationCount; i++) {
 sb.append ("\n").append (this.operations[i].xyz);
 }
-sb.append ("\n\n").append (this.hallInfo == null ? "invalid Hall symbol" : this.hallInfo.dumpInfo ());
+sb.append ("\n\n").append (this.hallInfo == null ? "Hall symbol unknown" : this.hallInfo.dumpInfo ());
 sb.append ("\n\ncanonical Seitz: ").append (info).append ("\n----------------------------------------------------\n");
 return sb.toString ();
-}, "J.api.SymmetryInterface");
+});
 Clazz.defineMethod (c$, "getName", 
 function () {
 return this.name;
@@ -232,7 +258,7 @@ c$.dumpAll = Clazz.defineMethod (c$, "dumpAll",
  function () {
 var sb =  new JU.SB ();
 JS.SpaceGroup.getSpaceGroups ();
-for (var i = 0; i < JS.SpaceGroup.SG.length; i++) sb.append ("\n----------------------\n" + JS.SpaceGroup.SG[i].dumpInfo (null));
+for (var i = 0; i < JS.SpaceGroup.SG.length; i++) sb.append ("\n----------------------\n" + JS.SpaceGroup.SG[i].dumpInfo ());
 
 return sb.toString ();
 });
@@ -440,22 +466,24 @@ ext = "?";
 haveExtension = true;
 }var abbr = JU.PT.replaceAllCharacters (name, " ()", "");
 var s;
-if (nameType != 3 && !haveExtension) for (i = lastIndex; --i >= 0; ) if (JS.SpaceGroup.SG[i].hallSymbol.equals (name)) return i;
-
+if (nameType != 3 && !haveExtension) for (i = lastIndex; --i >= 0; ) {
+if (JS.SpaceGroup.SG[i].hallSymbol.equalsIgnoreCase (name)) return i;
+}
 if (nameType != 5) {
-if (nameType != 3) for (i = lastIndex; --i >= 0; ) if (JS.SpaceGroup.SG[i].intlTableNumberFull.equals (nameExt)) return i;
+if (nameType != 3) for (i = lastIndex; --i >= 0; ) if (JS.SpaceGroup.SG[i].intlTableNumberFull.equalsIgnoreCase (nameExt)) return i;
 
-for (i = lastIndex; --i >= 0; ) if (JS.SpaceGroup.SG[i].hmSymbolFull.equals (nameExt)) return i;
-
-for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAlternative != null && s.hmSymbolAlternative.equals (nameExt)) return i;
+for (i = lastIndex; --i >= 0; ) {
+if (JS.SpaceGroup.SG[i].hmSymbolFull.equalsIgnoreCase (nameExt)) return i;
+}
+for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAlternative != null && s.hmSymbolAlternative.equalsIgnoreCase (nameExt)) return i;
 
 if (haveExtension) {
-for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAbbr.equals (abbr) && s.intlTableNumberExt.equals (ext)) return i;
+for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAbbr.equalsIgnoreCase (abbr) && s.intlTableNumberExt.equalsIgnoreCase (ext)) return i;
 
-for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAbbrShort.equals (abbr) && s.intlTableNumberExt.equals (ext)) return i;
+for (i = lastIndex; --i >= 0; ) if ((s = JS.SpaceGroup.SG[i]).hmSymbolAbbrShort.equalsIgnoreCase (abbr) && s.intlTableNumberExt.equalsIgnoreCase (ext)) return i;
 
 }var uniqueAxis = JS.SpaceGroup.determineUniqueAxis (a, b, c, alpha, beta, gamma);
-if (!haveExtension || ext.charAt (0) == '?') for (i = 0; i < lastIndex; i++) if (((s = JS.SpaceGroup.SG[i]).hmSymbolAbbr.equals (abbr) || s.hmSymbolAbbrShort.equals (abbr)) && (!checkBilbao || s.isBilbao)) switch (s.ambiguityType) {
+if (!haveExtension || ext.charAt (0) == '?') for (i = 0; i < lastIndex; i++) if (((s = JS.SpaceGroup.SG[i]).hmSymbolAbbr.equalsIgnoreCase (abbr) || s.hmSymbolAbbrShort.equalsIgnoreCase (abbr)) && (!checkBilbao || s.isBilbao)) switch (s.ambiguityType) {
 case '\0':
 return i;
 case 'a':
@@ -464,12 +492,12 @@ break;
 case 'o':
 if (ext.length == 0) {
 if (s.hmSymbolExt.equals ("2")) return i;
-} else if (s.hmSymbolExt.equals (ext)) return i;
+} else if (s.hmSymbolExt.equalsIgnoreCase (ext)) return i;
 break;
 case 't':
 if (ext.length == 0) {
 if (s.axisChoice == 'h') return i;
-} else if ((s.axisChoice + "").equals (ext)) return i;
+} else if ((s.axisChoice + "").equalsIgnoreCase (ext)) return i;
 break;
 }
 
@@ -513,9 +541,19 @@ var lst = JS.SpaceGroup.htByOpCount.get (this.nHallOperators);
 if (lst == null) JS.SpaceGroup.htByOpCount.put (this.nHallOperators, lst =  new JU.Lst ());
 lst.addLast (this);
 }this.crystalClass = JS.SpaceGroup.toCap (JU.PT.split (terms[2], "^")[0], 1);
-this.hmSymbolFull = JS.SpaceGroup.toCap (terms[3], 1);
-parts = JU.PT.split (this.hmSymbolFull, ":");
+this.setHMSymbol (terms[3]);
+this.hallSymbol = terms[4];
+if (this.hallSymbol.length > 1) this.hallSymbol = JS.SpaceGroup.toCap (this.hallSymbol, 2);
+var info = this.intlTableNumber + this.hallSymbol;
+if (this.intlTableNumber.charAt (0) != '0' && JS.SpaceGroup.lastInfo.equals (info)) JS.SpaceGroup.ambiguousNames += this.hmSymbol + ";";
+JS.SpaceGroup.lastInfo = info;
+this.name = this.hallSymbol + " [" + this.hmSymbolFull + "] #" + this.intlTableNumber;
+}, "~S");
+Clazz.defineMethod (c$, "setHMSymbol", 
+ function (name) {
+this.hmSymbolFull = JS.SpaceGroup.toCap (name, 1);
 this.latticeType = this.hmSymbolFull.substring (0, 1);
+var parts = JU.PT.split (this.hmSymbolFull, ":");
 this.hmSymbol = parts[0];
 this.hmSymbolExt = (parts.length == 1 ? "" : parts[1]);
 var pt = this.hmSymbol.indexOf (" -3");
@@ -524,12 +562,6 @@ this.hmSymbolAlternative = (this.hmSymbol.substring (0, pt) + " 3" + this.hmSymb
 }this.hmSymbolAbbr = JU.PT.rep (this.hmSymbol, " ", "");
 this.hmSymbolAbbrShort = JU.PT.rep (this.hmSymbol, " 1", "");
 this.hmSymbolAbbrShort = JU.PT.rep (this.hmSymbolAbbrShort, " ", "");
-this.hallSymbol = terms[4];
-if (this.hallSymbol.length > 1) this.hallSymbol = JS.SpaceGroup.toCap (this.hallSymbol, 2);
-var info = this.intlTableNumber + this.hallSymbol;
-if (this.intlTableNumber.charAt (0) != '0' && JS.SpaceGroup.lastInfo.equals (info)) JS.SpaceGroup.ambiguousNames += this.hmSymbol + ";";
-JS.SpaceGroup.lastInfo = info;
-this.name = this.hallSymbol + " [" + this.hmSymbolFull + "] #" + this.intlTableNumber;
 }, "~S");
 c$.toCap = Clazz.defineMethod (c$, "toCap", 
  function (s, n) {
@@ -595,6 +627,12 @@ if (pt1 != null) pts.addLast (pt1);
 }
 return Clazz.doubleToInt (n / pts.size ());
 }, "JU.P3,JS.UnitCell");
+Clazz.defineMethod (c$, "setName", 
+function (name) {
+this.name = name;
+if (name != null && name.startsWith ("HM:")) {
+this.setHMSymbol (name.substring (3));
+}}, "~S");
 Clazz.defineStatics (c$,
 "canonicalSeitzList", null,
 "NAME_UNK", 0,

@@ -21,7 +21,7 @@ var JmolInfo = {
 	color: "black",
 	use: "HTML5",
   addSelectionOptions: true,
-	serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+	serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
   disableJ2SLoadMonitor: true,
   disableInitialConsole: true,
   jarPath: "java",
@@ -81,6 +81,8 @@ jme = Jmol.getJMEApplet("jme", JMEInfo, jmol);
 <script>
 jmol = Jmol.getApplet(jmol, JmolInfo)
 jme = Jmol.getJMEApplet(jme, JMEInfo, jmol);
+Jmol.jmolButton(jmol, "calculate chirality;label %[chirality];background label yellow","show R/S")
+
 </script>
 </td>
 </tr>

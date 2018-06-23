@@ -34,6 +34,7 @@ JU.BSUtil.deleteBits (this.bsHidden, bsAtoms);
 var bs = JU.BSUtil.copy (this.bsSelection);
 JU.BSUtil.deleteBits (bs, bsAtoms);
 this.setSelectionSet (bs, 0);
+this.selectionChanged (false);
 }, "JU.BS");
 Clazz.defineMethod (c$, "clear", 
 function () {
@@ -76,7 +77,6 @@ Clazz.defineMethod (c$, "setSelectionSet",
 function (set, addRemove) {
 JV.SelectionManager.setBitSet (this.bsSelection, set, addRemove);
 this.empty = -1;
-this.selectionChanged (false);
 }, "JU.BS,~N");
 c$.setBitSet = Clazz.defineMethod (c$, "setBitSet", 
  function (bsWhat, bs, addRemove) {
@@ -114,10 +114,12 @@ if (bs == null) {
 this.selectAll (true);
 if (!this.vwr.getBoolean (1612709900)) this.excludeSelectionSet (this.vwr.ms.getAtoms (1612709900, null));
 if (!this.vwr.getBoolean (1612709894)) this.excludeSelectionSet (this.vwr.ms.getAtoms (1612709894, null));
-this.selectionChanged (false);
 } else {
 this.setSelectionSet (bs, addRemove);
-}var reportChime = this.vwr.getBoolean (603979880);
+if (!this.vwr.getBoolean (1612709900)) this.excludeSelectionSet (this.vwr.ms.getAtoms (1612709900, null));
+if (!this.vwr.getBoolean (1612709894)) this.excludeSelectionSet (this.vwr.ms.getAtoms (1612709894, null));
+}this.selectionChanged (false);
+var reportChime = this.vwr.getBoolean (603979880);
 if (!reportChime && isQuiet) return;
 var n = this.getSelectionCount ();
 if (reportChime) this.vwr.getChimeMessenger ().reportSelection (n);

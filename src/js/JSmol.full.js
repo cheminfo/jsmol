@@ -10655,6 +10655,9 @@ return jQuery;
 // see JSmolApi.js for public user-interface. All these are private functions
 
 
+// BH 7/6/2017 2:22:07 AM adds BZ2 as binary
+// BH 4/13/2017 11:23:05 PM adds "binary pmesh" .pmb extension
+// BH 1/14/2017 6:28:07 AM adds &debugCore
 // BH 10/20/2016 10:00:43 AM JmolTracker.php
 // BH 9/19/2016 8:22:48 AM drag-drop broken for https (imageDrop.htm)
 // BH 9/18/2016 btoa() does not work with UTF-8 data (set language es;write menu t.mnu)
@@ -10825,7 +10828,7 @@ Jmol = (function(document) {
 		}
 	};
 	var j = {
-		_version: "$Date: 2016-10-21 06:39:01 -0500 (Fri, 21 Oct 2016) $", // svn.keywords:lastUpdated
+		_version: "$Date: 2018-01-28 23:38:52 -0600 (Sun, 28 Jan 2018) $", // svn.keywords:lastUpdated
 		_alertNoBinary: true,
 		// this url is used to Google Analytics tracking of Jmol use. You may remove it or modify it if you wish. 
 		_allowedJmolSize: [25, 2048, 300],   // min, max, default (pixels)
@@ -10847,6 +10850,7 @@ Jmol = (function(document) {
 		_getZOrders: getZOrders,
 		_z:getZOrders(z),
 		_debugCode: true,  // set false in process of minimization
+    _debugCore: false, // set true using URL &debugCore
 		db: {
 			_databasePrefixes: "$=:",
 			_fileLoadScript: ";if (_loadScript = '' && defaultLoadScript == '' && _filetype == 'Pdb') { select protein or nucleic;cartoons Only;color structure; select * };",
@@ -10890,6 +10894,7 @@ Jmol = (function(document) {
 	}
 	
 	var ref = document.location.href.toLowerCase();
+  j._debugCore = (ref.indexOf("j2sdebugcore") >= 0);
 	j._httpProto = (ref.indexOf("https") == 0 ? "https://" : "http://"); 
 	j._isFile = (ref.indexOf("file:") == 0);
 	if (j._isFile) // ensure no attempt to read XML in local request:
@@ -11343,7 +11348,7 @@ Jmol = (function(document) {
 				query = encodeURIComponent(query.substring(pt));		
 			}
       if (query.indexOf(".mmtf") >= 0) {
-        query = "http://mmtf.rcsb.org/full/" + query.replace(/\.mmtf/, "");
+        query = "https://mmtf.rcsb.org/v1.0/full/" + query.replace(/\.mmtf/, "");
 			} else if (call.indexOf("FILENCI") >= 0) {
 				query = query.replace(/\%2F/g, "/");				
 				query = call.replace(/\%FILENCI/, query);
@@ -11394,11 +11399,49 @@ Jmol = (function(document) {
 		return fSuccess;
 	}
 	
-  Jmol._playAudio = function(filePath) {
+  Jmol.playAudio = function(filePath) {
+    Jmol._playAudio(null, filePath);
+  }
+  
+  Jmol._playAudio = function(applet, params) {
+  
+    var get = (params.get ? function(key){return params.get(key)} : null);
+    var put = (params.put ? function(key,val){return params.put(key,val)} : null);
+    var filePath = (get ? get("audioFile") : params);
+    var jmolAudio = get && get("audioPlayer");
     var audio = document.createElement("audio");
+    put && put("audioElement", audio);
+    var callback = null;
+    if (jmolAudio) {
+      callback = function(type){jmolAudio.processUpdate(type)};
+      jmolAudio.myClip = {
+         open: function() {callback("open")},
+         start: function() { audio.play(); callback("start")},
+         loop: function(n) { audio.loop = (n != 0); },
+         stop: function() { audio.pause(); },
+         close: function() { callback("close") },
+         setMicrosecondPosition: function(us) { audio.currentTime = us / 1e6; }
+      };
+    }    
     audio.controls = "true";
     audio.src = filePath;
-    audio.play();
+    if (get && get("loop"))
+      audio.loop = "true";
+    if (callback) {
+      audio.addEventListener("pause", function() {
+          callback("pause");
+      });
+      audio.addEventListener("play", function() {
+          callback("play");
+      });
+      audio.addEventListener("playing", function() {
+          callback("playing");
+      });
+      audio.addEventListener("ended", function() {
+          callback("ended");
+      });
+      callback("open")
+    }
   }
   
 	Jmol._loadFileData = function(applet, fileName, fSuccess, fError){
@@ -11578,7 +11621,7 @@ Jmol = (function(document) {
 		return true;  
 	}
 
-	Jmol._binaryTypes = ["mmtf",".gz",".jpg",".gif",".png",".zip",".jmol",".bin",".smol",".spartan",".mrc",".map",".ccp4",".dn6",".delphi",".omap",".pse",".dcd"];
+	Jmol._binaryTypes = ["mmtf",".gz",".bz2",".jpg",".gif",".png",".zip",".jmol",".bin",".smol",".spartan",".pmb",".mrc",".map",".ccp4",".dn6",".delphi",".omap",".pse",".dcd",".uk/pdbe/densities/"];
 
 	Jmol._isBinaryUrl = function(url) {
 		for (var i = Jmol._binaryTypes.length; --i >= 0;)
@@ -11712,7 +11755,7 @@ Jmol = (function(document) {
 		}
 		// we actually cannot suggest a fileName, I believe.
 		if (!Jmol.featureDetection.hasFileReader) {
-        var mst = "Local file reading is not enabled in your browser";
+        var msg = "Local file reading is not enabled in your browser";
 				return (fileLoadThread ? fileLoadThread.setData(msg, null, null, appData, applet) : alert(msg));
     }
 		if (!applet._localReader) {
@@ -12665,7 +12708,7 @@ Swing.setText = function(btn) {
 }
 
 Swing.setVisible = function(c) {
-	Jmol.$setVisible(c.id, c.visible);
+	Jmol.$setVisible(c.id, c._visible);
 }
 
 Swing.setEnabled = function(c) {
@@ -12708,7 +12751,7 @@ Swing.hideMenus = function(applet) {
 	var menus = applet._menus;
 	if (menus)
 		for (var i in menus)
-			if (menus[i].visible)
+			if (menus[i]._visible)
 				Swing.hideMenu(menus[i]);
 }
 
@@ -13560,6 +13603,7 @@ Jmol._canvasCache = {};
 })(Jmol);
 // JmolApplet.js -- Jmol._Applet and Jmol._Image
 
+// BH 1/28/2018 7:15:09 AM adding _notifyAudioEnded
 // BH 2/14/2016 12:31:02 PM fixed local reader not disappearing after script call
 // BH 2/14/2016 12:30:41 PM Info.appletLoadingImage: "j2s/img/JSmol_spinner.gif", // can be set to "none" or some other image
 // BH 2/14/2016 12:27:09 PM Jmol._setCursor, proto._getSpinner 
@@ -13888,6 +13932,10 @@ Jmol._canvasCache = {};
 		}
 	}
 
+  proto._notifyAudioEnded = function(htParams) {
+    this._applet.notifyAudioEnded(htParams);
+  }
+  
 	proto._readyCallback = function(id, fullid, isReady) {
 		if (!isReady)
 			return; // ignore -- page is closing
@@ -14988,6 +15036,7 @@ Jmol._canvasCache = {};
 })(Jmol);
 // JmolApi.js -- Jmol user functions  Bob Hanson hansonr@stolaf.edu
 
+// BH 1/19/2017 8:05:05 AM <br>
 // BH 4/1/2016 12:59:45 PM fix applet_or_identifier reference in Jmol.getChemicalInfo
 // BH 5/29/2014 8:14:06 AM added default command for command input box
 // BH 3/10/2014 10:35:25 AM adds Jmol.saveImage(applet)
@@ -15257,7 +15306,7 @@ Jmol._canvasCache = {};
 
 
 	Jmol.jmolBr = function() {
-		return Jmol._documentWrite("<br />");
+		return Jmol._documentWrite("<br>");
 	}
 
 	Jmol.jmolButton = function(appletOrId, script, label, id, title) {
@@ -15489,6 +15538,9 @@ Jmol._canvasCache = {};
  // NOTES by Bob Hanson: 
   // J2S class changes:
 
+ // BH 10/16/2017 6:30:14 AM fix for prepareCallback reducing arguments length to -1
+ // BH 7/7/2017 7:10:39 AM fixes Clazz.clone for arrays
+ // BH 1/14/2017 6:23:54 AM adds URL switch  j2sDebugCore
  // BH 1/8/2016 6:21:38 PM adjustments to prevent multiple load of corejmol.js 
  // BH 12/30/2015 9:13:40 PM Clazz.floatToInt should return 0 for NaN
  // BH 12/23/2015 9:23:06 AM allowing browser to display stack for TypeError in exceptionOf
@@ -15741,7 +15793,8 @@ var addProto = function(proto, name, func) {
 
 	Clazz.clone = function(me) {
 		// BH allows @j2sNative access without super constructor
-		var o = new me.constructor();
+    // BH 7/7/2017 7:20:47 AM array clone must preserve length for java.util.Hashtable.clone()
+		var o = (me instanceof Array ? new Array(me.length) : new me.constructor());
 		for (var i in me) {
 			o[i] = me[i];
       }
@@ -17590,7 +17643,8 @@ Clazz.prepareCallback = function (innerObj, args) {
 	// note that args is an instance of arguments -- NOT an array; does not have the .shift() method!
 	for (var i = 0; i < args.length - 1; i++)
 		args[i] = args[i + 1];
-	args.length--;
+  if (args.length > 0)
+  	args.length--;
 };
 
 /**
@@ -19228,6 +19282,8 @@ _Loader.jarClasspath = function (jar, clazzes) {
 	if (!(clazzes instanceof Array))
 		clazzes = [clazzes];
 	unwrapArray(clazzes);
+  if (Jmol._debugCore)
+    jar = jar.replace(/\.z\./, ".")
 	for (var i = clazzes.length; --i >= 0;)
 		classpathMap["#" + clazzes[i]] = jar;
 	classpathMap["$" + jar] = clazzes;
@@ -20881,6 +20937,6 @@ Sys.err.write = function (buf, offset, len) {
 })(Clazz, Jmol); // requires JSmolCore.js
 
 }; // called by external application 
-Jmol.___JmolDate="$Date: 2016-11-05 10:17:33 -0500 (Sat, 05 Nov 2016) $"
+Jmol.___JmolDate="$Date: 2018-06-15 14:15:06 +0200 (Fri, 15 Jun 2018) $"
 Jmol.___fullJmolProperties="src/org/jmol/viewer/Jmol.properties"
-Jmol.___JmolVersion="14.6.4_2016.11.05"
+Jmol.___JmolVersion="14.29.17"

@@ -89,7 +89,7 @@ case 1814695966:
 case 1678381065:
 var box = slabbingObject;
 sb.append ("within ").append (JU.Escape.eAP (box));
-var faces = this.getBoxFacesFromCriticalPoints (box);
+var faces = this.getBoxFacesFromOABC (box);
 for (var i = 0; i < faces.length; i++) {
 this.getIntersection (0, faces[i], null, null, null, null, null, andCap, false, 134217750, isGhost);
 }
@@ -132,33 +132,22 @@ if (m.slabOptions == null) m.slabOptions =  new JU.SB ();
 if (m.slabOptions.indexOf (newOptions) < 0) m.slabOptions.append (m.slabOptions.length () > 0 ? "; " : "").append (m.meshType).append (newOptions);
 return true;
 }, "~A,~B");
-Clazz.defineMethod (c$, "getBoxFacesFromCriticalPoints", 
- function (points) {
+Clazz.defineMethod (c$, "getBoxFacesFromOABC", 
+ function (oabc) {
 var faces =  new Array (6);
 var vNorm =  new JU.V3 ();
 var vAB =  new JU.V3 ();
-var va =  new JU.P3 ();
-var vb =  new JU.P3 ();
-var vc =  new JU.P3 ();
-var vertices = JU.MeshSlicer.getVerticesFromCriticalPoints (points);
+var pta =  new JU.P3 ();
+var ptb =  new JU.P3 ();
+var ptc =  new JU.P3 ();
+var vertices = JU.BoxInfo.getVerticesFromOABC (oabc);
 for (var i = 0; i < 6; i++) {
-va.setT (vertices[JU.BoxInfo.facePoints[i].x]);
-vb.setT (vertices[JU.BoxInfo.facePoints[i].y]);
-vc.setT (vertices[JU.BoxInfo.facePoints[i].z]);
-faces[i] = JU.Measure.getPlaneThroughPoints (va, vb, vc, vNorm, vAB,  new JU.P4 ());
+pta.setT (vertices[JU.BoxInfo.facePoints[i][0]]);
+ptb.setT (vertices[JU.BoxInfo.facePoints[i][1]]);
+ptc.setT (vertices[JU.BoxInfo.facePoints[i][2]]);
+faces[i] = JU.Measure.getPlaneThroughPoints (pta, ptb, ptc, vNorm, vAB,  new JU.P4 ());
 }
 return faces;
-}, "~A");
-c$.getVerticesFromCriticalPoints = Clazz.defineMethod (c$, "getVerticesFromCriticalPoints", 
-function (points) {
-var vertices =  new Array (8);
-for (var i = 0; i < 8; i++) {
-vertices[i] = JU.P3.newP (points[0]);
-if ((i & 1) == 1) vertices[i].add (points[1]);
-if ((i & 2) == 2) vertices[i].add (points[2]);
-if ((i & 4) == 4) vertices[i].add (points[3]);
-}
-return vertices;
 }, "~A");
 Clazz.defineMethod (c$, "getIntersection", 
 function (distance, plane, ptCenters, vData, fData, bsSource, meshSurface, andCap, doClean, tokType, isGhost) {
@@ -177,8 +166,10 @@ this.wPlane = 0;
 if (tokType == 3 && bsSource != null) {
 if (m.vertexSource == null) return;
 fData =  Clazz.newFloatArray (m.vc, 0);
-for (var i = 0; i < m.vc; i++) if ((fData[i] = m.vertexSource[i]) == -1) System.out.println ("meshsurface hmm");
-
+for (var i = 0; i < m.vc; i++) {
+fData[i] = m.vertexSource[i];
+if (fData[i] == -1) System.out.println ("meshsurface hmm");
+}
 } else {
 fData = m.vvs;
 }}if (m.pc == 0) {
@@ -431,7 +422,7 @@ return JU.P3.new3 (v1.x + (v2.x - v1.x) * f, v1.y + (v2.y - v1.y) * f, v1.z + (v
 Clazz.defineMethod (c$, "slabBrillouin", 
 function (unitCellPoints) {
 var m = this.m;
-var vectors = (unitCellPoints == null ? m.spanningVectors : unitCellPoints);
+var vectors = (unitCellPoints == null ? m.oabc : unitCellPoints);
 if (vectors == null) return;
 var pts =  new Array (27);
 pts[0] = JU.P3.newP (vectors[0]);

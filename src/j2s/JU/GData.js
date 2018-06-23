@@ -57,7 +57,7 @@ Clazz.defineMethod (c$, "initialize",
 function (vwr, apiPlatform) {
 this.vwr = vwr;
 this.apiPlatform = apiPlatform;
-}, "JV.Viewer,javajs.api.GenericPlatform");
+}, "JV.Viewer,javajs.awt.GenericPlatform");
 Clazz.defineMethod (c$, "setDepth", 
 function (depthValue) {
 this.depth = depthValue < 0 ? 0 : depthValue;

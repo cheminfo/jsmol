@@ -36,11 +36,11 @@ if (hiddenLines) {
 bsSolid =  new JU.BS ();
 for (var i = 12; --i >= 0; ) {
 var face = faces[i];
-JU.Measure.getNormalThroughPoints (this.p3Screens[face.x], this.p3Screens[face.y], this.p3Screens[face.z], this.pt1, this.pt);
+JU.Measure.getNormalThroughPoints (this.p3Screens[face[0]], this.p3Screens[face[1]], this.p3Screens[face[2]], this.pt1, this.pt);
 if (this.pt1.z <= 0) {
-bsSolid.set (face.x);
-bsSolid.set (face.y);
-bsSolid.set (face.z);
+bsSolid.set (face[0]);
+bsSolid.set (face[1]);
+bsSolid.set (face[2]);
 }}
 }var diameter = this.getDiameter (Clazz.doubleToInt (Math.floor (zSum / 8)), mad);
 var axisPt = 2;

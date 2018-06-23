@@ -488,12 +488,13 @@ this.calculationType = this.moData.get ("calculationType");
 this.calculationType = "Molecular orbital #" + this.qm_moNumber + "/" + this.qmOrbitalCount + " " + (this.calculationType == null ? "" : this.calculationType);
 if (!isElectronDensity) {
 if (this.title == null) {
-this.title =  new Array (5);
+this.title =  new Array (6);
 this.title[0] = "%F";
 this.title[1] = "Model %M  MO %I/%N %T";
 this.title[2] = "?Energy = %E %U";
 this.title[3] = "?Symmetry = %S";
 this.title[4] = "?Occupancy = %O";
+this.title[5] = "?%L";
 }}}this.dataType = 1837;
 if (this.cutoff == 3.4028235E38) {
 this.cutoff = (isElectronDensity ? 0.01 : 0.05);

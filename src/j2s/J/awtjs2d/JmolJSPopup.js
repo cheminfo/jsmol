@@ -12,7 +12,7 @@ var doTranslate = J.i18n.GT.setDoTranslate (true);
 var bundle =  new J.popup.MainPopupResourceBundle (this.strMenuStructure = menu, this.menuText);
 this.initialize (vwr, bundle, bundle.getMenuName ());
 J.i18n.GT.setDoTranslate (doTranslate);
-}, "javajs.api.PlatformViewer,~S");
+}, "javajs.awt.PlatformViewer,~S");
 Clazz.overrideMethod (c$, "menuShowPopup", 
 function (popup, x, y) {
 try {
@@ -24,11 +24,11 @@ throw e;
 }
 }
 this.isTainted = false;
-}, "javajs.api.SC,~N,~N");
+}, "javajs.awt.SC,~N,~N");
 Clazz.overrideMethod (c$, "menuSetCheckBoxOption", 
 function (item, name, what) {
 return null;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz.overrideMethod (c$, "getImageIcon", 
 function (fileName) {
 return null;

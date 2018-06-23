@@ -689,15 +689,6 @@ JU.Logger.info ("data file type was determined to be " + fileType);
 if (fileType.equals ("Jvxl+")) return this.newReaderBr ("JvxlReader", br);
 this.readerData =  Clazz.newArray (-1, [this.params.fileName, data]);
 if ("MRC DELPHI DSN6".indexOf (fileType.toUpperCase ()) >= 0) {
-try {
-br.close ();
-} catch (e) {
-if (Clazz.exceptionOf (e, java.io.IOException)) {
-} else {
-throw e;
-}
-}
-br = null;
 fileType += "Binary";
 }return this.newReaderBr (fileType + "Reader", br);
 }, "JV.Viewer,~O");
@@ -806,6 +797,11 @@ function (fileName) {
 if (this.meshDataServer == null) return;
 this.meshDataServer.addRequiredFile (fileName);
 }, "~S");
+Clazz.defineMethod (c$, "setRequiredFile", 
+function (oldName, fileName) {
+if (this.meshDataServer == null) return;
+this.meshDataServer.setRequiredFile (oldName, fileName);
+}, "~S,~S");
 Clazz.defineMethod (c$, "log", 
 function (msg) {
 if (this.atomDataServer == null) System.out.println (msg);
@@ -823,8 +819,8 @@ if (this.bsVdw == null) this.bsVdw =  new JU.BS ();
 this.bsVdw.or (atomData.bsSelected);
 }this.atomDataServer.fillAtomData (atomData, mode);
 }, "J.atomdata.AtomData,~N");
-Clazz.defineMethod (c$, "getSpanningVectors", 
+Clazz.defineMethod (c$, "getOriginVaVbVc", 
 function () {
-return (this.surfaceReader.volumeData == null ? null : this.surfaceReader.volumeData.spanningVectors);
+return (this.surfaceReader.volumeData == null ? null : this.surfaceReader.volumeData.oabc);
 });
 });

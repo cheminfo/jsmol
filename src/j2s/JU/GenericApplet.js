@@ -286,6 +286,7 @@ case J.c.CBK.IMAGE:
 case J.c.CBK.LOADSTRUCT:
 case J.c.CBK.SCRIPT:
 return !this.isJNLP;
+case J.c.CBK.AUDIO:
 case J.c.CBK.APPLETREADY:
 case J.c.CBK.ATOMMOVED:
 case J.c.CBK.CLICK:
@@ -308,6 +309,7 @@ if (type != null) switch (type) {
 case J.c.CBK.APPLETREADY:
 data[3] = this.appletObject;
 break;
+case J.c.CBK.AUDIO:
 case J.c.CBK.ERROR:
 case J.c.CBK.EVAL:
 case J.c.CBK.HOVER:
@@ -405,10 +407,7 @@ throw e;
 }, "J.c.CBK,~A");
 Clazz.defineMethod (c$, "sendScript", 
  function (script, appletName, isSync, doCallback) {
-if ("audio:" === appletName) {
-this.playAudio (script);
-return "";
-}if (doCallback) {
+if (doCallback) {
 script = this.notifySync (script, appletName);
 if (script == null || script.length == 0 || script.equals ("0")) return "";
 }var apps =  new JU.Lst ();
@@ -444,11 +443,6 @@ throw e;
 }
 return (isSync ? "" : sb.toString ());
 }, "~S,~S,~B,~B");
-Clazz.defineMethod (c$, "playAudio", 
-function (fileOrDataURI) {
-{
-Jmol._playAudio(fileNameOrDataURI);
-}}, "~S");
 Clazz.defineMethod (c$, "notifySync", 
  function (info, appletName) {
 var syncCallback = this.b$.get (J.c.CBK.SYNC);
@@ -545,6 +539,10 @@ if (!JU.GenericApplet.htRegistry.containsKey (appletName)) appletName = "jmolApp
 if (!appletName.equals (excludeName) && JU.GenericApplet.htRegistry.containsKey (appletName)) {
 apps.addLast (appletName);
 }}, "~S,~S,~S,JU.Lst");
+Clazz.overrideMethod (c$, "notifyAudioEnded", 
+function (htParams) {
+this.viewer.sm.notifyAudioStatus (htParams);
+}, "~O");
 Clazz.defineStatics (c$,
 "htRegistry", null,
 "SCRIPT_CHECK", 0,

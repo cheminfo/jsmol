@@ -1,5 +1,6 @@
 // JmolApplet.js -- Jmol._Applet and Jmol._Image
 
+// BH 1/28/2018 7:15:09 AM adding _notifyAudioEnded
 // BH 2/14/2016 12:31:02 PM fixed local reader not disappearing after script call
 // BH 2/14/2016 12:30:41 PM Info.appletLoadingImage: "j2s/img/JSmol_spinner.gif", // can be set to "none" or some other image
 // BH 2/14/2016 12:27:09 PM Jmol._setCursor, proto._getSpinner 
@@ -328,6 +329,10 @@
 		}
 	}
 
+  proto._notifyAudioEnded = function(htParams) {
+    this._applet.notifyAudioEnded(htParams);
+  }
+  
 	proto._readyCallback = function(id, fullid, isReady) {
 		if (!isReady)
 			return; // ignore -- page is closing

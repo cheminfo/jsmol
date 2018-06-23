@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["JU.P3", "$.P3i", "$.V3"], "JU.BoxInfo", ["JU.Point3fi"], function () {
+Clazz.load (["JU.P3", "$.V3"], "JU.BoxInfo", ["JU.Point3fi"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bbCorner0 = null;
 this.bbCorner1 = null;
@@ -34,18 +34,6 @@ this.isScaleSet = false;
 this.bbCorner0.set (3.4028235E38, 3.4028235E38, 3.4028235E38);
 this.bbCorner1.set (-3.4028235E38, -3.4028235E38, -3.4028235E38);
 });
-Clazz.defineMethod (c$, "getMyCanonicalCopy", 
-function (scale) {
-return JU.BoxInfo.getCanonicalCopy (this.bbVertices, scale);
-}, "~N");
-c$.getCanonicalCopy = Clazz.defineMethod (c$, "getCanonicalCopy", 
-function (bbUcPoints, scale) {
-var pts =  new Array (8);
-for (var i = 0; i < 8; i++) pts[JU.BoxInfo.toCanonical[i]] = JU.P3.newP (bbUcPoints[i]);
-
-JU.BoxInfo.scaleBox (pts, scale);
-return pts;
-}, "~A,~N");
 c$.scaleBox = Clazz.defineMethod (c$, "scaleBox", 
 function (pts, scale) {
 if (scale == 0 || scale == 1) return;
@@ -60,12 +48,31 @@ v.scale (scale);
 pts[i].add2 (center, v);
 }
 }, "~A,~N");
-c$.getUnitCellPoints = Clazz.defineMethod (c$, "getUnitCellPoints", 
+c$.getVerticesFromOABC = Clazz.defineMethod (c$, "getVerticesFromOABC", 
+function (oabc) {
+var vertices =  new Array (8);
+for (var i = 0; i <= 7; i++) {
+vertices[i] = JU.P3.newP (oabc[0]);
+if ((i & 4) == 4) vertices[i].add (oabc[1]);
+if ((i & 2) == 2) vertices[i].add (oabc[2]);
+if ((i & 1) == 1) vertices[i].add (oabc[3]);
+}
+return vertices;
+}, "~A");
+c$.getCanonicalCopy = Clazz.defineMethod (c$, "getCanonicalCopy", 
+function (boxPoints, scale) {
+var pts =  new Array (8);
+for (var i = 0; i < 8; i++) pts[JU.BoxInfo.toCanonical[i]] = JU.P3.newP (boxPoints[i]);
+
+JU.BoxInfo.scaleBox (pts, scale);
+return pts;
+}, "~A,~N");
+c$.toOABC = Clazz.defineMethod (c$, "toOABC", 
 function (bbVertices, offset) {
 var center = JU.P3.newP (bbVertices[0]);
-var a = JU.P3.newP (bbVertices[1]);
+var a = JU.P3.newP (bbVertices[4]);
 var b = JU.P3.newP (bbVertices[2]);
-var c = JU.P3.newP (bbVertices[4]);
+var c = JU.P3.newP (bbVertices[1]);
 a.sub (center);
 b.sub (center);
 c.sub (center);
@@ -92,7 +99,7 @@ function () {
 if (!this.isScaleSet) this.setBbcage (1);
 return this.bbVertices;
 });
-Clazz.defineMethod (c$, "setBoundBoxFromCriticalPoints", 
+Clazz.defineMethod (c$, "setBoundBoxFromOABC", 
 function (points) {
 var origin = JU.P3.newP (points[0]);
 var pt111 =  new JU.P3 ();
@@ -174,13 +181,16 @@ function () {
 return this.bbVector.length () * 2;
 });
 Clazz.defineStatics (c$,
+"X", 4,
+"Y", 2,
+"Z", 1,
+"XYZ", 7,
 "bbcageTickEdges",  Clazz.newCharArray (-1, ['z', '\0', '\0', 'y', 'x', '\0', '\0', '\0', '\0', '\0', '\0', '\0']),
 "uccageTickEdges",  Clazz.newCharArray (-1, ['z', 'y', 'x', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0']),
 "edges",  Clazz.newByteArray (-1, [0, 1, 0, 2, 0, 4, 1, 3, 1, 5, 2, 3, 2, 6, 3, 7, 4, 5, 4, 6, 5, 7, 6, 7]));
 c$.unitCubePoints = c$.prototype.unitCubePoints =  Clazz.newArray (-1, [JU.P3.new3 (0, 0, 0), JU.P3.new3 (0, 0, 1), JU.P3.new3 (0, 1, 0), JU.P3.new3 (0, 1, 1), JU.P3.new3 (1, 0, 0), JU.P3.new3 (1, 0, 1), JU.P3.new3 (1, 1, 0), JU.P3.new3 (1, 1, 1)]);
-c$.facePoints = c$.prototype.facePoints =  Clazz.newArray (-1, [JU.P3i.new3 (4, 0, 6), JU.P3i.new3 (4, 6, 5), JU.P3i.new3 (5, 7, 1), JU.P3i.new3 (1, 3, 0), JU.P3i.new3 (6, 2, 7), JU.P3i.new3 (1, 0, 5), JU.P3i.new3 (0, 2, 6), JU.P3i.new3 (6, 7, 5), JU.P3i.new3 (7, 3, 1), JU.P3i.new3 (3, 2, 0), JU.P3i.new3 (2, 3, 7), JU.P3i.new3 (0, 4, 5)]);
 Clazz.defineStatics (c$,
+"facePoints",  Clazz.newArray (-1, [ Clazz.newIntArray (-1, [4, 0, 6]),  Clazz.newIntArray (-1, [4, 6, 5]),  Clazz.newIntArray (-1, [5, 7, 1]),  Clazz.newIntArray (-1, [1, 3, 0]),  Clazz.newIntArray (-1, [6, 2, 7]),  Clazz.newIntArray (-1, [1, 0, 5]),  Clazz.newIntArray (-1, [0, 2, 6]),  Clazz.newIntArray (-1, [6, 7, 5]),  Clazz.newIntArray (-1, [7, 3, 1]),  Clazz.newIntArray (-1, [3, 2, 0]),  Clazz.newIntArray (-1, [2, 3, 7]),  Clazz.newIntArray (-1, [0, 4, 5])]),
 "toCanonical",  Clazz.newIntArray (-1, [0, 3, 4, 7, 1, 2, 5, 6]));
-c$.cubeVertexOffsets = c$.prototype.cubeVertexOffsets =  Clazz.newArray (-1, [JU.P3i.new3 (0, 0, 0), JU.P3i.new3 (1, 0, 0), JU.P3i.new3 (1, 0, 1), JU.P3i.new3 (0, 0, 1), JU.P3i.new3 (0, 1, 0), JU.P3i.new3 (1, 1, 0), JU.P3i.new3 (1, 1, 1), JU.P3i.new3 (0, 1, 1)]);
 c$.unitBboxPoints = c$.prototype.unitBboxPoints =  new Array (8);
 });

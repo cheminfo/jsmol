@@ -14,6 +14,7 @@ this.bsFlat = null;
 this.distanceRef = 0;
 this.normals = null;
 this.normixes = null;
+this.planes = null;
 this.smiles = null;
 this.smarts = null;
 this.polySmiles = null;
@@ -67,32 +68,35 @@ return this;
 Clazz.defineMethod (c$, "setInfo", 
 function (vwr, info, at) {
 try {
-var o;
+var o = info.get ("id");
 this.collapsed = info.containsKey ("collapsed");
-this.id = (info.containsKey ("id") ? info.get ("id").asString () : null);
+var isSV = (!(Clazz.instanceOf (o, String)));
+if (o != null) this.id = (isSV ? (info.get ("id")).asString () : o.toString ());
 if (this.id == null) {
-this.centralAtom = at[info.get ("atomIndex").intValue];
+this.centralAtom = at[(info.get ("atomIndex")).intValue];
 this.modelIndex = this.centralAtom.mi;
 } else {
-this.center = JU.P3.newP (JS.SV.ptValue (info.get ("center")));
+o = info.get ("center");
+this.center = JU.P3.newP (isSV ? JS.SV.ptValue (o) : o);
 o = info.get ("modelIndex");
-this.modelIndex = (o == null ? vwr.am.cmi : o.intValue);
+this.modelIndex = (o == null ? vwr.am.cmi : isSV ? (o).intValue : (o).intValue ());
 o = info.get ("color");
-this.colix = JU.C.getColixS (o == null ? "gold" : o.asString ());
+this.colix = JU.C.getColixS (o == null ? "gold" : isSV ? (o).asString () : o);
 o = info.get ("colorEdge");
-this.colixEdge = JU.C.getColixS (o == null ? "black" : o.asString ());
+if (o != null) this.colixEdge = JU.C.getColixS (isSV ? (o).asString () : o.toString ());
 o = info.get ("offset");
-if (o != null) this.offset = JU.P3.newP (JS.SV.ptValue (o));
+if (o != null) this.offset = JU.P3.newP (isSV ? JS.SV.ptValue (o) : o);
 o = info.get ("scale");
-if (o != null) this.scale = JS.SV.fValue (o);
-}var lst = info.get ("vertices").getList ();
-var vc = info.get ("vertexCount");
+if (o != null) this.scale = (isSV ? JS.SV.fValue (o) : (o).floatValue ());
+}o = info.get ("vertices");
+var lst = (isSV ? (o).getList () : o);
+o = info.get ("vertexCount");
 var needTriangles = false;
-if (vc != null) {
-this.nVertices = vc.intValue;
+if (o != null) {
+this.nVertices = (isSV ? (o).intValue : (o).intValue ());
 this.vertices =  new Array (lst.size ());
-vc = info.get ("r");
-if (vc != null) this.distanceRef = vc.asFloat ();
+o = info.get ("r");
+if (o != null) this.distanceRef = (isSV ? (o).asFloat () : (o).floatValue ());
 } else {
 this.nVertices = lst.size ();
 this.vertices =  new Array (this.nVertices + 1);
@@ -101,22 +105,25 @@ this.vertices[this.nVertices] = JS.SV.ptValue (info.get ("ptRef"));
 } else {
 this.vertices[this.nVertices] = this.center;
 needTriangles = true;
-}}for (var i = lst.size (); --i >= 0; ) this.vertices[i] = JS.SV.ptValue (lst.get (i));
-
+}}for (var i = lst.size (); --i >= 0; ) {
+o = lst.get (i);
+this.vertices[i] = (isSV ? JS.SV.ptValue (o) : o);
+}
 o = info.get ("elemNos");
 if (o != null) {
-lst = o.getList ();
+lst = (isSV ? (o).getList () : o);
 for (var i = this.nVertices; --i >= 0; ) {
-var n = lst.get (i).intValue;
+o = lst.get (i);
+var n = (isSV ? (o).intValue : (o).intValue ());
 if (n > 0) {
 var p =  new JU.Point3fi ();
 p.setT (this.vertices[i]);
 p.sD = n;
 this.vertices[i] = p;
 }}
-}if (info.containsKey ("pointScale")) this.pointScale = Math.max (0, JS.SV.fValue (info.get ("pointScale")));
-var faces = info.get ("faces");
-this.faces = this.toInt2 (faces);
+}o = info.get ("pointScale");
+if (o != null) this.pointScale = Math.max (0, (isSV ? JS.SV.fValue (o) : (o).floatValue ()));
+this.faces = this.toInt2 (isSV, info.get ("faces"));
 o = info.get ("triangles");
 if (o == null) {
 if (needTriangles) {
@@ -126,7 +133,7 @@ this.triangles = (J.api.Interface.getInterface ("JU.MeshCapper", vwr, "script"))
 this.triangles = this.faces;
 this.faces = null;
 }} else {
-this.triangles = this.toInt2 (o);
+this.triangles = this.toInt2 (isSV, o);
 }this.normals =  new Array (this.triangles.length);
 var vAB =  new JU.V3 ();
 for (var i = this.triangles.length; --i >= 0; ) {
@@ -135,7 +142,7 @@ var a = this.triangles[i];
 JU.Measure.getNormalThroughPoints (this.vertices[a[0]], this.vertices[a[1]], this.vertices[a[2]], this.normals[i], vAB);
 }
 o = info.get ("bsFlat");
-this.bsFlat = (o == null ?  new JU.BS () : JS.SV.getBitSet (o, false));
+this.bsFlat = (o == null ?  new JU.BS () : isSV ? JS.SV.getBitSet (o, false) : o);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 return null;
@@ -146,17 +153,21 @@ throw e;
 return this;
 }, "JV.Viewer,java.util.Map,~A");
 Clazz.defineMethod (c$, "toInt2", 
- function (o) {
-var lst = o.getList ();
+ function (isSV, o) {
+var lst = (isSV ? (o).getList () : o);
 var ai = JU.AU.newInt2 (lst.size ());
 for (var i = ai.length; --i >= 0; ) {
-var lst2 = lst.get (i).getList ();
+o = lst.get (i);
+if (isSV) {
+var lst2 = (o).getList ();
 var a = ai[i] =  Clazz.newIntArray (lst2.size (), 0);
 for (var j = a.length; --j >= 0; ) a[j] = lst2.get (j).intValue;
 
-}
+} else {
+ai[i] = o;
+}}
 return ai;
-}, "JS.SV");
+}, "~B,~O");
 Clazz.defineMethod (c$, "getInfo", 
 function (vwr, property) {
 var isState = (property == null);
@@ -345,11 +356,11 @@ for (var i = this.normals.length; --i >= 0; ) this.normixes[i] = (this.bsFlat.ge
 });
 Clazz.defineMethod (c$, "setOffset", 
 function (value) {
+this.planes = null;
 if (this.center == null) return;
 var v = JU.P3.newP (value);
 if (this.offset != null) value.sub (this.offset);
 this.offset = v;
-this.center.add (value);
 for (var i = this.vertices.length; --i >= 0; ) this.vertices[i].add (value);
 
 }, "JU.P3");

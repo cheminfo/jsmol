@@ -62,7 +62,7 @@ $(document).ready(function(){
 	$("#rightpanel").html(
 		Jmol.jmolButton(jmol,"if (!molname) { molname = 'quartz'};var x = prompt('Enter the name of a mineral', molname);load @{'=ams/' + x} 1 fill 20;","Load Mineral")
 		+ "<br>"
-		+ Jmol.jmolButton(jmol,"write PNGJ ?.png","Save PNG")
+		+ Jmol.jmolButton(jmol,"write PNGJ jsmol.png","Save PNG")
 	);
 	
 	// lower panel:

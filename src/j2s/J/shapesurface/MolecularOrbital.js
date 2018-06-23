@@ -55,7 +55,8 @@ this.$moLinearCombination = this.thisModel.get ("moLinearCombination");
 this.moSquareData = (this.$moLinearCombination != null ? null : this.thisModel.get ("moSquareData"));
 this.moSquareLinear = (this.$moLinearCombination == null ? null : this.thisModel.get ("moSquareLinear"));
 return;
-}if ("slab" === propertyName) {
+}if (this.htModels != null && this.strID != null) this.thisModel = this.htModels.get (this.strID);
+if ("slab" === propertyName) {
 if (Clazz.instanceOf (value, Integer)) {
 this.thisModel.put ("slabValue", value);
 } else {
@@ -159,6 +160,7 @@ return;
 }if ("moData" === propertyName) {
 var moData = value;
 this.nboType = moData.get ("nboType");
+this.thisModel = this.htModels.get (this.strID);
 if (this.nboType == null) this.thisModel.remove ("nboType");
  else this.thisModel.put ("nboType", this.nboType);
 } else if ("translucentLevel" === propertyName) {
@@ -214,6 +216,10 @@ s = this.getPropI ("list", index);
 if (s.length > 1) s += "cutoff = " + this.jvxlData.cutoff + "\n";
 s = "\n" + s;
 }return this.getMoInfo (-1) + s;
+}if (propertyName === "moLabel") {
+var labels = this.sg.params.moData.get ("nboLabels");
+if (this.$moNumber > 0 && labels != null && labels.length != 0) return labels[(this.$moNumber - 1) % labels.length];
+return "";
 }if (propertyName === "moNumber") return Integer.$valueOf (this.$moNumber);
 if (propertyName === "moLinearCombination") return this.$moLinearCombination;
 if (propertyName === "moSquareData") return this.moSquareData;
@@ -224,7 +230,7 @@ var mos = (this.sg.params.moData.get ("mos"));
 var nOrb = (mos == null ? 0 : mos.size ());
 var thisMO = index;
 var currentMO = this.$moNumber;
-var isShowCurrent = (thisMO == -2147483648);
+var isShowCurrent = (thisMO == -2147483648 || thisMO == 2147483647);
 if (isShowCurrent) thisMO = currentMO;
 if (nOrb == 0 || isShowCurrent && currentMO == 0) return "";
 var doOneMo = (thisMO != 0);

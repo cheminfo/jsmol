@@ -1,99 +1,142 @@
 Clazz.declarePackage ("J.adapter.readers.xtal");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "JU.P3"], "J.adapter.readers.xtal.CrystalReader", ["java.lang.Character", "$.Double", "java.util.Arrays", "JU.BS", "$.DF", "$.Lst", "$.M3", "$.PT", "$.Quat", "$.SB", "$.V3", "JU.Logger", "$.Tensor"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "JU.Lst", "$.P3"], "J.adapter.readers.xtal.CrystalReader", ["java.lang.Character", "$.Double", "$.Float", "java.util.Arrays", "$.Hashtable", "JU.DF", "$.M3", "$.M4", "$.PT", "$.Quat", "$.SB", "$.V3", "JS.SymmetryOperation", "JU.Logger", "$.Tensor"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isVersion3 = false;
-this.isPrimitive = false;
 this.isPolymer = false;
 this.isSlab = false;
-this.$isMolecular = false;
 this.haveCharges = false;
 this.inputOnly = false;
 this.isLongMode = false;
 this.getLastConventional = false;
 this.havePrimitiveMapping = false;
 this.isProperties = false;
+this.state = 0;
 this.ac = 0;
 this.atomIndexLast = 0;
 this.atomFrag = null;
 this.primitiveToIndex = null;
 this.nuclearCharges = null;
-this.vCoords = null;
+this.lstCoords = null;
 this.energy = null;
 this.ptOriginShift = null;
 this.primitiveToCryst = null;
 this.directLatticeVectors = null;
 this.spaceGroupName = null;
+this.checkModelTrigger = false;
+this.symops = null;
+this.f14 = null;
+this.f16 = null;
 this.primitiveVolume = 0;
 this.primitiveDensity = 0;
+this.firstLine = null;
 this.vPrimitiveMapping = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xtal, "CrystalReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.prepareFields (c$, function () {
 this.ptOriginShift =  new JU.P3 ();
+this.symops =  new JU.Lst ();
+this.f14 =  Clazz.newFloatArray (14, 0);
+this.f16 =  Clazz.newFloatArray (16, 0);
 });
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
 this.doProcessLines = false;
 this.inputOnly = this.checkFilterKey ("INPUT");
 this.isPrimitive = !this.inputOnly && !this.checkFilterKey ("CONV");
-this.addVibrations = new Boolean (this.addVibrations & !this.inputOnly).valueOf ();
+this.addVibrations = new Boolean (this.addVibrations & (!this.inputOnly && this.desiredModelNumber < 0)).valueOf ();
 this.getLastConventional = (!this.isPrimitive && this.desiredModelNumber == 0);
 this.setFractionalCoordinates (this.readHeader ());
 this.asc.checkLatticeOnly = true;
 });
 Clazz.overrideMethod (c$, "checkLine", 
 function () {
-if (this.line.startsWith (" LATTICE PARAMETER")) {
-var isConvLattice = (this.line.indexOf ("- CONVENTIONAL") >= 0);
-if (isConvLattice) {
-if (this.isPrimitive) return true;
-this.readLatticeParams (true);
-} else if (!this.isPrimitive && !this.havePrimitiveMapping && !this.getLastConventional) {
-this.readLines (3);
-this.readPrimitiveMapping ();
-if (this.setPrimitiveMapping ()) return true;
-}this.readLatticeParams (true);
-if (!this.isPrimitive) {
-this.discardLinesUntilContains (" TRANSFORMATION");
-this.readTransformationMatrix ();
-this.discardLinesUntilContains (" CRYSTALLOGRAPHIC");
-this.readLatticeParams (false);
-this.discardLinesUntilContains (" CRYSTALLOGRAPHIC");
-this.readCoordLines ();
-if (!this.getLastConventional) {
-if (this.doGetModel (++this.modelNumber, null)) {
-this.createAtomsFromCoordLines ();
-} else {
-this.vCoords = null;
-this.checkLastModel ();
-}}}return true;
-}if (!this.isPrimitive) {
-if (this.line.startsWith (" SHIFT OF THE ORIGIN")) return this.readShift ();
-if (this.line.startsWith (" INPUT COORDINATES")) {
-this.readCoordLines ();
-if (this.inputOnly) this.continuing = false;
+if (this.firstLine != null) {
+this.line = this.firstLine;
+this.firstLine = null;
+}if (this.line.startsWith (" TYPE OF CALCULATION")) {
+this.calculationType = this.line.substring (this.line.indexOf (":") + 1).trim ();
 return true;
-}}if (this.line.startsWith (" DIRECT LATTICE VECTOR")) return this.setDirect ();
-if (this.line.indexOf ("DIMENSIONALITY OF THE SYSTEM") >= 0) {
+}if (this.line.indexOf ("DIMENSIONALITY OF THE SYSTEM") >= 0) {
+this.isMolecular = this.isSlab = this.isPolymer = false;
 if (this.line.indexOf ("2") >= 0) this.isSlab = true;
-if (this.line.indexOf ("1") >= 0) this.isPolymer = true;
+ else if (this.line.indexOf ("1") >= 0) this.isPolymer = true;
+ else if (this.line.indexOf ("0") >= 0) this.isMolecular = true;
 return true;
-}if (this.addVibrations && this.line.startsWith (" FREQUENCIES COMPUTED ON A FRAGMENT")) return this.readFreqFragments ();
-if (this.line.indexOf ("CONSTRUCTION OF A NANOTUBE FROM A SLAB") >= 0) {
+}if (!this.isPolymer && this.line.indexOf ("CONSTRUCTION OF A NANOTUBE FROM A SLAB") >= 0) {
 this.isPolymer = true;
 this.isSlab = false;
 return true;
-}if (this.line.indexOf ("* CLUSTER CALCULATION") >= 0) {
-this.$isMolecular = true;
+}if (!this.isMolecular && this.line.indexOf ("* CLUSTER CALCULATION") >= 0) {
+this.isMolecular = true;
 this.isSlab = false;
 this.isPolymer = false;
 return true;
-}if (((this.isPrimitive || this.$isMolecular) && this.line.startsWith (" ATOMS IN THE ASYMMETRIC UNIT")) || this.isProperties && this.line.startsWith ("   ATOM N.AT.")) {
+}if (this.line.startsWith (" INPUT COORDINATES")) {
+this.state = 1;
+if (this.inputOnly) {
+this.readCoordLines ();
+this.processCoordLines ();
+this.continuing = false;
+}return true;
+}if (this.line.startsWith (" GEOMETRY INPUT FROM EXTERNAL")) {
+this.state = 2;
+if (this.inputOnly) this.continuing = false;
+return true;
+}if (this.line.startsWith (" GEOMETRY FOR WAVE FUNCTION")) {
+this.state = 3;
+return true;
+}if (this.line.startsWith (" COORDINATE OPTIMIZATION - POINT")) {
+this.state = 4;
+return true;
+}if (this.line.startsWith (" FINAL OPTIMIZED GEOMETRY")) {
+this.getLastConventional = false;
+this.state = 5;
+return true;
+}if (this.addVibrations && this.line.contains (this.isVersion3 ? "EIGENVALUES (EV) OF THE MASS" : "EIGENVALUES (EIGV) OF THE MASS") || this.line.indexOf ("LONGITUDINAL OPTICAL (LO)") >= 0) {
+this.state = 6;
+this.isLongMode = (this.line.indexOf ("LONGITUDINAL OPTICAL (LO)") >= 0);
+this.readFrequencies ();
+return true;
+}if (this.line.startsWith (" TRANSFORMATION MATRIX")) {
+this.readPrimitiveLatticeVectors ();
+return true;
+}if (this.line.startsWith (" COORDINATES OF THE EQUIVALENT ATOMS") || this.line.startsWith (" INPUT LIST - ATOM N.")) {
+this.readPrimitiveMapping ();
+return true;
+}if (this.line.indexOf ("SYMMOPS - ") >= 0) {
+this.readSymmetryOperators ();
+return true;
+}if (this.line.startsWith (" LATTICE PARAMETER")) {
+this.newLattice (this.line.indexOf ("- CONVENTIONAL") >= 0);
+return true;
+}if (this.line.startsWith (" CRYSTALLOGRAPHIC CELL")) {
+if (!this.isPrimitive) {
+this.newLattice (true);
+}return true;
+}if (this.line.startsWith (" DIRECT LATTICE VECTOR")) {
+this.getDirect ();
+return true;
+}if (this.line.startsWith (" COORDINATES IN THE CRYSTALLOGRAPHIC CELL")) {
+this.checkModelTrigger = !this.isPrimitive;
+if (this.checkModelTrigger) {
+this.readCoordLines ();
+}return true;
+}if (this.addVibrations && this.line.startsWith (" FREQUENCIES COMPUTED ON A FRAGMENT")) {
+this.readFreqFragments ();
+return true;
+}if (this.checkModelTrigger) {
+if (this.line.indexOf ("CARTESIAN COORDINATES") >= 0 || this.line.indexOf ("TOTAL ENERGY") >= 0 || this.line.indexOf ("REFERENCE GEOMETRY DEFINED") >= 0) {
+this.checkModelTrigger = false;
+if (!this.addModel ()) return true;
+}}if (this.line.startsWith (" ATOMS IN THE ASYMMETRIC UNIT")) {
+if (this.isMolecular) {
 if (!this.doGetModel (++this.modelNumber, null)) return this.checkLastModel ();
 return this.readAtoms ();
-}if (this.line.startsWith (" * SUPERCELL OPTION")) {
-this.discardLinesUntilContains ("GENERATED");
-return true;
+}this.readCoordLines ();
+this.checkModelTrigger = true;
+}if (this.isProperties && this.line.startsWith ("   ATOM N.AT.")) {
+if (!this.doGetModel (++this.modelNumber, null)) return this.checkLastModel ();
+return this.readAtoms ();
 }if (!this.doProcessLines) return true;
 if (this.line.startsWith (" TOTAL ENERGY(")) {
 this.line = JU.PT.rep (this.line, "( ", "(");
@@ -104,16 +147,9 @@ this.rd ();
 if (this.line.startsWith (" ********")) this.discardLinesUntilContains ("SYMMETRY ALLOWED");
  else if (this.line.startsWith (" TTTTTTTT")) this.discardLinesUntilContains2 ("PREDICTED ENERGY CHANGE", "HHHHHHH");
 return true;
-}if (this.line.startsWith (" TYPE OF CALCULATION")) {
-this.calculationType = this.line.substring (this.line.indexOf (":") + 1).trim ();
-return true;
 }if (this.line.startsWith (" MULLIKEN POPULATION ANALYSIS")) return this.readPartialCharges ();
 if (this.line.startsWith (" TOTAL ATOMIC CHARGES")) return this.readTotalAtomicCharges ();
-if (this.addVibrations && this.line.contains (this.isVersion3 ? "EIGENVALUES (EV) OF THE MASS" : "EIGENVALUES (EIGV) OF THE MASS") || this.line.indexOf ("LONGITUDINAL OPTICAL (LO)") >= 0) {
-this.createAtomsFromCoordLines ();
-this.isLongMode = (this.line.indexOf ("LONGITUDINAL OPTICAL (LO)") >= 0);
-return this.readFrequencies ();
-}if (this.line.startsWith (" MAX GRADIENT")) return this.readGradient ();
+if (this.line.startsWith (" MAX GRADIENT")) return this.readGradient ();
 if (this.line.startsWith (" ATOMIC SPINS SET")) return this.readData ("spin", 3);
 if (this.line.startsWith (" TOTAL ATOMIC SPINS  :")) return this.readData ("magneticMoment", 1);
 if (this.line.startsWith (" BORN CHARGE TENSOR.")) return this.readBornChargeTensors ();
@@ -124,23 +160,65 @@ this.appendLoadNote ("Multipole Analysis");
 return true;
 }return true;
 });
+Clazz.defineMethod (c$, "newLattice", 
+ function (isConv) {
+this.lstCoords = null;
+this.readLatticeParams (!isConv);
+this.symops.clear ();
+this.primitiveToCryst = null;
+this.directLatticeVectors = null;
+}, "~B");
+Clazz.defineMethod (c$, "addModel", 
+ function () {
+if (this.getLastConventional) {
+return true;
+}if (!this.doGetModel (++this.modelNumber, null)) {
+this.lstCoords = null;
+this.checkLastModel ();
+if (this.asc.iSet >= 0) this.asc.removeAtomSet (this.asc.iSet);
+return false;
+}this.processCoordLines ();
+return true;
+});
+Clazz.defineMethod (c$, "readSymmetryOperators", 
+ function () {
+this.symops.clear ();
+this.rd ();
+this.f16[15] = 1;
+while (this.rd () != null && this.line.length > 0 && this.line.indexOf ("END") < 0) {
+this.fillFloatArray (this.line, 0, this.f14);
+for (var i = 0; i < 12; i++) this.f16[i] = this.f14[J.adapter.readers.xtal.CrystalReader.smap[i]];
+
+var xyz = JS.SymmetryOperation.getXYZFromMatrix (JU.M4.newA16 (this.f16), false, false, false);
+this.symops.addLast (xyz);
+JU.Logger.info ("state:" + this.state + " Symmop " + this.symops.size () + ": " + xyz);
+}
+});
+Clazz.defineMethod (c$, "setSymmOps", 
+ function () {
+if (this.isPrimitive) for (var i = 0, n = this.symops.size (); i < n; i++) this.setSymmetryOperator (this.symops.get (i));
+
+});
 Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
-this.createAtomsFromCoordLines ();
+this.processCoordLines ();
 if (this.energy != null) this.setEnergy ();
 this.finalizeReaderASCR ();
 });
-Clazz.defineMethod (c$, "setDirect", 
+Clazz.defineMethod (c$, "getDirect", 
  function () {
-var isBohr = (this.line.indexOf ("(BOHR") >= 0);
-this.directLatticeVectors = this.read3Vectors (isBohr);
+this.directLatticeVectors = this.read3Vectors (this.line.indexOf ("(BOHR") >= 0);
+});
+Clazz.defineMethod (c$, "setUnitCellOrientation", 
+ function () {
+if (this.directLatticeVectors == null) return;
 var a =  new JU.V3 ();
 var b =  new JU.V3 ();
 if (this.isPrimitive) {
 a = this.directLatticeVectors[0];
 b = this.directLatticeVectors[1];
 } else {
-if (this.primitiveToCryst == null) return true;
+if (this.primitiveToCryst == null) return;
 var mp =  new JU.M3 ();
 mp.setColumnV (0, this.directLatticeVectors[0]);
 mp.setColumnV (1, this.directLatticeVectors[1]);
@@ -152,26 +230,14 @@ mp.getColumnV (0, a);
 mp.getColumnV (1, b);
 }this.matUnitCellOrientation = JU.Quat.getQuaternionFrame ( new JU.P3 (), a, b).getMatrix ();
 JU.Logger.info ("oriented unit cell is in model " + this.asc.atomSetCount);
-return !this.isProperties;
 });
-Clazz.defineMethod (c$, "readTransformationMatrix", 
+Clazz.defineMethod (c$, "readPrimitiveLatticeVectors", 
  function () {
 this.primitiveToCryst = JU.M3.newA9 (this.fillFloatArray (null, 0,  Clazz.newFloatArray (9, 0)));
 });
-Clazz.defineMethod (c$, "readShift", 
- function () {
-var tokens = this.getTokens ();
-var pt = tokens.length - 3;
-this.ptOriginShift.set (JU.PT.parseFloatFraction (tokens[pt++]), JU.PT.parseFloatFraction (tokens[pt++]), JU.PT.parseFloatFraction (tokens[pt]));
-return true;
-});
-Clazz.defineMethod (c$, "setPrimitiveVolumeAndDensity", 
- function () {
-if (this.primitiveVolume != 0) this.asc.setAtomSetModelProperty ("volumePrimitive", JU.DF.formatDecimal (this.primitiveVolume, 3));
-if (this.primitiveDensity != 0) this.asc.setAtomSetModelProperty ("densityPrimitive", JU.DF.formatDecimal (this.primitiveDensity, 3));
-});
 Clazz.defineMethod (c$, "readHeader", 
  function () {
+this.havePrimitiveMapping = true;
 this.discardLinesUntilContains ("*******************************************************************************");
 this.readLines (2);
 this.isVersion3 = (this.line.indexOf ("CRYSTAL03") >= 0);
@@ -187,36 +253,34 @@ var pt = type.indexOf ("- PROPERTIES");
 if (pt >= 0) {
 this.isProperties = true;
 type = type.substring (0, pt).trim ();
-}if (type.indexOf ("EXTERNAL FILE") >= 0) {
-type = this.rd ().trim ();
-this.isPolymer = (type.equals ("1D - POLYMER"));
-this.isSlab = (type.equals ("2D - SLAB"));
-} else {
-this.isPolymer = (type.equals ("POLYMER CALCULATION"));
-this.isSlab = (type.equals ("SLAB CALCULATION"));
 }this.asc.setCollectionName (name + (!this.isProperties && this.desiredModelNumber == 0 ? " (optimized)" : ""));
-this.asc.setInfo ("symmetryType", type);
+if (type.indexOf ("GEOMETRY INPUT FROM EXTERNAL FILE") >= 0) {
+this.firstLine = this.line;
+type = this.rd ().trim ();
+}this.isPolymer = (type.equals ("1D - POLYMER") || type.equals ("POLYMER CALCULATION"));
+this.isSlab = (type.equals ("2D - SLAB") || type.equals ("SLAB CALCULATION"));
+this.asc.setInfo ("symmetryType", (this.isSlab ? "2D - SLAB" : this.isPolymer ? "1D - POLYMER" : type));
 if ((this.isPolymer || this.isSlab) && !this.isPrimitive) {
 JU.Logger.error ("Cannot use FILTER \"conventional\" with POLYMER or SLAB");
 this.isPrimitive = true;
 }this.asc.setInfo ("unitCellType", (this.isPrimitive ? "primitive" : "conventional"));
 if (type.indexOf ("MOLECULAR") >= 0) {
-this.$isMolecular = this.doProcessLines = true;
+this.isMolecular = this.doProcessLines = true;
 this.rd ();
 this.asc.setInfo ("molecularCalculationPointGroup", this.line.substring (this.line.indexOf (" OR ") + 4).trim ());
 return false;
-}this.spaceGroupName = "P1";
-if (!this.isPrimitive) {
-this.discardLinesUntilContains2 ("SPACE GROUP", "****");
+}this.discardLinesUntilContains2 ("SPACE GROUP", "****");
 pt = this.line.indexOf (":");
-if (pt >= 0) this.spaceGroupName = this.line.substring (pt + 1).trim ();
-}this.doApplySymmetry = this.isProperties;
+if (pt >= 0 && !this.isPrimitive) this.spaceGroupName = this.line.substring (pt + 1).trim ();
+this.doApplySymmetry = this.isProperties;
 return !this.isProperties;
 });
 Clazz.defineMethod (c$, "readLatticeParams", 
  function (isNewSet) {
 var f = (this.line.indexOf ("(BOHR") >= 0 ? 0.5291772 : 1);
 if (isNewSet) this.newAtomSet ();
+this.primitiveVolume = 0;
+this.primitiveDensity = 0;
 if (this.isPolymer && !this.isPrimitive) {
 this.setUnitCell (this.parseFloatStr (this.line.substring (this.line.indexOf ("CELL") + 4)) * f, -1, -1, 90, 90, 90);
 } else {
@@ -242,49 +306,20 @@ while (this.rd () != null && this.line.indexOf ("NUMBER") < 0) this.vPrimitiveMa
 });
 Clazz.defineMethod (c$, "setPrimitiveMapping", 
  function () {
-if (this.vCoords == null || this.vPrimitiveMapping == null || this.havePrimitiveMapping) return false;
-this.havePrimitiveMapping = true;
-var bsInputAtomsIgnore =  new JU.BS ();
-var n = this.vCoords.size ();
-var indexToPrimitive =  Clazz.newIntArray (n, 0);
-this.primitiveToIndex =  Clazz.newIntArray (n, 0);
-for (var i = 0; i < n; i++) indexToPrimitive[i] = -1;
-
-var nPrim = 0;
-for (var iLine = 0; iLine < this.vPrimitiveMapping.size (); iLine++) {
-this.line = this.vPrimitiveMapping.get (iLine);
-if (this.line.indexOf (" NOT IRREDUCIBLE") >= 0) {
-bsInputAtomsIgnore.set (this.parseIntRange (this.line, 21, 25) - 1);
-continue;
-}while (this.rd () != null && this.line.indexOf ("NUMBER") < 0) {
-if (this.line.length < 2 || this.line.indexOf ("ATOM") >= 0) continue;
-var iAtom = this.parseIntRange (this.line, 4, 8) - 1;
-if (indexToPrimitive[iAtom] < 0) {
-indexToPrimitive[iAtom] = nPrim++;
-}}
-}
-if (bsInputAtomsIgnore.nextSetBit (0) >= 0) for (var i = n; --i >= 0; ) if (bsInputAtomsIgnore.get (i)) this.vCoords.removeItemAt (i);
-
-this.ac = this.vCoords.size ();
-JU.Logger.info (nPrim + " primitive atoms and " + this.ac + " conventionalAtoms");
-this.primitiveToIndex =  Clazz.newIntArray (nPrim, 0);
-for (var i = 0; i < nPrim; i++) this.primitiveToIndex[i] = -1;
-
-for (var i = this.ac; --i >= 0; ) {
-var iPrim = indexToPrimitive[this.parseIntStr (this.vCoords.get (i).substring (0, 4)) - 1];
-if (iPrim >= 0) this.primitiveToIndex[iPrim] = i;
-}
-this.vPrimitiveMapping = null;
-return true;
+if (this.havePrimitiveMapping || this.lstCoords == null || this.vPrimitiveMapping == null) return;
 });
+Clazz.defineMethod (c$, "getAtomIndexFromPrimitiveIndex", 
+ function (iPrim) {
+return (this.primitiveToIndex == null ? iPrim : this.primitiveToIndex[iPrim]);
+}, "~N");
 Clazz.defineMethod (c$, "readAtoms", 
  function () {
-if (this.$isMolecular) this.newAtomSet ();
-this.vCoords = null;
+if (this.isMolecular) this.newAtomSet ();
+this.lstCoords = null;
 while (this.rd () != null && this.line.indexOf ("*") < 0) {
 if (this.line.indexOf ("X(ANGSTROM") >= 0) {
 this.setFractionalCoordinates (false);
-this.$isMolecular = true;
+this.isMolecular = true;
 }}
 var i = this.atomIndexLast;
 var doNormalizePrimitive = false;
@@ -319,44 +354,66 @@ return this.parseIntStr (token) % 100;
 }, "~S");
 Clazz.defineMethod (c$, "readCoordLines", 
  function () {
-this.rd ();
-this.rd ();
-this.vCoords =  new JU.Lst ();
-while (this.rd () != null && this.line.length > 0) this.vCoords.addLast (this.line);
+if (this.line.indexOf ("  ATOM") < 0) this.discardLinesUntilContains ("  ATOM");
+this.lstCoords =  new JU.Lst ();
+while (this.rd () != null && this.line.length > 0) if (this.line.indexOf ("****") < 0) this.lstCoords.addLast (this.line);
 
+this.setPrimitiveMapping ();
 });
-Clazz.defineMethod (c$, "createAtomsFromCoordLines", 
+Clazz.defineMethod (c$, "processCoordLines", 
  function () {
-if (this.vCoords == null) return;
-this.ac = this.vCoords.size ();
+if (this.lstCoords == null) return;
+this.ac = this.lstCoords.size ();
+var irreducible = null;
 for (var i = 0; i < this.ac; i++) {
 var atom = this.asc.addNewAtom ();
-var tokens = JU.PT.getTokens (this.vCoords.get (i));
+var tokens = JU.PT.getTokens (this.lstCoords.get (i));
 atom.atomSerial = this.parseIntStr (tokens[0]);
 var atomicNumber;
 var offset;
-if (tokens.length == 7) {
+switch (tokens.length) {
+case 8:
+case 7:
 atomicNumber = this.getAtomicNumber (tokens[2]);
-offset = 2;
-} else {
+offset = 4;
+if (i == 0) irreducible =  Clazz.newFloatArray (this.ac, 0);
+if (tokens[1].equals ("T")) irreducible[i] = 1;
+break;
+default:
 atomicNumber = this.getAtomicNumber (tokens[1]);
-offset = 0;
-}var x = this.parseFloatStr (tokens[2 + offset]) + this.ptOriginShift.x;
-var y = this.parseFloatStr (tokens[3 + offset]) + this.ptOriginShift.y;
-var z = this.parseFloatStr (tokens[4 + offset]) + this.ptOriginShift.z;
+offset = 2;
+break;
+}
+var x = this.parseFloatStr (tokens[offset++]) + this.ptOriginShift.x;
+var y = this.parseFloatStr (tokens[offset++]) + this.ptOriginShift.y;
+var z = this.parseFloatStr (tokens[offset]) + this.ptOriginShift.z;
 this.setAtomCoordXYZ (atom, x, y, z);
 atom.elementSymbol = J.adapter.smarter.AtomSetCollectionReader.getElementSymbol (atomicNumber);
 }
-this.vCoords = null;
-this.setPrimitiveVolumeAndDensity ();
+this.lstCoords = null;
+if (irreducible != null) {
+this.asc.setAtomProperties ("irreducible", irreducible, -1, false);
+}if (this.primitiveVolume > 0) {
+this.asc.setAtomSetModelProperty ("volumePrimitive", JU.DF.formatDecimal (this.primitiveVolume, 3));
+this.asc.setModelInfoForSet ("primitiveVolume", Float.$valueOf (this.primitiveVolume), this.asc.iSet);
+}if (this.primitiveDensity > 0) {
+this.asc.setAtomSetModelProperty ("densityPrimitive", JU.DF.formatDecimal (this.primitiveDensity, 3));
+this.asc.setModelInfoForSet ("primitiveDensity", Float.$valueOf (this.primitiveDensity), this.asc.iSet);
+}});
+Clazz.overrideMethod (c$, "applySymmetryAndSetTrajectory", 
+function () {
+this.setUnitCellOrientation ();
+if (!this.isPrimitive) this.setSymmOps ();
+this.applySymTrajASCR ();
 });
 Clazz.defineMethod (c$, "newAtomSet", 
  function () {
 if (this.ac > 0 && this.asc.ac > 0) {
 this.applySymmetryAndSetTrajectory ();
 this.asc.newAtomSet ();
-}if (this.spaceGroupName != null) this.setSpaceGroupName (this.spaceGroupName);
-this.ac = 0;
+}if (this.spaceGroupName != null) {
+this.setSpaceGroupName (this.spaceGroupName);
+}this.ac = 0;
 });
 Clazz.defineMethod (c$, "setEnergy", 
  function () {
@@ -399,14 +456,10 @@ atoms[i0 + iConv].partialCharge = this.nuclearCharges[i] - charges[i];
 }}
 return true;
 });
-Clazz.defineMethod (c$, "getAtomIndexFromPrimitiveIndex", 
- function (iPrim) {
-return (this.primitiveToIndex == null ? iPrim : this.primitiveToIndex[iPrim]);
-}, "~N");
 Clazz.defineMethod (c$, "readFreqFragments", 
  function () {
 var numAtomsFrag = this.parseIntRange (this.line, 39, 44);
-if (numAtomsFrag < 0) return true;
+if (numAtomsFrag < 0) return;
 this.atomFrag =  Clazz.newIntArray (numAtomsFrag, 0);
 var Sfrag = "";
 while (this.rd () != null && this.line.indexOf ("(") >= 0) Sfrag += this.line;
@@ -417,10 +470,11 @@ var tokens = JU.PT.getTokens (Sfrag);
 for (var i = 0, pos = 0; i < numAtomsFrag; i++, pos += 3) this.atomFrag[i] = this.getAtomIndexFromPrimitiveIndex (this.parseIntStr (tokens[pos]) - 1);
 
 java.util.Arrays.sort (this.atomFrag);
-return true;
 });
 Clazz.defineMethod (c$, "readFrequencies", 
  function () {
+this.getLastConventional = false;
+this.addModel ();
 this.energy = null;
 this.discardLinesUntilContains ("MODES");
 var haveIntensities = (this.line.indexOf ("INTENS") >= 0);
@@ -438,9 +492,13 @@ var data =  Clazz.newArray (-1, [irrep, intens, irActivity, ramanActivity]);
 for (var i = i0; i <= i1; i++) vData.addLast (data);
 
 }
-this.discardLinesUntilContains (this.isLongMode ? "LO MODES FOR IRREP" : this.isVersion3 ? "THE CORRESPONDING MODES" : "NORMAL MODES NORMALIZED TO CLASSICAL AMPLITUDES");
+var test = (this.isLongMode ? "LO MODES FOR IRREP" : this.isVersion3 ? "THE CORRESPONDING MODES" : "NORMAL MODES NORMALIZED TO CLASSICAL AMPLITUDES");
 this.rd ();
-var lastAtomCount = -1;
+var ramanData = null;
+if (this.line.indexOf ("<RAMAN>") >= 0) ramanData = this.readRaman (null);
+if (!this.line.contains (test)) this.discardLinesUntilContains (test);
+this.rd ();
+var modelAtomCount = -1;
 while (this.rd () != null && this.line.startsWith (" FREQ(CM**-1)")) {
 var tokens = JU.PT.getTokens (this.line.substring (15));
 var frequencies =  Clazz.newFloatArray (tokens.length, 0);
@@ -452,31 +510,104 @@ if (this.debugging) JU.Logger.debug ((this.vibrationNumber + i) + " frequency=" 
 var ignore =  Clazz.newBooleanArray (frequencyCount, false);
 var iAtom0 = 0;
 var nData = vData.size ();
+var isFirst = true;
 for (var i = 0; i < frequencyCount; i++) {
 tokens = vData.get (this.vibrationNumber % nData);
 ignore[i] = (!this.doGetVibration (++this.vibrationNumber) || tokens == null);
 if (ignore[i]) continue;
 this.applySymmetryAndSetTrajectory ();
-lastAtomCount = this.cloneLastAtomSet (this.ac, null);
-if (i == 0) iAtom0 = this.asc.getLastAtomSetAtomIndex ();
-this.setFreqValue (frequencies[i], tokens);
+if (isFirst) {
+modelAtomCount = this.asc.getLastAtomSetAtomCount ();
+}this.cloneLastAtomSet (this.ac, null);
+if (isFirst) {
+iAtom0 = this.asc.getLastAtomSetAtomIndex ();
+isFirst = false;
+}this.setFreqValue (frequencies[i], tokens);
 }
 this.rd ();
-this.fillFrequencyData (iAtom0, freqAtomCount, lastAtomCount, ignore, false, 14, 10, this.atomFrag, 0);
+this.fillFrequencyData (iAtom0, freqAtomCount, modelAtomCount, ignore, false, 14, 10, this.atomFrag, 0, null);
 this.rd ();
 }
-return true;
+if (ramanData != null) this.readRaman (ramanData);
 });
 Clazz.defineMethod (c$, "setFreqValue", 
  function (freq, data) {
 var activity = "IR: " + data[2] + ", Ram.: " + data[3];
-this.asc.setAtomSetFrequency (null, activity, "" + freq, null);
+this.asc.setAtomSetFrequency (this.vibrationNumber, null, activity, "" + freq, null);
 this.asc.setAtomSetModelProperty ("IRintensity", data[1] + " km/Mole");
 this.asc.setAtomSetModelProperty ("vibrationalSymmetry", data[0]);
 this.asc.setAtomSetModelProperty ("IRactivity", data[2]);
 this.asc.setAtomSetModelProperty ("Ramanactivity", data[3]);
-this.asc.setAtomSetName ((this.isLongMode ? "LO " : "") + data[0] + " " + JU.DF.formatDecimal (freq, 2) + " cm-1 (" + JU.DF.formatDecimal (JU.PT.fVal (data[1]), 0) + " km/Mole), " + activity);
+this.asc.setAtomSetName ((this.isLongMode ? "LO " : "") + data[0] + " " + JU.DF.formatDecimal (freq, 2) + " cm-1 (" + JU.DF.formatDecimal (Float.parseFloat (data[1]), 0) + " km/Mole), " + activity);
 }, "~N,~A");
+Clazz.defineMethod (c$, "readRaman", 
+ function (ramanData) {
+if (ramanData == null) {
+ramanData =  new JU.Lst ();
+this.rd ();
+while (this.rd () != null && !this.line.contains ("<RAMAN>")) ramanData.addLast (this.line);
+
+return ramanData;
+}var info;
+var i = 0;
+var n = ramanData.size ();
+for (; i < n; i++) {
+this.line = ramanData.get (i);
+if (this.line.contains ("---")) break;
+}
+for (++i; i < n; i++) {
+this.line = ramanData.get (i);
+if (this.line.length == 0) break;
+var mode1 = this.parseIntRange (this.line, 1, 5);
+var mode2 = this.parseIntRange (this.line, 6, 10);
+var i_tot = this.parseFloatRange (this.line, 30, 40);
+var i_par = this.parseFloatRange (this.line, 40, 50);
+var i_perp = this.parseFloatRange (this.line, 50, 60);
+for (var i0 = 0, mode = mode1; mode <= mode2; mode++) {
+var imodel = this.getModelForMode (i0, mode);
+if (imodel < 0) continue;
+i0 = imodel + 1;
+info = this.asc.getAtomSetAuxiliaryInfoValue (imodel, "ramanInfo");
+if (info == null) this.asc.setModelInfoForSet ("ramanInfo", info =  new java.util.Hashtable (), imodel);
+info.put ("isotropicIntensities",  Clazz.newFloatArray (-1, [i_tot, i_par, i_perp]));
+}
+}
+for (; i < n; i++) {
+this.line = ramanData.get (i);
+if (this.line.contains ("---")) break;
+}
+for (++i; i < n; i++) {
+this.line = ramanData.get (i);
+if (this.line.length == 0) break;
+var mode1 = this.parseIntRange (this.line, 1, 5);
+var mode2 = this.parseIntRange (this.line, 6, 10);
+var i_xx = this.parseFloatRange (this.line, 30, 38);
+var i_xy = this.parseFloatRange (this.line, 38, 46);
+var i_xz = this.parseFloatRange (this.line, 46, 54);
+var i_yy = this.parseFloatRange (this.line, 54, 62);
+var i_yz = this.parseFloatRange (this.line, 62, 70);
+var i_zz = this.parseFloatRange (this.line, 70, 78);
+for (var i0 = 0, mode = mode1; mode <= mode2; mode++) {
+var imodel = this.getModelForMode (i0, mode);
+if (imodel < 0) continue;
+i0 = imodel + 1;
+var a =  Clazz.newArray (-1, [ Clazz.newDoubleArray (-1, [i_xx, i_xy, i_xz]),  Clazz.newDoubleArray (-1, [i_xy, i_yy, i_yz]),  Clazz.newDoubleArray (-1, [i_xz, i_yz, i_zz])]);
+this.asc.atoms[this.asc.getAtomSetAtomIndex (imodel)].addTensor ( new JU.Tensor ().setFromAsymmetricTensor (a, "raman", "mode" + mode), "raman", false);
+}
+}
+this.appendLoadNote ("Ellipsoids set \"raman\": Raman tensors");
+return null;
+}, "JU.Lst");
+Clazz.defineMethod (c$, "getModelForMode", 
+ function (i0, mode) {
+var n = this.asc.atomSetCount;
+for (var i = i0; i < n; i++) {
+var imode = this.asc.getAtomSetAuxiliaryInfoValue (i, "vibrationalMode");
+var m = (imode == null ? 0 : imode.intValue ());
+if (m == mode) return i;
+}
+return -1;
+}, "~N,~N");
 Clazz.defineMethod (c$, "readGradient", 
  function () {
 var key = null;
@@ -494,7 +625,7 @@ return true;
 });
 Clazz.defineMethod (c$, "readData", 
  function (name, nfields) {
-this.createAtomsFromCoordLines ();
+this.processCoordLines ();
 var f =  Clazz.newFloatArray (this.ac, 0);
 for (var i = 0; i < this.ac; i++) f[i] = 0;
 
@@ -514,15 +645,16 @@ Clazz.defineMethod (c$, "getQuadrupoleTensors",
  function () {
 this.readLines (6);
 var atoms = this.asc.atoms;
+var vectors =  new Array (3);
+if (this.directLatticeVectors == null) vectors =  Clazz.newArray (-1, [JU.V3.new3 (1, 0, 0), JU.V3.new3 (0, 1, 0), JU.V3.new3 (0, 0, 1)]);
+ else for (var i = 0; i < 3; i++) {
+vectors[i] = JU.V3.newV (this.directLatticeVectors[i]);
+vectors[i].normalize ();
+}
 while (this.rd () != null && this.line.startsWith (" *** ATOM")) {
 var tokens = this.getTokens ();
 var index = this.parseIntStr (tokens[3]) - 1;
 tokens = JU.PT.getTokens (this.readLines (3));
-var vectors =  new Array (3);
-for (var i = 0; i < 3; i++) {
-vectors[i] = JU.V3.newV (this.directLatticeVectors[i]);
-vectors[i].normalize ();
-}
 atoms[index].addTensor ( new JU.Tensor ().setFromEigenVectors (vectors,  Clazz.newFloatArray (-1, [this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[5])]), "quadrupole", atoms[index].atomName, null), null, false);
 this.rd ();
 }
@@ -531,7 +663,7 @@ return true;
 });
 Clazz.defineMethod (c$, "readBornChargeTensors", 
  function () {
-this.createAtomsFromCoordLines ();
+this.processCoordLines ();
 this.rd ();
 var atoms = this.asc.atoms;
 while (this.rd ().startsWith (" ATOM")) {
@@ -550,4 +682,13 @@ this.rd ();
 this.appendLoadNote ("Ellipsoids set \"charge\": Born charge tensors");
 return false;
 });
+Clazz.defineStatics (c$,
+"STATE_NONE", 0,
+"STATE_INPUT", 1,
+"STATE_INPUT_FROM", 2,
+"STATE_WAVEFUNCTION", 3,
+"STATE_OPT_POINT", 4,
+"STATE_OPT_FINAL", 5,
+"STATE_FREQ", 6,
+"smap",  Clazz.newIntArray (-1, [2, 3, 4, 11, 5, 6, 7, 12, 8, 9, 10, 13]));
 });

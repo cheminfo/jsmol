@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MopacSlaterReader", "JU.BS"], "J.adapter.readers.quantum.MoldenReader", ["java.lang.Exception", "$.Float", "java.util.Arrays", "$.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.adapter.readers.quantum.BasisFunctionReader", "JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.quantum.MopacSlaterReader", "JU.BS"], "J.adapter.readers.quantum.MoldenReader", ["java.lang.Double", "$.Exception", "$.Float", "java.util.Arrays", "$.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.adapter.readers.quantum.BasisFunctionReader", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.loadGeometries = false;
 this.loadVibrations = false;
@@ -37,7 +37,7 @@ if (!this.line.startsWith ("[")) return true;
 JU.Logger.info (this.line);
 if (this.line.indexOf ("[ATOMS]") == 0) {
 this.readAtoms ();
-this.modelAtomCount = this.asc.atomSetAtomCounts[0];
+this.modelAtomCount = this.asc.getAtomSetAtomCount (0);
 if (this.asc.atomSetCount == 1 && this.moData != null) this.finalizeMOData (this.moData);
 return false;
 }if (this.line.indexOf ("[GTO]") == 0) return this.readGaussianBasis ();
@@ -72,9 +72,9 @@ return true;
 }if (this.line.startsWith ("[CELLAXES]")) {
 var f =  Clazz.newFloatArray (9, 0);
 this.fillFloatArray (null, 0, f);
-this.addPrimitiveLatticeVector (0, f, 0);
-this.addPrimitiveLatticeVector (1, f, 3);
-this.addPrimitiveLatticeVector (2, f, 6);
+this.addExplicitLatticeVector (0, f, 0);
+this.addExplicitLatticeVector (1, f, 3);
+this.addExplicitLatticeVector (2, f, 6);
 return true;
 }return false;
 });
@@ -89,13 +89,13 @@ var n = this.shells.size ();
 for (var i = 0; i < n; i++) {
 var iatom = this.shells.get (i)[0];
 if (iatom != 2147483647) {
-ilast = atoms[iatom].elementNumber;
+ilast = atoms[iatom - 1].elementNumber;
 continue;
 }for (var j = this.bsAtomOK.nextClearBit (0); j >= 0; j = this.bsAtomOK.nextClearBit (j + 1)) {
 if (atoms[j].elementNumber == ilast) {
-this.shells.get (i)[0] = j;
+this.shells.get (i)[0] = j + 1;
 JU.Logger.info ("MoldenReader assigning shells starting with " + i + " for ** to atom " + (j + 1) + " z " + ilast);
-for (; ++i < n && !this.bsBadIndex.get (i) && this.shells.get (i)[0] == 2147483647; ) this.shells.get (i)[0] = j;
+for (; ++i < n && !this.bsBadIndex.get (i) && this.shells.get (i)[0] == 2147483647; ) this.shells.get (i)[0] = j + 1;
 
 i--;
 this.bsAtomOK.set (j);
@@ -130,10 +130,12 @@ atom.elementNumber = this.parseIntStr (tokens[2]);
 });
 Clazz.defineMethod (c$, "readSlaterBasis", 
 function () {
+this.nCoef = 0;
 while (this.rd () != null && this.line.indexOf ("[") < 0) {
 var tokens = this.getTokens ();
 if (tokens.length < 7) continue;
-this.addSlater (this.parseIntStr (tokens[0]) - 1, this.parseIntStr (tokens[1]), this.parseIntStr (tokens[2]), this.parseIntStr (tokens[3]), this.parseIntStr (tokens[4]), this.parseFloatStr (tokens[5]), this.parseFloatStr (tokens[6]));
+this.addSlater (this.parseIntStr (tokens[0]), this.parseIntStr (tokens[1]), this.parseIntStr (tokens[2]), this.parseIntStr (tokens[3]), this.parseIntStr (tokens[4]), this.parseFloatStr (tokens[5]), this.parseFloatStr (tokens[6]));
+this.nCoef++;
 }
 this.setSlaters (false, false);
 return false;
@@ -161,9 +163,9 @@ var type = J.adapter.readers.quantum.BasisFunctionReader.getQuantumShellTagID (s
 var nPrimitives = this.parseIntStr (tokens[1]);
 var slater =  Clazz.newIntArray (4, 0);
 this.nSPDF[type]++;
-slater[0] = atomIndex;
+slater[0] = atomIndex + 1;
 slater[1] = type;
-slater[2] = gaussianPtr;
+slater[2] = gaussianPtr + 1;
 slater[3] = nPrimitives;
 var n = this.getDfCoefMaps ()[type].length;
 this.nCoef += n;
@@ -312,7 +314,7 @@ this.skipTo ("vibration");
 this.doGetVibration (++this.vibrationNumber);
 if (haveVib) this.asc.cloneLastAtomSet ();
 haveVib = true;
-this.asc.setAtomSetFrequency (null, null, "" + JU.PT.dVal (frequencies.get (nFreq)), null);
+this.asc.setAtomSetFrequency (this.vibrationNumber, null, null, "" + Double.$valueOf (frequencies.get (nFreq)), null);
 var i0 = this.asc.getLastAtomSetAtomIndex ();
 for (var i = 0; i < this.modelAtomCount; i++) {
 tokens = JU.PT.getTokens (this.rd ());
@@ -325,7 +327,7 @@ Clazz.defineMethod (c$, "readGeometryOptimization",
  function () {
 var energies =  new JU.Lst ();
 this.rd ();
-while (this.rd () != null && this.line.indexOf ("force") < 0) energies.addLast ("" + JU.PT.dVal (this.line.trim ()));
+while (this.rd () != null && this.line.indexOf ("force") < 0) energies.addLast ("" + Double.$valueOf (this.line.trim ()));
 
 this.skipTo ("[GEOMETRIES] XYZ");
 var nGeom = energies.size ();

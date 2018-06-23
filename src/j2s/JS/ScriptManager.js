@@ -188,19 +188,20 @@ var historyDisabled = (strScript.indexOf (")") == 0);
 if (historyDisabled) strScript = strScript.substring (1);
 historyDisabled = historyDisabled || !isQueued;
 this.vwr.setErrorMessage (null, null);
-var isOK = this.eval.compileScriptString (strScript, isQuiet);
-var strErrorMessage = this.eval.getErrorMessage ();
-var strErrorMessageUntranslated = this.eval.getErrorMessageUntranslated ();
+var eval = (isQueued ? this.eval : this.newScriptEvaluator ());
+var isOK = eval.compileScriptString (strScript, isQuiet);
+var strErrorMessage = eval.getErrorMessage ();
+var strErrorMessageUntranslated = eval.getErrorMessageUntranslated ();
 this.vwr.setErrorMessage (strErrorMessage, strErrorMessageUntranslated);
 this.vwr.refresh (7, "script complete");
 if (isOK) {
 this.$isScriptQueued = isQueued;
 if (!isQuiet) this.vwr.setScriptStatus (null, strScript, -2 - (++this.scriptIndex), null);
-this.eval.evaluateCompiledScript (this.vwr.isSyntaxCheck, this.vwr.isSyntaxAndFileCheck, historyDisabled, this.vwr.listCommands, outputBuffer, isQueued || !this.vwr.isSingleThreaded);
+eval.evaluateCompiledScript (this.vwr.isSyntaxCheck, this.vwr.isSyntaxAndFileCheck, historyDisabled, this.vwr.listCommands, outputBuffer, isQueued || !this.vwr.isSingleThreaded);
 } else {
 this.vwr.scriptStatus (strErrorMessage);
 this.vwr.setScriptStatus ("Jmol script terminated", strErrorMessage, 1, strErrorMessageUntranslated);
-if (this.eval.isStateScript ()) JS.ScriptManager.setStateScriptVersion (this.vwr, null);
+if (eval.isStateScript ()) JS.ScriptManager.setStateScriptVersion (this.vwr, null);
 }if (strErrorMessage != null && this.vwr.autoExit) this.vwr.exitJmol ();
 if (this.vwr.isSyntaxCheck) {
 if (strErrorMessage == null) JU.Logger.info ("--script check ok");
@@ -304,6 +305,7 @@ function (fileName, flags) {
 var noScript = ((flags & 2) == 2);
 var isAppend = ((flags & 4) == 4);
 var pdbCartoons = ((flags & 1) == 1 && !isAppend);
+var noAutoPlay = ((flags & 8) == 8);
 var cmd = null;
 fileName = fileName.trim ();
 if (fileName.startsWith ("\t")) {
@@ -341,7 +343,7 @@ cmd = JU.PT.rep (cmd, "load SYNC", "load append");
 }}if (cmd == null && !noScript && this.vwr.scriptEditorVisible) this.vwr.showEditor ( Clazz.newArray (-1, [fileName, this.vwr.getFileAsString3 (fileName, true, null)]));
  else cmd = (cmd == null ? "script " : cmd) + JU.PT.esc (fileName);
 } finally {
-if (cmd != null) this.vwr.evalString (cmd);
+if (cmd != null) this.vwr.evalString (cmd + (noAutoPlay ? "#!NOAUTOPLAY" : ""));
 }
 }, "~S,~N");
 Clazz.defineMethod (c$, "getDragDropFileTypeName", 

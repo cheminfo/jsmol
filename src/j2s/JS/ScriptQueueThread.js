@@ -13,7 +13,7 @@ this.scriptManager = scriptManager;
 this.vwr = vwr;
 this.startedByCommandThread = startedByCommandThread;
 this.pt = pt;
-}, "J.api.JmolScriptManager,JV.Viewer,~B,~N");
+}, "JS.ScriptManager,JV.Viewer,~B,~N");
 Clazz.overrideMethod (c$, "run1", 
 function (mode) {
 while (true) switch (mode) {

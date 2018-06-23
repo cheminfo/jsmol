@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.popup");
-Clazz.load (["javajs.api.GenericMenuInterface", "java.util.Hashtable", "JU.Lst"], "J.popup.GenericSwingPopup", ["java.util.StringTokenizer", "JU.PT", "$.SB", "JU.Logger"], function () {
+Clazz.load (["javajs.awt.GenericMenuInterface", "java.util.Hashtable", "JU.Lst"], "J.popup.GenericSwingPopup", ["java.util.StringTokenizer", "JU.PT", "$.SB", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.helper = null;
 this.strMenuStructure = null;
@@ -20,7 +20,7 @@ this.currentMenuItemId = null;
 this.htMenus = null;
 this.SignedOnly = null;
 Clazz.instantialize (this, arguments);
-}, J.popup, "GenericSwingPopup", null, javajs.api.GenericMenuInterface);
+}, J.popup, "GenericSwingPopup", null, javajs.awt.GenericMenuInterface);
 Clazz.prepareFields (c$, function () {
 this.htCheckbox =  new java.util.Hashtable ();
 this.htMenus =  new java.util.Hashtable ();
@@ -102,7 +102,7 @@ this.SignedOnly.addLast (newItem);
 if (!this.allowSignedFeatures) this.menuEnable (newItem, false);
 }this.appCheckItem (item, newItem);
 }
-}, "~S,~S,javajs.api.SC,J.popup.PopupResource");
+}, "~S,~S,javajs.awt.SC,J.popup.PopupResource");
 Clazz.defineMethod (c$, "updateSignedAppletItems", 
 function () {
 for (var i = this.SignedOnly.size (); --i >= 0; ) this.menuEnable (this.SignedOnly.get (i), this.allowSignedFeatures);
@@ -115,7 +115,7 @@ return (key.indexOf (this.isApplet ? "JAVA" : "APPLET") < 0 && (!this.isWebGL ||
 Clazz.defineMethod (c$, "rememberCheckbox", 
  function (key, checkboxMenuItem) {
 this.htCheckbox.put (key + "::" + this.htCheckbox.size (), checkboxMenuItem);
-}, "~S,javajs.api.SC");
+}, "~S,javajs.awt.SC");
 Clazz.defineMethod (c$, "updateButton", 
 function (b, entry, script) {
 var ret =  Clazz.newArray (-1, [entry]);
@@ -123,7 +123,7 @@ var icon = this.getEntryIcon (ret);
 entry = ret[0];
 b.init (entry, icon, script, this.thisPopup);
 this.isTainted = true;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz.defineMethod (c$, "getEntryIcon", 
 function (ret) {
 var entry = ret[0];
@@ -136,12 +136,12 @@ return this.getImageIcon (fileName);
 Clazz.defineMethod (c$, "addMenuItem", 
 function (menuItem, entry) {
 return this.menuCreateItem (menuItem, entry, "", null);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.defineMethod (c$, "menuSetLabel", 
 function (m, entry) {
 m.setText (entry);
 this.isTainted = true;
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.defineMethod (c$, "menuSetCheckBoxValue", 
  function (source) {
 var isSelected = source.isSelected ();
@@ -149,11 +149,11 @@ var what = source.getActionCommand ();
 this.checkForCheckBoxScript (source, what, isSelected);
 this.appUpdateSpecialCheckBoxValue (source, what, isSelected);
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.overrideMethod (c$, "menuClickCallback", 
 function (source, script) {
 this.processClickCallback (source, script);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.defineMethod (c$, "processClickCallback", 
 function (source, script) {
 this.appRestorePopupMenu ();
@@ -166,7 +166,7 @@ if (id != null) {
 script = this.appFixScript (id, script);
 this.currentMenuItemId = id;
 }this.appRunScript (script);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.overrideMethod (c$, "menuCheckBoxCallback", 
 function (source) {
 this.appRestorePopupMenu ();
@@ -174,7 +174,7 @@ this.menuSetCheckBoxValue (source);
 var id = this.menuGetId (source);
 if (id != null) {
 this.currentMenuItemId = id;
-}}, "javajs.api.SC");
+}}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "checkForCheckBoxScript", 
  function (item, what, TF) {
 if (!item.isEnabled ()) return;
@@ -189,25 +189,25 @@ what = what.substring (pt + 1);
 if ((pt = what.indexOf ("|")) >= 0) what = (TF ? what.substring (0, pt) : what.substring (pt + 1)).trim ();
 what = JU.PT.rep (what, "T/F", (TF ? " TRUE" : " FALSE"));
 }this.appRunScript (what);
-}, "javajs.api.SC,~S,~B");
+}, "javajs.awt.SC,~S,~B");
 Clazz.defineMethod (c$, "menuCreateItem", 
 function (menu, entry, script, id) {
 var item = this.helper.getMenuItem (entry);
 item.addActionListener (this.helper);
 return this.newMenuItem (item, menu, entry, script, id);
-}, "javajs.api.SC,~S,~S,~S");
+}, "javajs.awt.SC,~S,~S,~S");
 Clazz.defineMethod (c$, "menuCreateCheckboxItem", 
 function (menu, entry, basename, id, state, isRadio) {
 var jmi = (isRadio ? this.helper.getRadio (entry) : this.helper.getCheckBox (entry));
 jmi.setSelected (state);
 jmi.addItemListener (this.helper);
 return this.newMenuItem (jmi, menu, entry, basename, id);
-}, "javajs.api.SC,~S,~S,~S,~B,~B");
+}, "javajs.awt.SC,~S,~S,~S,~B,~B");
 Clazz.defineMethod (c$, "menuAddSeparator", 
 function (menu) {
 menu.add (this.helper.getMenuItem (null));
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "menuNewSubMenu", 
 function (entry, id) {
 var jm = this.helper.getMenu (entry);
@@ -222,7 +222,7 @@ if (indexFrom <= 0) menu.removeAll ();
  else for (var i = menu.getComponentCount (); --i >= indexFrom; ) menu.remove (i);
 
 this.isTainted = true;
-}, "javajs.api.SC,~N");
+}, "javajs.awt.SC,~N");
 Clazz.defineMethod (c$, "newMenuItem", 
  function (item, menu, text, script, id) {
 this.updateButton (item, text, script);
@@ -232,7 +232,7 @@ id = menu.getName () + "." + id;
 }item.setName (id == null ? menu.getName () + "." : id);
 this.menuAddItem (menu, item);
 return item;
-}, "javajs.api.SC,javajs.api.SC,~S,~S,~S");
+}, "javajs.awt.SC,javajs.awt.SC,~S,~S,~S");
 Clazz.defineMethod (c$, "setText", 
 function (item, text) {
 var m = this.htMenus.get (item);
@@ -243,25 +243,25 @@ Clazz.defineMethod (c$, "menuAddItem",
  function (menu, item) {
 menu.add (item);
 this.isTainted = true;
-}, "javajs.api.SC,javajs.api.SC");
+}, "javajs.awt.SC,javajs.awt.SC");
 Clazz.defineMethod (c$, "menuAddSubMenu", 
 function (menu, subMenu) {
 this.menuAddItem (menu, subMenu);
-}, "javajs.api.SC,javajs.api.SC");
+}, "javajs.awt.SC,javajs.awt.SC");
 Clazz.defineMethod (c$, "menuEnable", 
 function (component, enable) {
 if (component == null || component.isEnabled () == enable) return;
 component.setEnabled (enable);
-}, "javajs.api.SC,~B");
+}, "javajs.awt.SC,~B");
 Clazz.defineMethod (c$, "menuGetId", 
 function (menu) {
 return menu.getName ();
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "menuSetAutoscrolls", 
 function (menu) {
 menu.setAutoscrolls (true);
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "menuGetListPosition", 
 function (item) {
 var p = item.getParent ();
@@ -269,7 +269,7 @@ var i;
 for (i = p.getComponentCount (); --i >= 0; ) if (this.helper.getSwingComponent (p.getComponent (i)) === item) break;
 
 return i;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "show", 
 function (x, y, doPopup) {
 this.thisx = x;
@@ -339,7 +339,7 @@ break;
 J.popup.GenericSwingPopup.addItemText (sb, key, level, name, text, script, flags);
 if (type == 2) this.menuGetAsText (sb, level + 1, this.helper.getSwingComponent (m.getPopupMenu ()), name);
 }
-}, "JU.SB,~N,javajs.api.SC,~S");
+}, "JU.SB,~N,javajs.awt.SC,~S");
 c$.addItemText = Clazz.defineMethod (c$, "addItemText", 
  function (sb, type, level, name, label, script, flags) {
 sb.appendC (type).appendI (level).appendC ('\t').append (name);

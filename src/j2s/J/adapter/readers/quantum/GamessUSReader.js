@@ -65,7 +65,7 @@ this.readLines (2);
 this.asc.newAtomSet ();
 while (this.rd ().indexOf ("$END") < 0) {
 var tokens = this.getTokens ();
-this.addAtomXYZSymName (tokens, 2, tokens[0], null).elementNumber = this.parseIntStr (tokens[1]);
+if (tokens.length > 4) this.addAtomXYZSymName (tokens, 2, tokens[0], null).elementNumber = this.parseIntStr (tokens[1]);
 }
 return (this.continuing = false);
 });

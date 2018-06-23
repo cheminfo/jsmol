@@ -10,18 +10,11 @@ Clazz.overrideMethod (c$, "jpiInitialize",
 function (viewer, menu) {
 var bundle =  new JSV.popup.JSVPopupResourceBundle ();
 this.initialize (viewer, bundle, menu);
-}, "javajs.api.PlatformViewer,~S");
+}, "javajs.awt.PlatformViewer,~S");
 Clazz.overrideMethod (c$, "menuShowPopup", 
 function (popup, x, y) {
-try {
-(popup).show (this.isTainted ? this.vwr.getApplet () : null, x, y);
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-} else {
-throw e;
-}
-}
-}, "javajs.api.SC,~N,~N");
+this.vwr.menuShowPopup (popup, x, y, this.isTainted);
+}, "javajs.awt.SC,~N,~N");
 Clazz.overrideMethod (c$, "getImageIcon", 
 function (fileName) {
 return null;

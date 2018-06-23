@@ -72,28 +72,8 @@ return !this.haveModel || this.modelNumber != this.desiredModelNumber;
 });
 Clazz.defineMethod (c$, "finalizeModel", 
  function () {
-var n = this.asc.ac;
-var nremoved = 0;
-var i0 = this.asc.getLastAtomSetAtomIndex ();
-var nnow = 0;
-for (var i = i0; i < n; i++) {
-if (!this.asc.bsAtoms.get (i)) {
-nremoved++;
-this.asc.ac--;
-this.asc.atoms[i] = null;
-continue;
-}if (nremoved > 0) {
-this.asc.atoms[this.asc.atoms[i].index = i - nremoved] = this.asc.atoms[i];
-this.asc.atoms[i] = null;
-}nnow++;
-}
-this.asc.atomSetAtomCounts[this.asc.iSet] = nnow;
-if (nnow == 0) {
-this.asc.iSet--;
-this.asc.atomSetCount--;
-} else {
-this.asc.bsAtoms.setBits (i0, i0 + nnow);
-}});
+this.asc.removeLastUnselectedAtoms ();
+});
 Clazz.defineMethod (c$, "readElementLabelsOnly", 
  function () {
 this.readLines (5);

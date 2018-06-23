@@ -362,7 +362,7 @@ function (TF) {
 }, "~B");
 Clazz.overrideMethod (c$, "addRenderer", 
 function (tok) {
-if (tok == 553648147) this.hermite3d =  new J.g3d.HermiteRenderer ().set (this, this.gdata);
+if (tok == 553648146) this.hermite3d =  new J.g3d.HermiteRenderer ().set (this, this.gdata);
 }, "~N");
 Clazz.overrideMethod (c$, "plotImagePixel", 
 function (argb, x, y, z, shade, bgargb, width, height, pbuf, p, transpLog) {

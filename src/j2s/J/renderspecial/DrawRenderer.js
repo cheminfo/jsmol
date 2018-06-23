@@ -133,7 +133,7 @@ break;
 }
 if (this.diameter == 0) this.diameter = 3;
 if (isCurved) {
-this.g3d.addRenderer (553648147);
+this.g3d.addRenderer (553648146);
 for (var i = 0, i0 = 0; i < nPoints - 1; i++) {
 this.g3d.fillHermite (tension, this.diameter, this.diameter, this.diameter, this.p3Screens[i0], this.p3Screens[i], this.p3Screens[i + 1], this.p3Screens[i + (i == nPoints - 2 ? 1 : 2)]);
 i0 = i;

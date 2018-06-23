@@ -137,7 +137,7 @@ sb.append ("\n").append (this.commentChar).append ("rotationRadius: " + this.vwr
 sb.append ("\n").append (this.commentChar).append ("boundboxCenter: " + this.vwr.getBoundBoxCenter ());
 sb.append ("\n").append (this.commentChar).append ("translationOffset: " + this.tm.getTranslationScript ());
 sb.append ("\n").append (this.commentChar).append ("zoom: " + this.vwr.tm.zmPct);
-sb.append ("\n").append (this.commentChar).append ("moveto command: " + this.vwr.getOrientationText (4129, null));
+sb.append ("\n").append (this.commentChar).append ("moveto command: " + this.vwr.getOrientationText (4129, null, null));
 sb.append ("\n");
 return sb.toString ();
 });

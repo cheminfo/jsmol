@@ -66,7 +66,7 @@ this.Special =  new JU.Lst ();
 this.SymmetryOnly =  new JU.Lst ();
 this.ChargesOnly =  new JU.Lst ();
 this.TemperatureOnly =  new JU.Lst ();
-this.noZapped =  Clazz.newArray (-1, ["surfaceMenu", "measureMenu", "pickingMenu", "computationMenu", "saveMenu", "exportMenu", "SIGNEDJAVAcaptureMenuSPECIAL"]);
+this.noZapped =  Clazz.newArray (-1, ["surfaceMenu", "measureMenu", "pickingMenu", "computationMenu", "SIGNEDJAVAcaptureMenuSPECIAL"]);
 });
 Clazz.defineMethod (c$, "initialize", 
 function (vwr, bundle, title) {
@@ -144,7 +144,7 @@ this.VibrationOnly.addLast (newMenu);
 } else if (item.indexOf ("SYMMETRY") >= 0) {
 this.SymmetryOnly.addLast (newMenu);
 }if (item.indexOf ("SPECIAL") >= 0) this.Special.addLast (newMenu);
-}, "~S,javajs.api.SC");
+}, "~S,javajs.awt.SC");
 Clazz.overrideMethod (c$, "appFixLabel", 
 function (label) {
 return label;
@@ -189,7 +189,7 @@ if (!TF) return true;
 what = "set picking " + basename.substring (0, basename.length - 2);
 }this.appRunScript (what);
 return true;
-}, "javajs.api.SC,~S,~S,~B");
+}, "javajs.awt.SC,~S,~S,~B");
 Clazz.overrideMethod (c$, "appRestorePopupMenu", 
 function () {
 this.thisPopup = this.popupMenu;
@@ -210,7 +210,7 @@ if (what.indexOf ("#CONFIG") >= 0) {
 this.configurationSelected = what;
 this.updateConfigurationComputedMenu ();
 this.updateModelSetComputedMenu ();
-}}, "javajs.api.SC,~S,~B");
+}}, "javajs.awt.SC,~S,~B");
 Clazz.defineMethod (c$, "setFrankMenu", 
  function (id) {
 if (this.currentFrankId != null && this.currentFrankId === id && this.nFrankList > 0) return;
@@ -269,7 +269,7 @@ function (item, subMenu, word) {
 if ("modelSetMenu".equals (item)) {
 this.nullModelSetName = word;
 this.menuEnable (subMenu, false);
-}}, "~S,javajs.api.SC,~S");
+}}, "~S,javajs.awt.SC,~S");
 Clazz.overrideMethod (c$, "appUpdateForShow", 
 function () {
 if (this.updateMode == -1) return;
@@ -364,7 +364,7 @@ if (atoms != null) this.menuCreateItem (menu, title, "select visible & (@" + JU.
 }
 this.menuEnable (menu, true);
 return true;
-}, "javajs.api.SC,JU.Lst");
+}, "javajs.awt.SC,JU.Lst");
 Clazz.defineMethod (c$, "updateHeteroComputedMenu", 
  function (htHetero) {
 var menu = this.htMenus.get ("PDBheteroComputedMenu");
@@ -501,7 +501,7 @@ menu.removeAll ();
 for (var i = 0; i < keys.length; i++) this.menuCreateItem (menu, keys[i] + " (" + counts.get (keys[i]) + ")", "select modelIndex=" + this.modelIndex + " && within('dssr', '" + keys[i] + "');", null);
 
 return true;
-}, "javajs.api.SC,java.util.Map");
+}, "javajs.awt.SC,java.util.Map");
 Clazz.defineMethod (c$, "updateGroup3List", 
  function (menu, name) {
 var nItems = 0;
@@ -515,7 +515,7 @@ nItems++;
 }var item = this.menuCreateItem (menu, name, script, this.menuGetId (menu) + "." + name);
 if (n == 0) this.menuEnable (item, false);
 return nItems;
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.defineMethod (c$, "augmentGroup3List", 
  function (menu, type, addSeparator) {
 var pt = 138;
@@ -531,7 +531,7 @@ this.menuCreateItem (menu, name, "SELECT [" + heteroCode + "]", this.menuGetId (
 pt++;
 }
 return nItems;
-}, "javajs.api.SC,~S,~B");
+}, "javajs.awt.SC,~S,~B");
 Clazz.defineMethod (c$, "updateSYMMETRYComputedMenus", 
  function () {
 this.updateSYMMETRYSelectComputedMenu ();
@@ -728,7 +728,7 @@ this.menuCreateCheckboxItem (menu, menuLabel, "language = \"" + code + "\" ##" +
 Clazz.defineMethod (c$, "updateSpecialMenuItem", 
  function (m) {
 m.setText (this.getSpecialLabel (m.getName (), m.getText ()));
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz.defineMethod (c$, "getSpecialLabel", 
 function (name, text) {
 var pt = text.indexOf (" (");

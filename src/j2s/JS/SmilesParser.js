@@ -404,7 +404,7 @@ var tokens = JU.PT.split (strMeasure, ",");
 if (tokens.length % 2 == 1 || isNot && tokens.length != 2) break;
 var vals =  Clazz.newFloatArray (tokens.length, 0);
 var i = tokens.length;
-for (; --i >= 0; ) if (Float.isNaN (vals[i] = JU.PT.fVal (tokens[i]))) break;
+for (; --i >= 0; ) if (Float.isNaN (vals[i] = Float.parseFloat (tokens[i]))) break;
 
 if (i >= 0) break;
 m =  new JS.SmilesMeasure (search, index, type, isNot, vals);
@@ -583,8 +583,8 @@ case '+':
 index = this.checkCharge (pattern, index, newAtom);
 break;
 case '@':
-if (search.stereo == null) search.stereo = JS.SmilesStereo.newStereo (null);
-index = JS.SmilesStereo.checkChirality (pattern, index, search.patternAtoms[newAtom.index]);
+if (search.stereo == null) search.stereo = JS.SmilesStereo.newStereo (search);
+index = JS.SmilesStereo.checkChirality (search, pattern, index, search.patternAtoms[newAtom.index]);
 break;
 case ':':
 index = JS.SmilesParser.getDigits (pattern, ++index, ret);

@@ -281,7 +281,10 @@ Clazz.defineMethod (c$, "toggleOn",
 this.radiusData = null;
 this.htMin = null;
 this.bsSelected =  new JU.BS ();
-this.defineAll (-2147483648,  new JM.Measurement ().setPoints (this.ms, indices, null, this.defaultTickInfo), false, true, true);
+var m =  new JM.Measurement ().setPoints (this.ms, indices, null, this.defaultTickInfo);
+this.defineAll (-2147483648, m, false, true, true);
+var i = this.find (m);
+if (i >= 0) this.bsSelected.set (i);
 this.setIndices ();
 this.reformatDistances ();
 }, "~A");

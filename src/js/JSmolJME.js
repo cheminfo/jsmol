@@ -2,6 +2,8 @@
 
 // see http://peter-ertl.com/jsme
 
+// BH 12/3/2017 8:56:35 PM two JSME applets on a page fail.
+// BH 2/16/2017 2:09:40 PM uses show chemical jme not show chemical/file=jme
 // BH 4/24/2016 10:51:22 PM adds getjsmeh Jmol script to derive jsme with H atoms from NCI mrv 
 // BH 9/15/2015 18:10:25 jmolAtoms no var
 // BH 6/19/2015 5:36:23 PM fix for Jmol mouse hook t.x.baseVal not implemented fully on iOS
@@ -11,7 +13,7 @@
 // BH 3/1/2014 4:31:18 PM fix for evaluate returning atom sets as arrays
 // BH 1/27/2014 8:37:06 AM adding Info.viewSet  
 // BH 12/4/2013 7:44:26 PM fix for JME independent search box
-
+// BH 5/25/2017 5:11:17 AM removing Jmol changes to JSME SMILES. Problem is with incomplete assignment of H stereochemistry, as in CC[C@@H](C)[H]
 /*
 
 	Only HTML5 version (JSME) is supported.
@@ -475,7 +477,7 @@
       var data = jmol._evaluate("getJMEHs()")
       format = "jme"
     } else {
-      var data = jmol._evaluate("script('select visible;show chemical \"file?format="+format+"\"')");
+      var data = jmol._evaluate("script('select visible;show chemical "+format+"')");
     }
     this._molData = data;
 		if (!this._applet)return;
@@ -538,23 +540,22 @@
 	}
 
   proto._getSmiles = function(withStereoChemistry) {
-  	var s = (arguments.length == 0 || withStereoChemistry ? jme._applet.smiles() : jme._applet.nonisomericSmiles());
-    s = s.replace(/\:1/g,"");
-		s = s.replace(/@H/g,"@~").replace(/H/g,"")
-		s = s.replace(/\/\[\]/g,"/[H]")
-		s = s.replace(/\\\[\]/g,"\\[H]")
-		s = s.replace(/\[\]\//g,"[H]/")
-		s = s.replace(/\[\]\\/g,"[H]\\")
-    s = s.replace(/\[\]/g,"")
-    // but change [C@][H] to [C@H] and [C@]1[H] to [C@@H]1 
-    s = s.replace(/\@\]\(\)/g,"@H]")
-    s = s.replace(/\@\](\d+)\(\)/g,"@@H]$1")
-    s = s.replace(/\@\@\@/g,"@")
-    s = s.replace(/\(\)/g,"");
-    s = s.replace(/@~/g,"@H");
-    if (s.lastIndexOf(")") == s.length - 1)
-      s += "[H]"
-    document.title=s
+  	var s = (arguments.length == 0 || withStereoChemistry ? this._applet.smiles() : this._applet.nonisomericSmiles());
+//    s = s.replace(/\:1/g,"");
+//		s = s.replace(/@H/g,"@~").replace(/H/g,"")
+//		s = s.replace(/\/\[\]/g,"/[H]")
+//		s = s.replace(/\\\[\]/g,"\\[H]")
+//		s = s.replace(/\[\]\//g,"[H]/")
+//		s = s.replace(/\[\]\\/g,"[H]\\")
+//    s = s.replace(/\[\]/g,"")
+//    // but change [C@][H] to [C@H] and [C@]1[H] to [C@@H]1 
+//    s = s.replace(/\@\]\(\)/g,"@H]")
+//    s = s.replace(/\@\](\d+)\(\)/g,"@@H]$1")
+//    s = s.replace(/\@\@\@/g,"@")
+//    s = s.replace(/\(\)/g,"");
+//    s = s.replace(/@~/g,"@H");
+//    if (s.lastIndexOf(")") == s.length - 1)
+//      s += "[H]"
     //alert("JSmolJME s is now " + s)
 		return s;
   }

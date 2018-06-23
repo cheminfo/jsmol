@@ -91,7 +91,6 @@ Clazz.overrideMethod (c$, "getAtomSetCollectionReaders",
 function (filesReader, names, types, htParams, getReadersOnly) {
 var vwr = htParams.get ("vwr");
 var size = names.length;
-var readers = (getReadersOnly ?  new Array (size) : null);
 var reader = null;
 if (htParams.containsKey ("concatenate")) {
 var s = "";
@@ -100,7 +99,7 @@ var name = names[i];
 var f = vwr.getFileAsString3 (name, false, null);
 if (i > 0 && size <= 3 && f.startsWith ("{")) {
 var type = (f.contains ("version\":\"DSSR") ? "dssr" : f.contains ("/outliers/") ? "validation" : "domains");
-var x = vwr.parseJSON (f);
+var x = vwr.parseJSONMap (f);
 if (x != null) htParams.put (type, (type.equals ("dssr") ? x : JS.SV.getVariableMap (x)));
 continue;
 }if (name.indexOf ("|") >= 0) name = JU.PT.rep (name, "_", "/");
@@ -116,7 +115,8 @@ if (!s.endsWith ("\n")) s += "\n";
 }
 size = 1;
 reader = JU.Rdr.getBR (s);
-}var atomsets = (getReadersOnly ? null :  new Array (size));
+}var readers = (getReadersOnly ?  new Array (size) : null);
+var atomsets = (getReadersOnly ? null :  new Array (size));
 var r = null;
 for (var i = 0; i < size; i++) {
 try {
@@ -156,7 +156,7 @@ var readers = readerSet;
 var asc = (atomsets == null ?  new Array (readers.length) : atomsets);
 if (atomsets == null) {
 for (var i = 0; i < readers.length; i++) {
-try {
+if (readers[i] != null) try {
 var ret = readers[i].readData ();
 if (!(Clazz.instanceOf (ret, J.adapter.smarter.AtomSetCollection))) return ret;
 asc[i] = ret;
@@ -170,6 +170,7 @@ return "" + e;
 if (htParams.containsKey ("trajectorySteps")) {
 result = asc[0];
 try {
+if (asc.length > 1) asc[0].setInfo ("ignoreUnitCell", asc[1].atomSetInfo.get ("ignoreUnitCell"));
 result.finalizeTrajectoryAs (htParams.get ("trajectorySteps"), htParams.get ("vibrationSteps"));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {

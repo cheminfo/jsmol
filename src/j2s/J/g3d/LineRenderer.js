@@ -202,7 +202,97 @@ p.addPixel (offset, zCurrent, rand8 < 85 ? argbDn : (rand8 > 170 ? argbUp : argb
 }}runIndex = (runIndex + 1) % run;
 }
 }}, "~A,~A,~N,~N,~N,~N,~N,~N,~N,~N,~B");
-Clazz.defineMethod (c$, "plotLineDeltaABits", 
+Clazz.defineMethod (c$, "plotLineDeltaABitsFloat", 
+function (shades1, shades2, shadeIndex, ptA, ptB, screenMask, clipped) {
+var x = Math.round (ptA.x);
+var y = Math.round (ptA.y);
+var z = Math.round (ptA.z);
+var bx = Math.round (ptB.x);
+var by = Math.round (ptB.y);
+var bz = Math.round (ptB.z);
+var dx = bx - x;
+var dy = by - y;
+this.x1t = x;
+this.x2t = bx;
+this.y1t = y;
+this.y2t = by;
+this.z1t = z;
+this.z2t = bz;
+if (clipped && this.getTrimmedLineImpl () == 2) return;
+var zbuf = this.g3d.zbuf;
+var width = this.g3d.width;
+var runIndex = 0;
+var rise = 2147483647;
+var run = 1;
+var shadeIndexUp = (shadeIndex < 63 ? shadeIndex + 1 : shadeIndex);
+var shadeIndexDn = (shadeIndex > 0 ? shadeIndex - 1 : shadeIndex);
+var argb1 = shades1[shadeIndex];
+var argb1Up = shades1[shadeIndexUp];
+var argb1Dn = shades1[shadeIndexDn];
+var argb2 = shades2[shadeIndex];
+var argb2Up = shades2[shadeIndexUp];
+var argb2Dn = shades2[shadeIndexDn];
+var offset = y * width + x;
+var offsetMax = this.g3d.bufferSize;
+var i0;
+var iMid;
+var i1;
+var i2;
+var iIncrement;
+var xIncrement;
+var yOffsetIncrement;
+if (this.lineTypeX) {
+i0 = x;
+i1 = this.x1t;
+i2 = this.x2t;
+iMid = x + Clazz.doubleToInt (dx / 2);
+iIncrement = (dx >= 0 ? 1 : -1);
+xIncrement = iIncrement;
+yOffsetIncrement = (dy >= 0 ? width : -width);
+this.setRastABFloat (ptA.x, ptA.z, ptB.x, ptB.z);
+} else {
+i0 = y;
+i1 = this.y1t;
+i2 = this.y2t;
+iMid = y + Clazz.doubleToInt (dy / 2);
+iIncrement = (dy >= 0 ? 1 : -1);
+xIncrement = (dy >= 0 ? width : -width);
+yOffsetIncrement = (dx >= 0 ? 1 : -1);
+this.setRastABFloat (ptA.y, ptA.z, ptB.y, ptB.z);
+}var zCurrent = z;
+var argb = argb1;
+var argbUp = argb1Up;
+var argbDn = argb1Dn;
+var isInWindow = false;
+var p = this.g3d.pixel;
+if (screenMask != 0) {
+p = this.g3d.setScreened ((screenMask & 1) == 1);
+this.g3d.currentShadeIndex = 0;
+}for (var i = i0, iBits = i0; ; i += iIncrement, iBits += iIncrement) {
+if (i == i1) isInWindow = true;
+if (i == iMid) {
+argb = argb2;
+if (argb == 0) return;
+argbUp = argb2Up;
+argbDn = argb2Dn;
+if (screenMask % 3 != 0) {
+p = this.g3d.setScreened ((screenMask & 2) == 2);
+this.g3d.currentShadeIndex = 0;
+}}if (argb != 0 && isInWindow && offset >= 0 && offset < offsetMax && runIndex < rise) {
+zCurrent = this.getZCurrent (this.a, this.b, i);
+if (zCurrent < zbuf[offset]) {
+var rand8 = this.shader.nextRandom8Bit ();
+p.addPixel (offset, Clazz.floatToInt (zCurrent), rand8 < 85 ? argbDn : (rand8 > 170 ? argbUp : argb));
+}}if (i == i2) break;
+runIndex = (runIndex + 1) % run;
+offset += xIncrement;
+while (iBits < 0) iBits += this.nBits;
+
+if (this.lineBits.get (iBits % this.nBits)) {
+offset += yOffsetIncrement;
+}}
+}, "~A,~A,~N,JU.P3,JU.P3,~N,~B");
+Clazz.defineMethod (c$, "plotLineDeltaABitsInt", 
 function (shades1, shades2, shadeIndex, ptA, ptB, screenMask, clipped) {
 var x = ptA.x;
 var y = ptA.y;

@@ -276,8 +276,8 @@ Clazz_declarePackage ("javajs.awt.event");
 Clazz_load (["javajs.awt.event.Event"], "javajs.awt.event.ItemEvent", null, function () {
 c$ = Clazz_declareType (javajs.awt.event, "ItemEvent", javajs.awt.event.Event);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.api.SC", "javajs.swing.JComponent"], "javajs.swing.AbstractButton", null, function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["javajs.awt.SC", "J.awtjs.swing.JComponent"], "J.awtjs.swing.AbstractButton", null, function () {
 c$ = Clazz_decorateAsClass (function () {
 this.itemListener = null;
 this.applet = null;
@@ -286,10 +286,10 @@ this.selected = false;
 this.popupMenu = null;
 this.icon = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "AbstractButton", javajs.swing.JComponent, javajs.api.SC);
+}, J.awtjs.swing, "AbstractButton", J.awtjs.swing.JComponent, javajs.awt.SC);
 Clazz_makeConstructor (c$, 
 function (type) {
-Clazz_superConstructor (this, javajs.swing.AbstractButton, [type]);
+Clazz_superConstructor (this, J.awtjs.swing.AbstractButton, [type]);
 this.enabled = true;
 }, "~S");
 Clazz_overrideMethod (c$, "setSelected", 
@@ -322,7 +322,7 @@ this.actionCommand = actionCommand;
 this.popupMenu = popupMenu;
 {
 SwingController.initMenuItem(this);
-}}, "~S,~O,~S,javajs.api.SC");
+}}, "~S,~O,~S,javajs.awt.SC");
 Clazz_defineMethod (c$, "getTopPopupMenu", 
 function () {
 return this.popupMenu;
@@ -330,11 +330,11 @@ return this.popupMenu;
 Clazz_defineMethod (c$, "add", 
 function (item) {
 this.addComponent (item);
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_overrideMethod (c$, "insert", 
 function (subMenu, index) {
 this.insertComponent (subMenu, index);
-}, "javajs.api.SC,~N");
+}, "javajs.awt.SC,~N");
 Clazz_overrideMethod (c$, "getPopupMenu", 
 function () {
 return null;
@@ -358,16 +358,16 @@ function () {
 return " disabled=\"disabled\"";
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.TableColumn"], "javajs.swing.AbstractTableModel", null, function () {
-Clazz_declareInterface (javajs.swing, "AbstractTableModel", javajs.swing.TableColumn);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.TableColumn"], "J.awtjs.swing.AbstractTableModel", null, function () {
+Clazz_declareInterface (J.awtjs.swing, "AbstractTableModel", J.awtjs.swing.TableColumn);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (null, "javajs.swing.ButtonGroup", ["javajs.awt.Component"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (null, "J.awtjs.swing.ButtonGroup", ["javajs.awt.Component"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.id = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "ButtonGroup");
+}, J.awtjs.swing, "ButtonGroup");
 Clazz_makeConstructor (c$, 
 function () {
 this.id = javajs.awt.Component.newID ("bg");
@@ -375,9 +375,9 @@ this.id = javajs.awt.Component.newID ("bg");
 Clazz_defineMethod (c$, "add", 
 function (item) {
 (item).htmlName = this.id;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 });
-Clazz_declarePackage ("javajs.swing");
+Clazz_declarePackage ("J.awtjs.swing");
 c$ = Clazz_decorateAsClass (function () {
 this.component = null;
 this.colspan = 0;
@@ -385,36 +385,36 @@ this.rowspan = 0;
 this.textAlign = 0;
 this.c = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "Cell");
+}, J.awtjs.swing, "Cell");
 Clazz_makeConstructor (c$, 
 function (btn, c) {
 this.component = btn;
 this.colspan = c.gridwidth;
 this.rowspan = c.gridheight;
 this.c = c;
-}, "javajs.swing.JComponent,javajs.swing.GridBagConstraints");
+}, "J.awtjs.swing.JComponent,J.awtjs.swing.GridBagConstraints");
 Clazz_defineMethod (c$, "toHTML", 
 function (id) {
 var style = this.c.getStyle (false);
 return "<td id='" + id + "' " + (this.colspan < 2 ? "" : "colspan='" + this.colspan + "' ") + style + "><span " + this.c.getStyle (true) + ">" + this.component.toHTML () + "</span></td>";
 }, "~S");
-Clazz_declarePackage ("javajs.swing");
-Clazz_declareInterface (javajs.swing, "ColumnSelectionModel");
-Clazz_declarePackage ("javajs.swing");
-Clazz_declareInterface (javajs.swing, "Document");
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.awt.LayoutManager"], "javajs.swing.FlowLayout", null, function () {
-c$ = Clazz_declareType (javajs.swing, "FlowLayout", javajs.awt.LayoutManager);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_declareInterface (J.awtjs.swing, "ColumnSelectionModel");
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_declareInterface (J.awtjs.swing, "Document");
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["javajs.awt.LayoutManager"], "J.awtjs.swing.FlowLayout", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "FlowLayout", javajs.awt.LayoutManager);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (null, "javajs.swing.Grid", ["javajs.swing.Cell", "JU.AU", "$.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (null, "J.awtjs.swing.Grid", ["JU.AU", "$.SB", "J.awtjs.swing.Cell"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.nrows = 0;
 this.ncols = 0;
 this.grid = null;
 this.renderer = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "Grid");
+}, J.awtjs.swing, "Grid");
 Clazz_makeConstructor (c$, 
 function (rows, cols) {
 this.grid =  Clazz_newArray (0, 0, null);
@@ -434,8 +434,8 @@ for (var i = g.length; --i >= this.nrows; ) g[i] =  new Array (this.ncols * 2 + 
 
 this.grid = g;
 this.nrows = c.gridy + 1;
-}this.grid[c.gridy][c.gridx] =  new javajs.swing.Cell (btn, c);
-}, "javajs.swing.JComponent,javajs.swing.GridBagConstraints");
+}this.grid[c.gridy][c.gridx] =  new J.awtjs.swing.Cell (btn, c);
+}, "J.awtjs.swing.JComponent,J.awtjs.swing.GridBagConstraints");
 Clazz_defineMethod (c$, "toHTML", 
 function (id) {
 var sb =  new JU.SB ();
@@ -452,8 +452,8 @@ sb.append ("\n<tr><td style='height:20%;width:20%'></td></tr></table>\n");
 return sb.toString ();
 }, "~S");
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (null, "javajs.swing.GridBagConstraints", ["javajs.swing.Insets"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (null, "J.awtjs.swing.GridBagConstraints", ["J.awtjs.swing.Insets"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.gridx = 0;
 this.gridy = 0;
@@ -467,7 +467,7 @@ this.insets = null;
 this.ipadx = 0;
 this.ipady = 0;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "GridBagConstraints");
+}, J.awtjs.swing, "GridBagConstraints");
 Clazz_makeConstructor (c$, 
 function (gridx, gridy, gridwidth, gridheight, weightx, weighty, anchor, fill, insets, ipadx, ipady) {
 this.gridx = gridx;
@@ -478,11 +478,11 @@ this.weightx = weightx;
 this.weighty = weighty;
 this.anchor = anchor;
 this.fill = fill;
-if (insets == null) insets =  new javajs.swing.Insets (0, 0, 0, 0);
+if (insets == null) insets =  new J.awtjs.swing.Insets (0, 0, 0, 0);
 this.insets = insets;
 this.ipadx = ipadx;
 this.ipady = ipady;
-}, "~N,~N,~N,~N,~N,~N,~N,~N,javajs.swing.Insets,~N,~N");
+}, "~N,~N,~N,~N,~N,~N,~N,~N,J.awtjs.swing.Insets,~N,~N");
 Clazz_defineMethod (c$, "getStyle", 
 function (margins) {
 return "style='" + (margins ? "margin:" + this.insets.top + "px " + (this.ipady + this.insets.right) + "px " + this.insets.bottom + "px " + (this.ipadx + this.insets.left) + "px;" : "text-align:" + (this.anchor == 13 ? "right" : this.anchor == 17 ? "left" : "center")) + "'";
@@ -493,18 +493,18 @@ Clazz_defineStatics (c$,
 "WEST", 17,
 "EAST", 13);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.awt.LayoutManager"], "javajs.swing.GridBagLayout", null, function () {
-c$ = Clazz_declareType (javajs.swing, "GridBagLayout", javajs.awt.LayoutManager);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["javajs.awt.LayoutManager"], "J.awtjs.swing.GridBagLayout", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "GridBagLayout", javajs.awt.LayoutManager);
 });
-Clazz_declarePackage ("javajs.swing");
+Clazz_declarePackage ("J.awtjs.swing");
 c$ = Clazz_decorateAsClass (function () {
 this.top = 0;
 this.left = 0;
 this.bottom = 0;
 this.right = 0;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "Insets");
+}, J.awtjs.swing, "Insets");
 Clazz_makeConstructor (c$, 
 function (top, left, bottom, right) {
 this.top = top;
@@ -512,12 +512,12 @@ this.left = left;
 this.bottom = bottom;
 this.right = right;
 }, "~N,~N,~N,~N");
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.AbstractButton"], "javajs.swing.JButton", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JButton", javajs.swing.AbstractButton);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.AbstractButton"], "J.awtjs.swing.JButton", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JButton", J.awtjs.swing.AbstractButton);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JButton, ["btnJB"]);
+Clazz_superConstructor (this, J.awtjs.swing.JButton, ["btnJB"]);
 });
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
@@ -526,12 +526,12 @@ sb.append ("<input type=button id='" + this.id + "' class='JButton' style='" + t
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.AbstractButton"], "javajs.swing.JCheckBox", null, function () {
-c$ = Clazz_declareType (javajs.swing, "JCheckBox", javajs.swing.AbstractButton);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.AbstractButton"], "J.awtjs.swing.JCheckBox", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JCheckBox", J.awtjs.swing.AbstractButton);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JCheckBox, ["chkJCB"]);
+Clazz_superConstructor (this, J.awtjs.swing.JCheckBox, ["chkJCB"]);
 });
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
@@ -539,24 +539,24 @@ var s = "<label><input type=checkbox id='" + this.id + "' class='JCheckBox' styl
 return s;
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JMenuItem"], "javajs.swing.JCheckBoxMenuItem", null, function () {
-c$ = Clazz_declareType (javajs.swing, "JCheckBoxMenuItem", javajs.swing.JMenuItem);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JMenuItem"], "J.awtjs.swing.JCheckBoxMenuItem", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JCheckBoxMenuItem", J.awtjs.swing.JMenuItem);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JCheckBoxMenuItem, ["chk", 2]);
+Clazz_superConstructor (this, J.awtjs.swing.JCheckBoxMenuItem, ["chk", 2]);
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.AbstractButton"], "javajs.swing.JComboBox", ["JU.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.AbstractButton"], "J.awtjs.swing.JComboBox", ["JU.SB"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.info = null;
 this.selectedIndex = 0;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JComboBox", javajs.swing.AbstractButton);
+}, J.awtjs.swing, "JComboBox", J.awtjs.swing.AbstractButton);
 Clazz_makeConstructor (c$, 
 function (info) {
-Clazz_superConstructor (this, javajs.swing.JComboBox, ["cmbJCB"]);
+Clazz_superConstructor (this, J.awtjs.swing.JComboBox, ["cmbJCB"]);
 this.info = info;
 }, "~A");
 Clazz_defineMethod (c$, "setSelectedIndex", 
@@ -583,14 +583,14 @@ sb.append ("\n</select>\n");
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.awt.Container"], "javajs.swing.JComponent", null, function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["javajs.awt.Container"], "J.awtjs.swing.JComponent", null, function () {
 c$ = Clazz_decorateAsClass (function () {
 this.autoScrolls = false;
 this.actionCommand = null;
 this.actionListener = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JComponent", javajs.awt.Container);
+}, J.awtjs.swing, "JComponent", javajs.awt.Container);
 Clazz_defineMethod (c$, "setAutoscrolls", 
 function (b) {
 this.autoScrolls = b;
@@ -608,20 +608,20 @@ function (actionCommand) {
 this.actionCommand = actionCommand;
 }, "~S");
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JComponentImp", null, function () {
-c$ = Clazz_declareType (javajs.swing, "JComponentImp", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JComponentImp", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JComponentImp", J.awtjs.swing.JComponent);
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
 return null;
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JContentPane", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JContentPane", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JContentPane", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JContentPane", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JContentPane, ["JCP"]);
+Clazz_superConstructor (this, J.awtjs.swing.JContentPane, ["JCP"]);
 });
 Clazz_defineMethod (c$, "toHTML", 
 function () {
@@ -633,8 +633,8 @@ sb.append ("\n</div>\n");
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.awt.Container"], "javajs.swing.JDialog", ["javajs.awt.Color", "javajs.swing.JContentPane", "JU.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["javajs.awt.Container"], "J.awtjs.swing.JDialog", ["javajs.awt.Color", "JU.SB", "J.awtjs.swing.JContentPane"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.defaultWidth = 600;
 this.defaultHeight = 300;
@@ -644,15 +644,15 @@ this.html = null;
 this.zIndex = 9000;
 this.loc = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JDialog", javajs.awt.Container);
+}, J.awtjs.swing, "JDialog", javajs.awt.Container);
 Clazz_defineMethod (c$, "setZIndex", 
 function (zIndex) {
 this.zIndex = zIndex;
 }, "~N");
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JDialog, ["JD"]);
-this.add (this.contentPane =  new javajs.swing.JContentPane ());
+Clazz_superConstructor (this, J.awtjs.swing.JDialog, ["JD"]);
+this.add (this.contentPane =  new J.awtjs.swing.JContentPane ());
 this.setBackground (javajs.awt.Color.get3 (210, 210, 240));
 this.contentPane.setBackground (javajs.awt.Color.get3 (230, 230, 230));
 });
@@ -679,7 +679,8 @@ this.html = null;
 Clazz_defineMethod (c$, "setVisible", 
 function (tf) {
 if (tf && this.html == null) this.setDialog ();
-Clazz_superCall (this, javajs.swing.JDialog, "setVisible", [tf]);
+Clazz_superCall (this, J.awtjs.swing.JDialog, "setVisible", [tf]);
+if (tf) this.toFront ();
 }, "~B");
 Clazz_defineMethod (c$, "dispose", 
 function () {
@@ -699,9 +700,9 @@ SwingController.setDialog(this);
 }});
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
-this.renderWidth = this.getSubcomponentWidth ();
+this.renderWidth = Math.max (this.width, this.getSubcomponentWidth ());
 if (this.renderWidth == 0) this.renderWidth = this.defaultWidth;
-this.renderHeight = this.contentPane.getSubcomponentHeight ();
+this.renderHeight = Math.max (this.height, this.contentPane.getSubcomponentHeight ());
 if (this.renderHeight == 0) this.renderHeight = this.defaultHeight;
 var h = this.renderHeight - 25;
 var sb =  new JU.SB ();
@@ -712,15 +713,20 @@ sb.append (this.contentPane.toHTML ());
 sb.append ("\n</div></div>\n");
 return sb.toString ();
 });
+Clazz_defineMethod (c$, "toFront", 
+function () {
+{
+SwingController.setFront(this);
+}});
 Clazz_defineStatics (c$,
 "headerHeight", 25);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JEditorPane", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JEditorPane", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JEditorPane", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JEditorPane", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JEditorPane, ["txtJEP"]);
+Clazz_superConstructor (this, J.awtjs.swing.JEditorPane, ["txtJEP"]);
 this.text = "";
 });
 Clazz_overrideMethod (c$, "toHTML", 
@@ -730,12 +736,12 @@ sb.append ("<textarea type=text id='" + this.id + "' class='JEditorPane' style='
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JLabel", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JLabel", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JLabel", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JLabel", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function (text) {
-Clazz_superConstructor (this, javajs.swing.JLabel, ["lblJL"]);
+Clazz_superConstructor (this, J.awtjs.swing.JLabel, ["lblJL"]);
 this.text = text;
 }, "~S");
 Clazz_overrideMethod (c$, "toHTML", 
@@ -747,12 +753,12 @@ sb.append ("</span>");
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JMenuItem"], "javajs.swing.JMenu", null, function () {
-c$ = Clazz_declareType (javajs.swing, "JMenu", javajs.swing.JMenuItem);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JMenuItem"], "J.awtjs.swing.JMenu", null, function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JMenu", J.awtjs.swing.JMenuItem);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JMenu, ["mnu", 4]);
+Clazz_superConstructor (this, J.awtjs.swing.JMenu, ["mnu", 4]);
 });
 Clazz_defineMethod (c$, "getItemCount", 
 function () {
@@ -771,21 +777,21 @@ function () {
 return this.getMenuHTML ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.AbstractButton"], "javajs.swing.JMenuItem", null, function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.AbstractButton"], "J.awtjs.swing.JMenuItem", null, function () {
 c$ = Clazz_decorateAsClass (function () {
 this.btnType = 0;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JMenuItem", javajs.swing.AbstractButton);
+}, J.awtjs.swing, "JMenuItem", J.awtjs.swing.AbstractButton);
 Clazz_makeConstructor (c$, 
 function (text) {
-Clazz_superConstructor (this, javajs.swing.JMenuItem, ["btn"]);
+Clazz_superConstructor (this, J.awtjs.swing.JMenuItem, ["btn"]);
 this.setText (text);
 this.btnType = (text == null ? 0 : 1);
 }, "~S");
 Clazz_makeConstructor (c$, 
 function (type, i) {
-Clazz_superConstructor (this, javajs.swing.JMenuItem, [type]);
+Clazz_superConstructor (this, J.awtjs.swing.JMenuItem, [type]);
 this.btnType = i;
 }, "~S,~N");
 Clazz_overrideMethod (c$, "toHTML", 
@@ -807,35 +813,35 @@ Clazz_defineStatics (c$,
 "TYPE_RADIO", 3,
 "TYPE_MENU", 4);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JPanel", ["javajs.swing.Grid", "$.GridBagConstraints", "JU.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JPanel", ["JU.SB", "J.awtjs.swing.Grid", "$.GridBagConstraints"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.grid = null;
 this.nElements = 0;
 this.last = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JPanel", javajs.swing.JComponent);
+}, J.awtjs.swing, "JPanel", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function (manager) {
-Clazz_superConstructor (this, javajs.swing.JPanel, ["JP"]);
-this.grid =  new javajs.swing.Grid (10, 10);
+Clazz_superConstructor (this, J.awtjs.swing.JPanel, ["JP"]);
+this.grid =  new J.awtjs.swing.Grid (10, 10);
 }, "javajs.awt.LayoutManager");
 Clazz_defineMethod (c$, "add", 
 function (btn, c) {
 this.last = (++this.nElements == 1 ? btn : null);
 if (Clazz_instanceOf (c, String)) {
-if (c.equals ("North")) c =  new javajs.swing.GridBagConstraints (0, 0, 3, 1, 0, 0, 10, 0, null, 0, 0);
- else if (c.equals ("South")) c =  new javajs.swing.GridBagConstraints (0, 2, 3, 1, 0, 0, 10, 0, null, 0, 0);
- else if (c.equals ("East")) c =  new javajs.swing.GridBagConstraints (2, 1, 1, 1, 0, 0, 13, 0, null, 0, 0);
- else if (c.equals ("West")) c =  new javajs.swing.GridBagConstraints (0, 1, 1, 1, 0, 0, 17, 0, null, 0, 0);
- else c =  new javajs.swing.GridBagConstraints (1, 1, 1, 1, 0, 0, 10, 0, null, 0, 0);
+if (c.equals ("North")) c =  new J.awtjs.swing.GridBagConstraints (0, 0, 3, 1, 0, 0, 10, 0, null, 0, 0);
+ else if (c.equals ("South")) c =  new J.awtjs.swing.GridBagConstraints (0, 2, 3, 1, 0, 0, 10, 0, null, 0, 0);
+ else if (c.equals ("East")) c =  new J.awtjs.swing.GridBagConstraints (2, 1, 1, 1, 0, 0, 13, 0, null, 0, 0);
+ else if (c.equals ("West")) c =  new J.awtjs.swing.GridBagConstraints (0, 1, 1, 1, 0, 0, 17, 0, null, 0, 0);
+ else c =  new J.awtjs.swing.GridBagConstraints (1, 1, 1, 1, 0, 0, 10, 0, null, 0, 0);
 }this.grid.add (btn, c);
-}, "javajs.swing.JComponent,~O");
+}, "J.awtjs.swing.JComponent,~O");
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
 if (this.last != null) {
-this.grid =  new javajs.swing.Grid (1, 1);
-this.grid.add (this.last,  new javajs.swing.GridBagConstraints (0, 0, 1, 1, 0, 0, 10, 0, null, 0, 0));
+this.grid =  new J.awtjs.swing.Grid (1, 1);
+this.grid.add (this.last,  new J.awtjs.swing.GridBagConstraints (0, 0, 1, 1, 0, 0, 10, 0, null, 0, 0));
 this.last = null;
 }var sb =  new JU.SB ();
 sb.append ("\n<div id='" + this.id + "' class='JPanel' style='" + this.getCSSstyle (100, 100) + "'>\n");
@@ -846,15 +852,15 @@ sb.append ("\n</div>\n");
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.AbstractButton"], "javajs.swing.JPopupMenu", null, function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.AbstractButton"], "J.awtjs.swing.JPopupMenu", null, function () {
 c$ = Clazz_decorateAsClass (function () {
 this.tainted = true;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JPopupMenu", javajs.swing.AbstractButton);
+}, J.awtjs.swing, "JPopupMenu", J.awtjs.swing.AbstractButton);
 Clazz_makeConstructor (c$, 
 function (name) {
-Clazz_superConstructor (this, javajs.swing.JPopupMenu, ["mnu"]);
+Clazz_superConstructor (this, J.awtjs.swing.JPopupMenu, ["mnu"]);
 this.name = name;
 }, "~S");
 Clazz_defineMethod (c$, "setInvoker", 
@@ -881,27 +887,27 @@ return this.getMenuHTML ();
 });
 {
 {
-SwingController.setDraggable(javajs.swing.JPopupMenu);
+SwingController.setDraggable(J.awtjs.swing.JPopupMenu);
 }}});
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JMenuItem"], "javajs.swing.JRadioButtonMenuItem", null, function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JMenuItem"], "J.awtjs.swing.JRadioButtonMenuItem", null, function () {
 c$ = Clazz_decorateAsClass (function () {
 this.isRadio = true;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JRadioButtonMenuItem", javajs.swing.JMenuItem);
+}, J.awtjs.swing, "JRadioButtonMenuItem", J.awtjs.swing.JMenuItem);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JRadioButtonMenuItem, ["rad", 3]);
+Clazz_superConstructor (this, J.awtjs.swing.JRadioButtonMenuItem, ["rad", 3]);
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JScrollPane", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JScrollPane", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JScrollPane", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JScrollPane", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function (component) {
-Clazz_superConstructor (this, javajs.swing.JScrollPane, ["JScP"]);
+Clazz_superConstructor (this, J.awtjs.swing.JScrollPane, ["JScP"]);
 this.add (component);
-}, "javajs.swing.JComponent");
+}, "J.awtjs.swing.JComponent");
 Clazz_defineMethod (c$, "toHTML", 
 function () {
 var sb =  new JU.SB ();
@@ -916,31 +922,31 @@ Clazz_overrideMethod (c$, "setMinimumSize",
 function (dimension) {
 }, "javajs.awt.Dimension");
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JSplitPane", ["javajs.swing.JComponentImp", "JU.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JSplitPane", ["JU.SB", "J.awtjs.swing.JComponentImp"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.isH = true;
 this.split = 1;
 this.right = null;
 this.left = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JSplitPane", javajs.swing.JComponent);
+}, J.awtjs.swing, "JSplitPane", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function (split) {
-Clazz_superConstructor (this, javajs.swing.JSplitPane, ["JSpP"]);
+Clazz_superConstructor (this, J.awtjs.swing.JSplitPane, ["JSpP"]);
 this.split = split;
 this.isH = (split == 1);
 }, "~N");
 Clazz_defineMethod (c$, "setRightComponent", 
 function (r) {
-this.right =  new javajs.swing.JComponentImp (null);
+this.right =  new J.awtjs.swing.JComponentImp (null);
 this.right.add (r);
-}, "javajs.swing.JComponent");
+}, "J.awtjs.swing.JComponent");
 Clazz_defineMethod (c$, "setLeftComponent", 
 function (l) {
-this.left =  new javajs.swing.JComponentImp (null);
+this.left =  new J.awtjs.swing.JComponentImp (null);
 this.left.add (l);
-}, "javajs.swing.JComponent");
+}, "J.awtjs.swing.JComponent");
 Clazz_defineMethod (c$, "getSubcomponentWidth", 
 function () {
 var w = this.width;
@@ -983,8 +989,8 @@ return sb.toString ();
 Clazz_defineStatics (c$,
 "HORIZONTAL_SPLIT", 1);
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.ColumnSelectionModel", "$.JComponent", "$.ListSelectionModel"], "javajs.swing.JTable", ["JU.BS", "$.SB"], function () {
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.ColumnSelectionModel", "$.JComponent", "$.ListSelectionModel"], "J.awtjs.swing.JTable", ["JU.BS", "$.SB"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.tableModel = null;
 this.bsSelectedCells = null;
@@ -993,14 +999,14 @@ this.rowSelectionAllowed = false;
 this.cellSelectionEnabled = false;
 this.selectionListener = null;
 Clazz_instantialize (this, arguments);
-}, javajs.swing, "JTable", javajs.swing.JComponent, [javajs.swing.ListSelectionModel, javajs.swing.ColumnSelectionModel]);
+}, J.awtjs.swing, "JTable", J.awtjs.swing.JComponent, [J.awtjs.swing.ListSelectionModel, J.awtjs.swing.ColumnSelectionModel]);
 Clazz_makeConstructor (c$, 
 function (tableModel) {
-Clazz_superConstructor (this, javajs.swing.JTable, ["JT"]);
+Clazz_superConstructor (this, J.awtjs.swing.JTable, ["JT"]);
 this.tableModel = tableModel;
 this.bsSelectedCells =  new JU.BS ();
 this.bsSelectedRows =  new JU.BS ();
-}, "javajs.swing.AbstractTableModel");
+}, "J.awtjs.swing.AbstractTableModel");
 Clazz_overrideMethod (c$, "getSelectionModel", 
 function () {
 return this;
@@ -1050,12 +1056,12 @@ sb.append ("\n</table>\n");
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.JComponent"], "javajs.swing.JTextField", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JTextField", javajs.swing.JComponent);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.JComponent"], "J.awtjs.swing.JTextField", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JTextField", J.awtjs.swing.JComponent);
 Clazz_makeConstructor (c$, 
 function (value) {
-Clazz_superConstructor (this, javajs.swing.JTextField, ["txtJT"]);
+Clazz_superConstructor (this, J.awtjs.swing.JTextField, ["txtJT"]);
 this.text = value;
 }, "~S");
 Clazz_overrideMethod (c$, "toHTML", 
@@ -1065,12 +1071,12 @@ sb.append ("<input type=text id='" + this.id + "' class='JTextField' style='" + 
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_load (["javajs.swing.Document", "$.JComponent"], "javajs.swing.JTextPane", ["JU.SB"], function () {
-c$ = Clazz_declareType (javajs.swing, "JTextPane", javajs.swing.JComponent, javajs.swing.Document);
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_load (["J.awtjs.swing.Document", "$.JComponent"], "J.awtjs.swing.JTextPane", ["JU.SB"], function () {
+c$ = Clazz_declareType (J.awtjs.swing, "JTextPane", J.awtjs.swing.JComponent, J.awtjs.swing.Document);
 Clazz_makeConstructor (c$, 
 function () {
-Clazz_superConstructor (this, javajs.swing.JTextPane, ["txtJTP"]);
+Clazz_superConstructor (this, J.awtjs.swing.JTextPane, ["txtJTP"]);
 this.text = "";
 });
 Clazz_defineMethod (c$, "getDocument", 
@@ -1089,20 +1095,20 @@ sb.append ("<textarea type=text id='" + this.id + "' class='JTextPane' style='" 
 return sb.toString ();
 });
 });
-Clazz_declarePackage ("javajs.swing");
-Clazz_declareInterface (javajs.swing, "ListSelectionModel");
-Clazz_declarePackage ("javajs.swing");
-c$ = Clazz_declareType (javajs.swing, "SwingConstants");
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_declareInterface (J.awtjs.swing, "ListSelectionModel");
+Clazz_declarePackage ("J.awtjs.swing");
+c$ = Clazz_declareType (J.awtjs.swing, "SwingConstants");
 Clazz_defineStatics (c$,
 "LEFT", 2,
 "CENTER", 0,
 "RIGHT", 4);
-Clazz_declarePackage ("javajs.swing");
-Clazz_declareInterface (javajs.swing, "TableCellRenderer");
-Clazz_declarePackage ("javajs.swing");
-Clazz_declareInterface (javajs.swing, "TableColumn");
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_declareInterface (J.awtjs.swing, "TableCellRenderer");
+Clazz_declarePackage ("J.awtjs.swing");
+Clazz_declareInterface (J.awtjs.swing, "TableColumn");
 Clazz_declarePackage ("J.popup");
-Clazz_load (["javajs.api.GenericMenuInterface", "java.util.Hashtable", "JU.Lst"], "J.popup.GenericSwingPopup", ["java.util.StringTokenizer", "JU.PT", "$.SB", "JU.Logger"], function () {
+Clazz_load (["javajs.awt.GenericMenuInterface", "java.util.Hashtable", "JU.Lst"], "J.popup.GenericSwingPopup", ["java.util.StringTokenizer", "JU.PT", "$.SB", "JU.Logger"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.helper = null;
 this.strMenuStructure = null;
@@ -1123,7 +1129,7 @@ this.currentMenuItemId = null;
 this.htMenus = null;
 this.SignedOnly = null;
 Clazz_instantialize (this, arguments);
-}, J.popup, "GenericSwingPopup", null, javajs.api.GenericMenuInterface);
+}, J.popup, "GenericSwingPopup", null, javajs.awt.GenericMenuInterface);
 Clazz_prepareFields (c$, function () {
 this.htCheckbox =  new java.util.Hashtable ();
 this.htMenus =  new java.util.Hashtable ();
@@ -1205,7 +1211,7 @@ this.SignedOnly.addLast (newItem);
 if (!this.allowSignedFeatures) this.menuEnable (newItem, false);
 }this.appCheckItem (item, newItem);
 }
-}, "~S,~S,javajs.api.SC,J.popup.PopupResource");
+}, "~S,~S,javajs.awt.SC,J.popup.PopupResource");
 Clazz_defineMethod (c$, "updateSignedAppletItems", 
 function () {
 for (var i = this.SignedOnly.size (); --i >= 0; ) this.menuEnable (this.SignedOnly.get (i), this.allowSignedFeatures);
@@ -1218,7 +1224,7 @@ return (key.indexOf (this.isApplet ? "JAVA" : "APPLET") < 0 && (!this.isWebGL ||
 Clazz_defineMethod (c$, "rememberCheckbox", 
  function (key, checkboxMenuItem) {
 this.htCheckbox.put (key + "::" + this.htCheckbox.size (), checkboxMenuItem);
-}, "~S,javajs.api.SC");
+}, "~S,javajs.awt.SC");
 Clazz_defineMethod (c$, "updateButton", 
 function (b, entry, script) {
 var ret =  Clazz_newArray (-1, [entry]);
@@ -1226,7 +1232,7 @@ var icon = this.getEntryIcon (ret);
 entry = ret[0];
 b.init (entry, icon, script, this.thisPopup);
 this.isTainted = true;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz_defineMethod (c$, "getEntryIcon", 
 function (ret) {
 var entry = ret[0];
@@ -1239,12 +1245,12 @@ return this.getImageIcon (fileName);
 Clazz_defineMethod (c$, "addMenuItem", 
 function (menuItem, entry) {
 return this.menuCreateItem (menuItem, entry, "", null);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz_defineMethod (c$, "menuSetLabel", 
 function (m, entry) {
 m.setText (entry);
 this.isTainted = true;
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz_defineMethod (c$, "menuSetCheckBoxValue", 
  function (source) {
 var isSelected = source.isSelected ();
@@ -1252,11 +1258,11 @@ var what = source.getActionCommand ();
 this.checkForCheckBoxScript (source, what, isSelected);
 this.appUpdateSpecialCheckBoxValue (source, what, isSelected);
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_overrideMethod (c$, "menuClickCallback", 
 function (source, script) {
 this.processClickCallback (source, script);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz_defineMethod (c$, "processClickCallback", 
 function (source, script) {
 this.appRestorePopupMenu ();
@@ -1269,7 +1275,7 @@ if (id != null) {
 script = this.appFixScript (id, script);
 this.currentMenuItemId = id;
 }this.appRunScript (script);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz_overrideMethod (c$, "menuCheckBoxCallback", 
 function (source) {
 this.appRestorePopupMenu ();
@@ -1277,7 +1283,7 @@ this.menuSetCheckBoxValue (source);
 var id = this.menuGetId (source);
 if (id != null) {
 this.currentMenuItemId = id;
-}}, "javajs.api.SC");
+}}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "checkForCheckBoxScript", 
  function (item, what, TF) {
 if (!item.isEnabled ()) return;
@@ -1292,25 +1298,25 @@ what = what.substring (pt + 1);
 if ((pt = what.indexOf ("|")) >= 0) what = (TF ? what.substring (0, pt) : what.substring (pt + 1)).trim ();
 what = JU.PT.rep (what, "T/F", (TF ? " TRUE" : " FALSE"));
 }this.appRunScript (what);
-}, "javajs.api.SC,~S,~B");
+}, "javajs.awt.SC,~S,~B");
 Clazz_defineMethod (c$, "menuCreateItem", 
 function (menu, entry, script, id) {
 var item = this.helper.getMenuItem (entry);
 item.addActionListener (this.helper);
 return this.newMenuItem (item, menu, entry, script, id);
-}, "javajs.api.SC,~S,~S,~S");
+}, "javajs.awt.SC,~S,~S,~S");
 Clazz_defineMethod (c$, "menuCreateCheckboxItem", 
 function (menu, entry, basename, id, state, isRadio) {
 var jmi = (isRadio ? this.helper.getRadio (entry) : this.helper.getCheckBox (entry));
 jmi.setSelected (state);
 jmi.addItemListener (this.helper);
 return this.newMenuItem (jmi, menu, entry, basename, id);
-}, "javajs.api.SC,~S,~S,~S,~B,~B");
+}, "javajs.awt.SC,~S,~S,~S,~B,~B");
 Clazz_defineMethod (c$, "menuAddSeparator", 
 function (menu) {
 menu.add (this.helper.getMenuItem (null));
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "menuNewSubMenu", 
 function (entry, id) {
 var jm = this.helper.getMenu (entry);
@@ -1325,7 +1331,7 @@ if (indexFrom <= 0) menu.removeAll ();
  else for (var i = menu.getComponentCount (); --i >= indexFrom; ) menu.remove (i);
 
 this.isTainted = true;
-}, "javajs.api.SC,~N");
+}, "javajs.awt.SC,~N");
 Clazz_defineMethod (c$, "newMenuItem", 
  function (item, menu, text, script, id) {
 this.updateButton (item, text, script);
@@ -1335,7 +1341,7 @@ id = menu.getName () + "." + id;
 }item.setName (id == null ? menu.getName () + "." : id);
 this.menuAddItem (menu, item);
 return item;
-}, "javajs.api.SC,javajs.api.SC,~S,~S,~S");
+}, "javajs.awt.SC,javajs.awt.SC,~S,~S,~S");
 Clazz_defineMethod (c$, "setText", 
 function (item, text) {
 var m = this.htMenus.get (item);
@@ -1346,25 +1352,25 @@ Clazz_defineMethod (c$, "menuAddItem",
  function (menu, item) {
 menu.add (item);
 this.isTainted = true;
-}, "javajs.api.SC,javajs.api.SC");
+}, "javajs.awt.SC,javajs.awt.SC");
 Clazz_defineMethod (c$, "menuAddSubMenu", 
 function (menu, subMenu) {
 this.menuAddItem (menu, subMenu);
-}, "javajs.api.SC,javajs.api.SC");
+}, "javajs.awt.SC,javajs.awt.SC");
 Clazz_defineMethod (c$, "menuEnable", 
 function (component, enable) {
 if (component == null || component.isEnabled () == enable) return;
 component.setEnabled (enable);
-}, "javajs.api.SC,~B");
+}, "javajs.awt.SC,~B");
 Clazz_defineMethod (c$, "menuGetId", 
 function (menu) {
 return menu.getName ();
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "menuSetAutoscrolls", 
 function (menu) {
 menu.setAutoscrolls (true);
 this.isTainted = true;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "menuGetListPosition", 
 function (item) {
 var p = item.getParent ();
@@ -1372,7 +1378,7 @@ var i;
 for (i = p.getComponentCount (); --i >= 0; ) if (this.helper.getSwingComponent (p.getComponent (i)) === item) break;
 
 return i;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "show", 
 function (x, y, doPopup) {
 this.thisx = x;
@@ -1442,7 +1448,7 @@ break;
 J.popup.GenericSwingPopup.addItemText (sb, key, level, name, text, script, flags);
 if (type == 2) this.menuGetAsText (sb, level + 1, this.helper.getSwingComponent (m.getPopupMenu ()), name);
 }
-}, "JU.SB,~N,javajs.api.SC,~S");
+}, "JU.SB,~N,javajs.awt.SC,~S");
 c$.addItemText = Clazz_defineMethod (c$, "addItemText", 
  function (sb, type, level, name, label, script, flags) {
 sb.appendC (type).appendI (level).appendC ('\t').append (name);
@@ -1567,7 +1573,7 @@ return s.toString ();
 }, "~A");
 });
 Clazz_declarePackage ("J.popup");
-Clazz_load (["J.popup.PopupHelper"], "J.popup.JSSwingPopupHelper", ["javajs.swing.ButtonGroup", "$.JCheckBoxMenuItem", "$.JMenu", "$.JMenuItem", "$.JPopupMenu", "$.JRadioButtonMenuItem"], function () {
+Clazz_load (["J.popup.PopupHelper"], "J.popup.JSSwingPopupHelper", ["J.awtjs.swing.ButtonGroup", "$.JCheckBoxMenuItem", "$.JMenu", "$.JMenuItem", "$.JPopupMenu", "$.JRadioButtonMenuItem"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.popup = null;
 this.buttonGroup = null;
@@ -1576,45 +1582,45 @@ Clazz_instantialize (this, arguments);
 Clazz_makeConstructor (c$, 
 function (popup) {
 this.popup = popup;
-}, "javajs.api.GenericMenuInterface");
+}, "javajs.awt.GenericMenuInterface");
 Clazz_overrideMethod (c$, "menuCreatePopup", 
 function (name, applet) {
-var j =  new javajs.swing.JPopupMenu (name);
+var j =  new J.awtjs.swing.JPopupMenu (name);
 j.setInvoker (applet);
 return j;
 }, "~S,~O");
 Clazz_overrideMethod (c$, "getMenu", 
 function (name) {
-return  new javajs.swing.JMenu ();
+return  new J.awtjs.swing.JMenu ();
 }, "~S");
 Clazz_overrideMethod (c$, "getMenuItem", 
 function (name) {
-return  new javajs.swing.JMenuItem (name);
+return  new J.awtjs.swing.JMenuItem (name);
 }, "~S");
 Clazz_overrideMethod (c$, "getRadio", 
 function (name) {
-return  new javajs.swing.JRadioButtonMenuItem ();
+return  new J.awtjs.swing.JRadioButtonMenuItem ();
 }, "~S");
 Clazz_overrideMethod (c$, "getCheckBox", 
 function (name) {
-return  new javajs.swing.JCheckBoxMenuItem ();
+return  new J.awtjs.swing.JCheckBoxMenuItem ();
 }, "~S");
 Clazz_overrideMethod (c$, "menuAddButtonGroup", 
 function (item) {
 if (item == null) {
 this.buttonGroup = null;
 return;
-}if (this.buttonGroup == null) this.buttonGroup =  new javajs.swing.ButtonGroup ();
+}if (this.buttonGroup == null) this.buttonGroup =  new J.awtjs.swing.ButtonGroup ();
 this.buttonGroup.add (item);
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_overrideMethod (c$, "getItemType", 
 function (m) {
 return (m).btnType;
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_overrideMethod (c$, "menuInsertSubMenu", 
 function (menu, subMenu, index) {
 (subMenu).setParent (menu);
-}, "javajs.api.SC,javajs.api.SC,~N");
+}, "javajs.awt.SC,javajs.awt.SC,~N");
 Clazz_overrideMethod (c$, "getSwingComponent", 
 function (component) {
 return component;
@@ -1622,7 +1628,7 @@ return component;
 Clazz_overrideMethod (c$, "menuClearListeners", 
 function (menu) {
 if (menu != null) (menu).disposeMenu ();
-}, "javajs.api.SC");
+}, "javajs.awt.SC");
 Clazz_defineMethod (c$, "itemStateChanged", 
 function (e) {
 this.popup.menuCheckBoxCallback (e.getSource ());

@@ -89,7 +89,7 @@ if (this.pos < this.buf.length) {
 return this.buf[this.pos++] & 0xff;
 }return this.$in.readByteAsInt ();
 });
-Clazz_overrideMethod (c$, "read", 
+Clazz_defineMethod (c$, "read", 
 function (b, off, len) {
 this.ensureOpen ();
 if (b == null) {
@@ -182,7 +182,7 @@ this.bytearr =  Clazz_newByteArray (80, 0);
 this.chararr =  Clazz_newCharArray (80, '\0');
 this.readBuffer =  Clazz_newByteArray (8, 0);
 });
-Clazz_overrideMethod (c$, "read", 
+Clazz_defineMethod (c$, "read", 
 function (b, off, len) {
 return this.$in.read (b, off, len);
 }, "~A,~N,~N");

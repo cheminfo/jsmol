@@ -33,7 +33,7 @@ this.font = manager.newFont (javajs.awt.Font.fontFaces[idFontFace], this.isBold,
 this.fontMetrics = manager.getFontMetrics (this, graphics);
 this.descent = manager.getFontDescent (this.fontMetrics);
 this.ascent = manager.getFontAscent (this.fontMetrics);
-}, "javajs.api.FontManager,~N,~N,~N,~N,~N,~O");
+}, "javajs.awt.FontManager,~N,~N,~N,~N,~N,~O");
 c$.getFont3D = Clazz.defineMethod (c$, "getFont3D", 
 function (fontID) {
 return javajs.awt.Font.font3ds[fontID & 0xFF];
@@ -52,7 +52,7 @@ var font3d =  new javajs.awt.Font (manager, fontIndexNext, fontface, fontstyle, 
 javajs.awt.Font.font3ds[fontIndexNext] = font3d;
 javajs.awt.Font.fontkeys[fontIndexNext] = fontkey;
 return font3d;
-}, "~N,~N,~N,~N,javajs.api.FontManager,~O");
+}, "~N,~N,~N,~N,javajs.awt.FontManager,~O");
 c$.getFontFaceID = Clazz.defineMethod (c$, "getFontFaceID", 
 function (fontface) {
 return ("Monospaced".equalsIgnoreCase (fontface) ? 2 : "Serif".equalsIgnoreCase (fontface) ? 1 : 0);

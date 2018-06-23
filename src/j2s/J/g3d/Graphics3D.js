@@ -96,14 +96,14 @@ this.graphicsForMetrics = this.platform.getGraphicsForMetrics ();
 this.line3d =  new J.g3d.LineRenderer (this);
 this.sphere3d =  new J.g3d.SphereRenderer (this);
 this.cylinder3d =  new J.g3d.CylinderRenderer (this);
-}, "JV.Viewer,javajs.api.GenericPlatform");
+}, "JV.Viewer,javajs.awt.GenericPlatform");
 Clazz.overrideMethod (c$, "addRenderer", 
 function (tok) {
 switch (tok) {
 case 1073741880:
 if (this.circle3d == null) this.circle3d = this.getRenderer ("Circle");
 break;
-case 553648147:
+case 553648146:
 if (this.hermite3d == null) this.hermite3d = this.getRenderer ("Hermite");
 case 1073742182:
 if (this.triangle3d == null) {
@@ -717,9 +717,12 @@ if (diameter <= this.ht3) this.cylinder3d.renderOld (this.colixCurrent, this.col
 Clazz.overrideMethod (c$, "fillCylinderBits", 
 function (endcaps, diameter, screenA, screenB) {
 if (diameter <= this.ht3 && screenA.z != 1 && screenB.z != 1) {
+if (diameter == 0 || diameter == 1) {
 this.setScreeni (screenA, this.sA);
 this.setScreeni (screenB, this.sB);
-this.cylinder3d.renderBits (this.colixCurrent, this.colixCurrent, 0, endcaps, diameter, this.sA, this.sB);
+this.line3d.plotLineBits (this.getColorArgbOrGray (this.colixCurrent), this.getColorArgbOrGray (this.colixCurrent), this.sA, this.sB, 0, 0, false);
+return;
+}this.cylinder3d.renderBitsFloat (this.colixCurrent, this.colixCurrent, 0, endcaps, diameter, screenA, screenB);
 }}, "~N,~N,JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "fillCylinderBits2", 
 function (colixA, colixB, endcaps, diameter, screenA, screenB) {

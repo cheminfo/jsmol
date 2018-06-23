@@ -31,13 +31,15 @@ for (op = 0; op < n; op++) s += this.getSymmetryInfo (uc, iModel, iAtom, uc, xyz
 }return s;
 }, "~N,~S,~N,JU.P3,JU.P3,~S,~N,~N,~N");
 Clazz.defineMethod (c$, "getSpaceGroupInfo", 
-function (sym, modelIndex, sgName, symOp, pt1, pt2, drawID, scaleFactor, nth) {
+function (sym, modelIndex, sgName, symOp, pt1, pt2, drawID, scaleFactor, nth, isFull, isForModel) {
 var info = null;
 var cellInfo = null;
 var isStandard = (pt1 == null && drawID == null && nth <= 0);
 var isBio = false;
 var sgNote = null;
-if (sgName == null) {
+var haveName = (sgName != null && sgName.length > 0);
+var haveRawName = (haveName && sgName.indexOf ("[--]") >= 0);
+if (isForModel || !haveName) {
 var saveModelInfo = (isStandard && symOp == 0);
 if (modelIndex < 0) modelIndex = (Clazz.instanceOf (pt1, JM.Atom) ? (pt1).mi : this.modelSet.vwr.am.cmi);
 if (modelIndex < 0) sgNote = "no single current model";
@@ -54,20 +56,21 @@ info =  new java.util.Hashtable ();
 sgName = cellInfo.getSpaceGroupName ();
 var ops = cellInfo.getSymmetryOperations ();
 var sg = (isBio ? (cellInfo).spaceGroup : null);
-var slist = (sgName.indexOf ("[--]") >= 0 ? "" : null);
+var slist = (haveRawName ? "" : null);
 var opCount = 0;
 if (ops != null) {
-var infolist = null;
 if (isBio) sym.spaceGroup = JS.SpaceGroup.getNull (false, false, false);
  else sym.setSpaceGroup (false);
 if (ops[0].timeReversal != 0) (sym.getSpaceGroupOperation (0)).timeReversal = 1;
-infolist =  new Array (ops.length);
+var infolist =  new Array (ops.length);
 var sops = "";
 for (var i = 0, nop = 0; i < ops.length && nop != nth; i++) {
 var op = ops[i];
-var iop = (sym.getSpaceGroupOperation (i) != null ? i : isBio ? sym.addBioMoleculeOperation (sg.finalOperations[i], false) : sym.addSpaceGroupOperation ("=" + op.xyz, i + 1));
+var isNewIncomm = (i == 0 && op.xyz.indexOf ("x4") >= 0);
+var iop = (!isNewIncomm && sym.getSpaceGroupOperation (i) != null ? i : isBio ? sym.addBioMoleculeOperation (sg.finalOperations[i], false) : sym.addSpaceGroupOperation ("=" + op.xyz, i + 1));
 if (iop < 0) continue;
 op = sym.getSpaceGroupOperation (i);
+if (op == null) continue;
 if (op.timeReversal != 0 || op.modDim > 0) isStandard = false;
 if (slist != null) slist += ";" + op.xyz;
 var ret = (symOp > 0 && symOp - 1 != iop ? null : this.createInfoArray (op, cellInfo, pt1, pt2, drawID, scaleFactor));
@@ -90,11 +93,12 @@ var data;
 if (isBio) {
 data = sgName;
 } else {
-data = sym.getSpaceGroupInfoStr (sgName, cellInfo);
+if (haveName && !haveRawName) sym.setSpaceGroupName (sgName);
+data = sym.getSpaceGroupInfoObj (sgName, cellInfo, isFull);
 if (data == null || data.equals ("?")) data = "could not identify space group from name: " + sgName + "\nformat: show spacegroup \"2\" or \"P 2c\" " + "or \"C m m m\" or \"x, y, z;-x ,-y, -z\"";
 }info.put ("spaceGroupInfo", data);
 return info;
-}, "JS.Symmetry,~N,~S,~N,JU.P3,JU.P3,~S,~N,~N");
+}, "JS.Symmetry,~N,~S,~N,JU.P3,JU.P3,~S,~N,~N,~B,~B");
 c$.getType = Clazz.defineMethod (c$, "getType", 
  function (id) {
 var type;
@@ -115,6 +119,8 @@ c$.getInfo = Clazz.defineMethod (c$, "getInfo",
 if (info == null) return "";
 if (type < 0 && type >= -JS.SymmetryDesc.keys.length) return info[-1 - type];
 switch (type) {
+case 1073742327:
+return info;
 case 1275068418:
 var lst =  new java.util.Hashtable ();
 for (var j = 0, n = info.length; j < n; j++) if (JS.SymmetryDesc.keys[j] != null && info[j] != null) lst.put (JS.SymmetryDesc.keys[j], info[j]);
@@ -149,6 +155,8 @@ case 1814695966:
 return info[11];
 case 1145047050:
 return info[0];
+case 1073741974:
+return info[16];
 }
 }, "~A,~N");
 Clazz.defineMethod (c$, "createInfoArray", 
@@ -484,7 +492,7 @@ m2.m13 += vtrans.y;
 m2.m23 += vtrans.z;
 }xyzNew = (op.isBio ? m2.toString () : op.modDim > 0 ? op.xyzOriginal : JS.SymmetryOperation.getXYZFromMatrix (m2, false, false, false));
 if (op.timeReversal != 0) xyzNew = op.fixMagneticXYZ (m2, xyzNew, true);
-return  Clazz.newArray (-1, [xyzNew, op.xyzOriginal, info1, cmds, JS.SymmetryDesc.approx0 (ftrans), JS.SymmetryDesc.approx0 (trans), JS.SymmetryDesc.approx0 (ipt), JS.SymmetryDesc.approx0 (pa1), plane == null ? JS.SymmetryDesc.approx0 (ax1) : null, ang1 != 0 ? Integer.$valueOf (ang1) : null, m2, vtrans.lengthSquared () > 0 ? vtrans : null, op.getCentering (), Integer.$valueOf (op.timeReversal), plane, type]);
+return  Clazz.newArray (-1, [xyzNew, op.xyzOriginal, info1, cmds, JS.SymmetryDesc.approx0 (ftrans), JS.SymmetryDesc.approx0 (trans), JS.SymmetryDesc.approx0 (ipt), JS.SymmetryDesc.approx0 (pa1), plane == null ? JS.SymmetryDesc.approx0 (ax1) : null, ang1 != 0 ? Integer.$valueOf (ang1) : null, m2, vtrans.lengthSquared () > 0 ? vtrans : null, op.getCentering (), Integer.$valueOf (op.timeReversal), plane, type, Integer.$valueOf (op.index)]);
 }, "JS.SymmetryOperation,J.api.SymmetryInterface,JU.P3,JU.P3,~S,~N");
 c$.drawLine = Clazz.defineMethod (c$, "drawLine", 
  function (s, id, diameter, pt0, pt1, color) {
@@ -591,6 +599,7 @@ if (nth == 0) nth = 1;
 }
 ret = this.getSymopInfoForPoints (sym, iModel, op, pt, pt2, id, stype, scaleFactor, nth, asString);
 if (asString) return ret;
+if (Clazz.instanceOf (ret, String)) return null;
 info = ret;
 if (type == 1140850689) {
 if (!(Clazz.instanceOf (pt, JM.Atom)) && !(Clazz.instanceOf (pt2, JM.Atom))) iatom = -1;
@@ -617,7 +626,7 @@ Clazz.defineMethod (c$, "getSymopInfoForPoints",
 var strOperations = "";
 var infolist;
 var ret = (asString ? "" : null);
-var sginfo = this.getSpaceGroupInfo (sym, modelIndex, null, symOp, pt1, pt2, drawID, scaleFactor, nth);
+var sginfo = this.getSpaceGroupInfo (sym, modelIndex, null, symOp, pt1, pt2, drawID, scaleFactor, nth, false, true);
 if (sginfo == null) return ret;
 strOperations = sginfo.get ("symmetryInfo");
 infolist = sginfo.get ("operations");
@@ -639,5 +648,5 @@ if (sb.length () == 0) return (drawID != null ? "draw " + drawID + "* delete" : 
 return sb.toString ();
 }, "JS.Symmetry,~N,~N,JU.P3,JU.P3,~S,~S,~N,~N,~B");
 Clazz.defineStatics (c$,
-"keys",  Clazz.newArray (-1, ["xyz", "xyzOriginal", "label", null, "fractionalTranslation", "cartesianTranslation", "inversionCenter", null, "axisVector", "rotationAngle", "matrix", "unitTranslation", "centeringVector", "timeReversal", "plane", "_type"]));
+"keys",  Clazz.newArray (-1, ["xyz", "xyzOriginal", "label", null, "fractionalTranslation", "cartesianTranslation", "inversionCenter", null, "axisVector", "rotationAngle", "matrix", "unitTranslation", "centeringVector", "timeReversal", "plane", "_type", "id"]));
 });

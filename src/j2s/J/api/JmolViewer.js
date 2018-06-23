@@ -17,7 +17,7 @@ if (fullName != null) info.put ("fullname", fullName);
 if (documentBase != null) info.put ("documentbase", documentBase);
 if (codeBase != null) info.put ("codebase", codeBase);
 return  new JV.Viewer (info);
-}, "~O,J.api.JmolAdapter,~S,java.net.URL,java.net.URL,~S,J.api.JmolStatusListener,javajs.api.GenericPlatform");
+}, "~O,J.api.JmolAdapter,~S,java.net.URL,java.net.URL,~S,J.api.JmolStatusListener,javajs.awt.GenericPlatform");
 c$.allocateViewer = Clazz.defineMethod (c$, "allocateViewer", 
 function (container, jmolAdapter) {
 return J.api.JmolViewer.allocateViewer (container, jmolAdapter, null, null, null, null, null, null);
@@ -46,6 +46,10 @@ Clazz.defineMethod (c$, "renderScreenImage",
 function (g, currentSize, rectClip) {
 this.apiPlatform.renderScreenImage (g, currentSize);
 }, "~O,~O,~O");
+Clazz.defineMethod (c$, "runScriptCautiously", 
+function (script) {
+return null;
+}, "~S");
 Clazz.defineMethod (c$, "dispose", 
 function () {
 });

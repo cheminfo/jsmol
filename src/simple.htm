@@ -35,7 +35,7 @@ if (xxxx.length == 5 || xxxx.length == 0) {
 	+'set errorCallback "myCallback";'
 	+'set defaultloadscript "isDssp = false;set defaultVDW babel;if(!h2oOn){display !water}";'
 	+'set zoomlarge false;set echo top left;echo loading XXXX...;refresh;'
-	+'load "http://www.rcsb.org/pdb/files/XXXX.pdb";set echo top center;echo XXXX;'
+	+'load "=XXXX";set echo top center;echo XXXX;'
 	+'spacefill off;wireframe off;cartoons on;color structure;'
 	script = script.replace(/XXXX/g, xxxx)
 } else {
@@ -49,7 +49,7 @@ var Info = {
 	debug: false,
 	color: "white",
 	addSelectionOptions: false,
-	serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+	serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
 	use: "HTML5",
 	j2sPath: "j2s",
 	readyFunction: jmol_isReady,
@@ -141,15 +141,15 @@ jmolBr()
 jmolBr()
 jmolButton("write FILE ?","Save FILE")
 jmolBr()
-jmolButton("write IMAGE ?.jpg","Save JPG")
+jmolButton("write IMAGE jsmol.jpg","Save JPG")
 jmolBr()
-jmolButton("write IMAGE ?.png","Save PNG")
+jmolButton("write IMAGE jsmol.png","Save PNG")
 jmolBr()
-jmolButton("write ?.jmol","Save Jmol")
+jmolButton("write jsmol.jmol","Save Jmol")
 jmolBr()
-jmolButton("write PNGJ ?.png","Save PNG+Jmol")
+jmolButton("write PNGJ jsmol.png","Save PNG+Jmol")
 jmolBr()
-jmolButton("write STATE ?.spt","Save STATE")
+jmolButton("write STATE jsmol.spt","Save STATE")
 jmolBr()
 
 

@@ -260,11 +260,11 @@ Swing.bindMenuActionCommands = function(menu, isBind) {
 
 })(Jmol.Swing);
 
-})(Jmol.__$);Clazz_declarePackage ("javajs.api");
-Clazz_declareInterface (javajs.api, "GenericMenuInterface");
+})(Jmol.__$);Clazz_declarePackage ("javajs.awt");
+Clazz_declareInterface (javajs.awt, "GenericMenuInterface");
 Clazz_declarePackage ("JSV.api");
-Clazz_load (["javajs.api.GenericMenuInterface"], "JSV.api.JSVPopupMenu", null, function () {
-Clazz_declareInterface (JSV.api, "JSVPopupMenu", javajs.api.GenericMenuInterface);
+Clazz_load (["javajs.awt.GenericMenuInterface"], "JSV.api.JSVPopupMenu", null, function () {
+Clazz_declareInterface (JSV.api, "JSVPopupMenu", javajs.awt.GenericMenuInterface);
 });
 Clazz_declarePackage ("JSV.js2d");
 Clazz_load (["JSV.popup.JSVGenericPopup"], "JSV.js2d.JsPopup", ["JSV.popup.JSVPopupResourceBundle", "J.popup.JSSwingPopupHelper"], function () {
@@ -278,18 +278,11 @@ Clazz_overrideMethod (c$, "jpiInitialize",
 function (viewer, menu) {
 var bundle =  new JSV.popup.JSVPopupResourceBundle ();
 this.initialize (viewer, bundle, menu);
-}, "javajs.api.PlatformViewer,~S");
+}, "javajs.awt.PlatformViewer,~S");
 Clazz_overrideMethod (c$, "menuShowPopup", 
 function (popup, x, y) {
-try {
-(popup).show (this.isTainted ? this.vwr.getApplet () : null, x, y);
-} catch (e) {
-if (Clazz_exceptionOf (e, Exception)) {
-} else {
-throw e;
-}
-}
-}, "javajs.api.SC,~N,~N");
+this.vwr.menuShowPopup (popup, x, y, this.isTainted);
+}, "javajs.awt.SC,~N,~N");
 Clazz_overrideMethod (c$, "getImageIcon", 
 function (fileName) {
 return null;
@@ -348,10 +341,10 @@ this.updateAboutSubmenu ();
 });
 Clazz_overrideMethod (c$, "appCheckItem", 
 function (item, newMenu) {
-}, "~S,javajs.api.SC");
+}, "~S,javajs.awt.SC");
 Clazz_overrideMethod (c$, "appCheckSpecialMenu", 
 function (item, subMenu, word) {
-}, "~S,javajs.api.SC,~S");
+}, "~S,javajs.awt.SC,~S");
 Clazz_overrideMethod (c$, "appFixLabel", 
 function (label) {
 if (label.startsWith ("_")) label = label.substring (label.indexOf ("_", 2) + 1);
@@ -377,7 +370,7 @@ return false;
 Clazz_overrideMethod (c$, "appIsSpecialCheckBox", 
 function (item, basename, what, TF) {
 return false;
-}, "javajs.api.SC,~S,~S,~B");
+}, "javajs.awt.SC,~S,~S,~B");
 Clazz_overrideMethod (c$, "appRestorePopupMenu", 
 function () {
 this.thisPopup = this.popupMenu;
@@ -398,7 +391,7 @@ this.updateAboutSubmenu ();
 });
 Clazz_overrideMethod (c$, "appUpdateSpecialCheckBoxValue", 
 function (item, what, TF) {
-}, "javajs.api.SC,~S,~B");
+}, "javajs.awt.SC,~S,~B");
 Clazz_defineMethod (c$, "getViewerData", 
  function () {
 });
@@ -439,7 +432,7 @@ if (atoms != null) this.menuCreateItem (menu, title, "select visible & (@" + JU.
 }
 this.menuEnable (menu, true);
 return true;
-}, "javajs.api.SC,JU.Lst");
+}, "javajs.awt.SC,JU.Lst");
 Clazz_defineMethod (c$, "updateAboutSubmenu", 
  function () {
 var menu = this.htMenus.get ("aboutComputedMenu");
@@ -509,7 +502,7 @@ this.menuEnable (item, true);
 Clazz_overrideMethod (c$, "menuSetCheckBoxOption", 
 function (item, name, what) {
 return null;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz_defineStatics (c$,
 "dumpList", false,
 "UPDATE_NEVER", -1,

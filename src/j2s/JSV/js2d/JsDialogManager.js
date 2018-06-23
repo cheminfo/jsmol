@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.js2d");
-Clazz.load (["JSV.dialog.DialogManager"], "JSV.js2d.JsDialogManager", ["javajs.awt.Dimension", "javajs.swing.JDialog", "$.JEditorPane", "$.JLabel", "$.JScrollPane", "$.JTable", "JU.PT", "JSV.js2d.DialogTableModel", "$.JsDialog"], function () {
+Clazz.load (["JSV.dialog.DialogManager"], "JSV.js2d.JsDialogManager", ["javajs.awt.Dimension", "JU.PT", "JSV.js2d.DialogTableModel", "$.JsDialog", "J.awtjs.swing.JDialog", "$.JEditorPane", "$.JLabel", "$.JScrollPane", "$.JTable"], function () {
 c$ = Clazz.declareType (JSV.js2d, "JsDialogManager", JSV.dialog.DialogManager);
 Clazz.makeConstructor (c$, 
 function () {
@@ -33,33 +33,35 @@ i = applet.getOption(items, dialogName, labelName);
 }, "~O,~A,JSV.api.JSVPanel,~S,~S");
 Clazz.overrideMethod (c$, "showProperties", 
 function (frame, spectrum) {
-var dialog =  new javajs.swing.JDialog ();
+var dialog =  new J.awtjs.swing.JDialog ();
 dialog.setTitle ("Header Information");
 var rowData = spectrum.getHeaderRowDataAsArray ();
 var columnNames =  Clazz.newArray (-1, ["Label", "Description"]);
 var tableModel =  new JSV.js2d.DialogTableModel (columnNames, rowData, false, true);
-var table =  new javajs.swing.JTable (tableModel);
+var table =  new J.awtjs.swing.JTable (tableModel);
 table.setPreferredScrollableViewportSize ( new javajs.awt.Dimension (400, 195));
-var scrollPane =  new javajs.swing.JScrollPane (table);
+var scrollPane =  new J.awtjs.swing.JScrollPane (table);
 dialog.getContentPane ().add (scrollPane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,JSV.common.Spectrum");
 Clazz.overrideMethod (c$, "showMessage", 
 function (frame, text, title) {
-var dialog =  new javajs.swing.JDialog ();
+var dialog =  new J.awtjs.swing.JDialog ();
 {
 dialog.manager = this;
 }dialog.setTitle (title);
 var pane;
 if (text.indexOf ("</div>") >= 0) {
-pane =  new javajs.swing.JLabel (text);
+pane =  new J.awtjs.swing.JLabel (text);
 } else {
-pane =  new javajs.swing.JEditorPane ();
+pane =  new J.awtjs.swing.JEditorPane ();
 pane.setText (text);
 }dialog.getContentPane ().add (pane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,~S,~S");
 Clazz.defineMethod (c$, "actionPerformed", 
 function (eventId) {

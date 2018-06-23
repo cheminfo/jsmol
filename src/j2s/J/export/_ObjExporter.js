@@ -130,7 +130,7 @@ return;
 Clazz.overrideMethod (c$, "outputHeader", 
 function () {
 this.debugPrint ("outputHeader");
-this.output ("# Created by Jmol " + JV.Viewer.getJmolVersion () + "\n");
+this.output ("#obj Created by Jmol " + JV.Viewer.getJmolVersion () + "\n");
 });
 Clazz.defineMethod (c$, "output", 
 function (pt) {

@@ -39,7 +39,7 @@ labelPtr = 6;
 } else if (isXY) {
 nPoints = 3;
 labelPtr = 9;
-} else if (this.vwr.g.axesMode == 603979810) {
+} else if (this.vwr.g.axesMode == 603979809) {
 nPoints = 6;
 labelPtr = (this.vwr.getBoolean (603979806) ? 15 : 9);
 }if (axes.labels != null) {

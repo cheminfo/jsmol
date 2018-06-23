@@ -476,7 +476,7 @@ break;
 if (isWithin && distance == 3.4028235E38) switch (tok0) {
 case 12290:
 break;
-case 1073741916:
+case 1111490587:
 case 1073742128:
 case 134218756:
 case 134218757:
@@ -506,7 +506,7 @@ case 1073742328:
 allowComma = false;
 case 1086326785:
 case 1086326786:
-case 1073741864:
+case 1073741863:
 case 1678381065:
 case 1086326788:
 case 1073742329:
@@ -717,7 +717,7 @@ this.tokenNext ();
 if (!this.tokenNextTok (268435860)) return this.errorStr (15, "=");
 if (this.getToken () == null) return this.error (3);
 if (this.theToken.tok == 2) {
-JU.SimpleUnitCell.ijkToPoint3f (this.theToken.intValue, cell, 1);
+JU.SimpleUnitCell.ijkToPoint3f (this.theToken.intValue, cell, 1, 0);
 return this.addTokenToPostfix (tok, cell);
 }if (this.theToken.tok != 1073742332 || !this.getNumericalToken ()) return this.error (3);
 cell.x = this.floatValue ();

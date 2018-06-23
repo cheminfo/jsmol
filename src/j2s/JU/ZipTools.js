@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["javajs.api.GenericZipTools"], "JU.ZipTools", ["java.io.BufferedInputStream", "$.IOException", "java.lang.Boolean", "java.util.zip.CRC32", "$.GZIPInputStream", "$.ZipEntry", "$.ZipInputStream", "javajs.api.GenericZipInputStream", "$.ZInputStream", "JU.BArray", "$.Lst", "$.PT", "$.Rdr", "$.SB"], function () {
+Clazz.load (["javajs.api.GenericZipTools"], "JU.ZipTools", ["java.io.BufferedInputStream", "$.IOException", "java.lang.Boolean", "java.util.zip.CRC32", "$.GZIPInputStream", "$.ZipEntry", "$.ZipInputStream", "javajs.api.GenericZipInputStream", "$.Interface", "$.ZInputStream", "JU.BArray", "$.Lst", "$.PT", "$.Rdr", "$.SB"], function () {
 c$ = Clazz.declareType (JU, "ZipTools", null, javajs.api.GenericZipTools);
 Clazz.makeConstructor (c$, 
 function () {
@@ -179,6 +179,10 @@ return JU.Rdr.fixUTF (JU.Rdr.getLimitedStreamBytes (is, -1));
 Clazz.overrideMethod (c$, "newGZIPInputStream", 
 function (is) {
 return  new java.io.BufferedInputStream ( new java.util.zip.GZIPInputStream (is, 512));
+}, "java.io.InputStream");
+Clazz.overrideMethod (c$, "newBZip2InputStream", 
+function (is) {
+return  new java.io.BufferedInputStream ((javajs.api.Interface.getInterface ("org.apache.tools.bzip2.CBZip2InputStreamFactory")).getStream (is));
 }, "java.io.InputStream");
 Clazz.overrideMethod (c$, "getUnGzippedInputStream", 
 function (bytes) {

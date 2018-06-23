@@ -13,7 +13,7 @@ var doTranslate = J.i18n.GT.setDoTranslate (true);
 var bundle =  new J.modelkit.ModelKitPopupResourceBundle (null, null);
 this.initialize (vwr, bundle, bundle.getMenuName ());
 J.i18n.GT.setDoTranslate (doTranslate);
-}, "javajs.api.PlatformViewer,~S");
+}, "javajs.awt.PlatformViewer,~S");
 Clazz.overrideMethod (c$, "menuShowPopup", 
 function (popup, x, y) {
 try {
@@ -25,7 +25,7 @@ throw e;
 }
 }
 this.isTainted = false;
-}, "javajs.api.SC,~N,~N");
+}, "javajs.awt.SC,~N,~N");
 Clazz.overrideMethod (c$, "menuClickCallback", 
 function (source, script) {
 if (script.equals ("clearQ")) {
@@ -38,7 +38,7 @@ item.setSelected (false);
 this.vwr.evalStringQuiet ("set picking assignAtom_C");
 return;
 }this.processClickCallback (source, script);
-}, "javajs.api.SC,~S");
+}, "javajs.awt.SC,~S");
 Clazz.overrideMethod (c$, "menuSetCheckBoxOption", 
 function (item, name, what) {
 var element = J.i18n.GT._ ("Element?");
@@ -47,7 +47,7 @@ element = prompt(element, "");
 }if (element == null || JU.Elements.elementNumberFromSymbol (element, true) == 0) return null;
 this.updateButton (item, element, "assignAtom_" + element + "P!:??");
 return "set picking assignAtom_" + element;
-}, "javajs.api.SC,~S,~S");
+}, "javajs.awt.SC,~S,~S");
 Clazz.overrideMethod (c$, "getImageIcon", 
 function (fileName) {
 return "J/modelkit/images/" + fileName;

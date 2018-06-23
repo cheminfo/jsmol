@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.ShapeRenderer", "JU.BS", "$.P3", "$.P3i"], "J.render.MeshRenderer", ["JU.AU", "JU.C"], function () {
+Clazz.load (["J.render.ShapeRenderer", "JU.BS", "$.P3", "$.P3i"], "J.render.MeshRenderer", ["JU.AU", "JU.C", "$.SimpleUnitCell"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.mesh = null;
 this.vertices = null;
@@ -94,7 +94,7 @@ mesh.colix = c;
 } else {
 var minXYZ =  new JU.P3i ();
 var maxXYZ = JU.P3i.new3 (Clazz.floatToInt (mesh.lattice.x), Clazz.floatToInt (mesh.lattice.y), Clazz.floatToInt (mesh.lattice.z));
-unitcell.setMinMaxLatticeParameters (minXYZ, maxXYZ);
+JU.SimpleUnitCell.setMinMaxLatticeParameters (Clazz.floatToInt (unitcell.getUnitCellInfoType (6)), minXYZ, maxXYZ, 0);
 for (var tx = minXYZ.x; tx < maxXYZ.x; tx++) for (var ty = minXYZ.y; ty < maxXYZ.y; ty++) for (var tz = minXYZ.z; tz < maxXYZ.z; tz++) {
 this.latticeOffset.set (tx, ty, tz);
 unitcell.toCartesian (this.latticeOffset, false);
@@ -113,6 +113,7 @@ return true;
 Clazz.defineMethod (c$, "setVariables", 
  function () {
 if (this.mesh.visibilityFlags == 0) return false;
+this.forceShowTriangles = this.vwr.getBoolean (603979964);
 this.showTriangles = this.forceShowTriangles || this.mesh.showTriangles;
 if (this.mesh.bsSlabGhost != null) this.g3d.setC (this.mesh.slabColix);
 if (this.mesh.colorsExplicit) this.g3d.setC (2047);

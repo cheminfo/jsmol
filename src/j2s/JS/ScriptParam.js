@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["JS.ScriptError"], "JS.ScriptParam", ["java.lang.Float", "java.util.Hashtable", "JU.BS", "$.CU", "$.Lst", "$.Measure", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.V3", "JM.TickInfo", "JS.SV", "$.T", "JU.BSUtil", "$.Edge", "$.Escape", "$.Logger"], function () {
+Clazz.load (["JS.ScriptError"], "JS.ScriptParam", ["java.lang.Float", "java.util.Hashtable", "JU.BS", "$.CU", "$.Lst", "$.Measure", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.V3", "JM.TickInfo", "JS.SV", "$.T", "JU.BSUtil", "$.Edge", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.contextVariables = null;
 this.thisContext = null;
@@ -292,6 +292,8 @@ return JU.Measure.getPlaneThroughPoints (pt1, pt2, pt3,  new JU.V3 (),  new JU.V
 Clazz.defineMethod (c$, "getPointOrPlane", 
 function (index, integerOnly, allowFractional, doConvert, implicitFractional, minDim, maxDim) {
 var coord =  Clazz.newFloatArray (6, 0);
+var code555 =  Clazz.newIntArray (6, 0);
+var useCell555P4 = false;
 var n = 0;
 this.coordinatesAreFractional = implicitFractional;
 if (this.tokAt (index) == 8) {
@@ -321,6 +323,8 @@ break;
 case 2:
 case 1073742362:
 if (n == 6) this.invArg ();
+if (implicitFractional && this.theToken.intValue > 999999999) useCell555P4 = true;
+code555[n] = this.theToken.intValue;
 coord[n++] = this.theToken.intValue * multiplier;
 multiplier = 1;
 break;
@@ -352,7 +356,9 @@ this.invArg ();
 }
 if (n < minDim || n > maxDim) this.invArg ();
 if (n == 3) {
-var pt = JU.P3.new3 (coord[0], coord[1], coord[2]);
+if (useCell555P4) {
+return JU.P4.new4 (coord[0], coord[1], coord[2], (code555[0] % 1000) * 1000 + (code555[1] % 1000) + 1000000);
+}var pt = JU.P3.new3 (coord[0], coord[1], coord[2]);
 if (this.coordinatesAreFractional && doConvert) {
 this.fractionalPoint = JU.P3.newP (pt);
 if (!this.chk) this.vwr.toCartesian (pt, false);
@@ -430,8 +436,7 @@ return pt;
 }, "~N");
 Clazz.defineMethod (c$, "optParameterAsString", 
 function (i) {
-if (i >= this.slen) return "";
-return this.paramAsStr (i);
+return (i >= this.slen ? "" : this.paramAsStr (i));
 }, "~N");
 Clazz.defineMethod (c$, "intParameter", 
 function (index) {
@@ -525,6 +530,7 @@ tok = this.tokAt (i);
 if (haveBrace && tok == 1073742338 || haveSquare && tok == 268435521) break;
 switch (tok) {
 case 268435504:
+case 268435616:
 case 1073742332:
 case 1073742338:
 case 4:
@@ -597,19 +603,19 @@ return true;
 return false;
 }, "~N");
 Clazz.defineMethod (c$, "getQuaternionParameter", 
-function (i) {
+function (i, bsAtoms, divideByCurrent) {
 switch (this.tokAt (i)) {
 case 7:
 var sv = (this.getToken (i)).getList ();
 var p4 = null;
 if (sv.size () == 0 || (p4 = JS.SV.pt4Value (sv.get (0))) == null) this.invArg ();
 return JU.Quat.newP4 (p4);
-case 1073741863:
-return (this.chk ? null : JU.Quat.newP4 (JU.Escape.uP (this.vwr.getOrientationText (1073741863, null))));
+case 1073741864:
+return (this.chk ? null : this.vwr.getOrientationText (1073741864, (divideByCurrent ? "best" : ""), bsAtoms));
 default:
 return JU.Quat.newP4 (this.getPoint4f (i));
 }
-}, "~N");
+}, "~N,JU.BS,~B");
 Clazz.defineMethod (c$, "checkLast", 
 function (i) {
 return this.checkLength (i + 1) - 1;
@@ -750,7 +756,7 @@ return (i < 0 ? 2147483647 : i);
 }, "~S");
 c$.getPartialBondOrderFromFloatEncodedInt = Clazz.defineMethod (c$, "getPartialBondOrderFromFloatEncodedInt", 
 function (bondOrderInteger) {
-return (((Clazz.doubleToInt (bondOrderInteger / 1000000)) % 6) << 5) + ((bondOrderInteger % 1000000) & 0x1F);
+return (((Clazz.doubleToInt (bondOrderInteger / 1000000)) % 7) << 5) + ((bondOrderInteger % 1000000) & 0x1F);
 }, "~N");
 c$.getBondOrderFromString = Clazz.defineMethod (c$, "getBondOrderFromString", 
 function (s) {

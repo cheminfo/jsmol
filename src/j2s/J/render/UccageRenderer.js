@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.CageRenderer", "JU.P3"], "J.render.UccageRenderer", ["JU.DF", "$.PT", "JU.BoxInfo", "$.C", "$.SimpleUnitCell"], function () {
+Clazz.load (["J.render.CageRenderer", "JU.P3"], "J.render.UccageRenderer", ["JU.DF", "$.PT", "$.T4", "JU.BoxInfo", "$.C", "$.SimpleUnitCell"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.verticesT = null;
 this.fset0 = null;
@@ -56,8 +56,9 @@ var hiddenLines = this.vwr.getBoolean (603979856);
 var fset = this.unitcell.getUnitCellMultiplier ();
 var haveMultiple = (fset != null && fset.distanceSquared (this.fset0) != 0);
 if (!haveMultiple) fset = this.fset0;
-JU.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (fset.x), this.cell0, 0);
-JU.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (fset.y), this.cell1, 1);
+var t3w = (Clazz.instanceOf (fset, JU.T4) ? Clazz.floatToInt ((fset).w) : 0);
+JU.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (fset.x), this.cell0, 0, t3w);
+JU.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (fset.y), this.cell1, 1, t3w);
 var firstLine;
 var allow0;
 var allow1;

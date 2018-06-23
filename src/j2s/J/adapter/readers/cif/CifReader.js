@@ -1,8 +1,9 @@
 Clazz.declarePackage ("J.adapter.readers.cif");
 Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "JU.Lst", "$.P3"], "J.adapter.readers.cif.CifReader", ["java.lang.Boolean", "$.Character", "$.Float", "java.util.Hashtable", "JU.BS", "$.CifDataParser", "$.PT", "$.Rdr", "$.V3", "J.adapter.smarter.Atom", "J.api.JmolAdapter", "JU.Logger", "$.Vibration"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.mr = null;
+this.modr = null;
 this.parser = null;
+this.isAFLOW = false;
 this.filterAssembly = false;
 this.allowRotations = true;
 this.readIdeal = true;
@@ -32,15 +33,16 @@ this.lastSpaceGroupName = null;
 this.modulated = false;
 this.isCourseGrained = false;
 this.haveCellWaveVector = false;
-this.latticeType = null;
-this.modDim = 0;
+this.$latticeType = null;
 this.htGroup1 = null;
 this.nAtoms0 = 0;
 this.titleAtomSet = 1;
+this.intTableNo = 0;
 this.htCellTypes = null;
 this.modelMap = null;
 this.htAudit = null;
 this.symops = null;
+this.pdbID = null;
 this.key = null;
 this.key0 = null;
 this.data = null;
@@ -81,6 +83,7 @@ this.appendedData = this.htParams.get ("appendedData");
 var conf = this.getFilter ("CONF ");
 if (conf != null) this.configurationPtr = this.parseIntStr (conf);
 this.isMolecular = this.checkFilterKey ("MOLECUL") && !this.checkFilterKey ("BIOMOLECULE");
+this.isPrimitive = this.checkFilterKey ("PRIMITIVE");
 this.readIdeal = !this.checkFilterKey ("NOIDEAL");
 this.filterAssembly = this.checkFilterKey ("$");
 this.useAuthorChainID = !this.checkFilterKey ("NOAUTHORCHAINS");
@@ -99,15 +102,19 @@ function () {
 });
 Clazz.defineMethod (c$, "readCifData", 
  function () {
-this.parser =  new JU.CifDataParser ().set (this, null);
+this.parser = this.getCifDataParser ();
 this.line = "";
 while ((this.key = this.parser.peekToken ()) != null) if (!this.readAllData ()) break;
 
 if (this.appendedData != null) {
-this.parser = (this.getInterface ("JU.CifDataParser")).set (null, JU.Rdr.getBR (this.appendedData));
+this.parser = (this.getInterface ("JU.CifDataParser")).set (null, JU.Rdr.getBR (this.appendedData), this.debugging);
 while ((this.key = this.parser.peekToken ()) != null) if (!this.readAllData ()) break;
 
 }});
+Clazz.defineMethod (c$, "getCifDataParser", 
+function () {
+return  new JU.CifDataParser ().set (this, null, this.debugging);
+});
 Clazz.defineMethod (c$, "readAllData", 
  function () {
 if (this.key.startsWith ("data_")) {
@@ -135,7 +142,7 @@ this.parser.skipLoop (false);
 this.processLoopBlock ();
 }return true;
 }if (this.key.indexOf ("_") != 0) {
-JU.Logger.warn ("CIF ERROR ? should be an underscore: " + this.key);
+JU.Logger.warn (this.key.startsWith ("save_") ? "CIF reader ignoring save_" : "CIF ERROR ? should be an underscore: " + this.key);
 this.parser.getTokenPeeked ();
 } else if (!this.getData ()) {
 return true;
@@ -172,12 +179,19 @@ this.symmetry = null;
 this.readSingleAtom ();
 } else if (this.key.startsWith ("_symmetry_space_group_name_h-m") || this.key.startsWith ("_symmetry_space_group_name_hall") || this.key.startsWith ("_space_group_name") || this.key.contains ("_ssg_name") || this.key.contains ("_magn_name") || this.key.contains ("_bns_name")) {
 this.processSymmetrySpaceGroupName ();
-} else if (this.key.startsWith ("_space_group_transform")) {
+} else if (this.key.startsWith ("_space_group_transform") || this.key.startsWith ("_parent_space_group") || this.key.startsWith ("_space_group_magn_transform")) {
 this.processUnitCellTransform ();
 } else if (this.key.contains ("_database_code")) {
 this.addModelTitle ("ID");
 } else if ("__citation_title__publ_section_title__active_magnetic_irreps_details__".contains ("_" + this.key + "__")) {
 this.addModelTitle ("TITLE");
+} else if (this.key.startsWith ("_aflow_")) {
+this.isAFLOW = true;
+} else if (this.key.equals ("_symmetry_int_tables_number")) {
+this.intTableNo = this.parseIntStr (this.data);
+this.rotateHexCell = (this.isAFLOW && (this.intTableNo >= 143 && this.intTableNo <= 194));
+} else if (this.key.equals ("_entry_id")) {
+this.pdbID = this.data;
 } else {
 this.processSubclassEntry ();
 }}return true;
@@ -194,8 +208,8 @@ if (this.modDim > 0) this.getModulationReader ().processEntry ();
 Clazz.defineMethod (c$, "processUnitCellTransform", 
  function () {
 this.data = JU.PT.replaceAllCharacters (this.data, " ", "");
-if (this.key.contains ("_from_parent")) this.addCellType ("parent", this.data, true);
- else if (this.key.contains ("_to_standard")) this.addCellType ("standard", this.data, false);
+if (this.key.contains ("_from_parent") || this.key.contains ("child_transform")) this.addCellType ("parent", this.data, true);
+ else if (this.key.contains ("_to_standard") || this.key.contains ("transform_bns_pp_abc")) this.addCellType ("standard", this.data, false);
 this.appendLoadNote (this.key + ": " + this.data);
 });
 Clazz.defineMethod (c$, "addCellType", 
@@ -220,13 +234,13 @@ this.asc.addAtom (atom);
 });
 Clazz.defineMethod (c$, "getModulationReader", 
  function () {
-return (this.mr == null ? this.initializeMSCIF () : this.mr);
+return (this.modr == null ? this.initializeMSCIF () : this.modr);
 });
 Clazz.defineMethod (c$, "initializeMSCIF", 
  function () {
-if (this.mr == null) this.ms = this.mr = this.getInterface ("J.adapter.readers.cif.MSCifRdr");
-this.modulated = (this.mr.initialize (this, this.modDim) > 0);
-return this.mr;
+if (this.modr == null) this.ms = this.modr = this.getInterface ("J.adapter.readers.cif.MSCifParser");
+this.modulated = (this.modr.initialize (this, this.modDim) > 0);
+return this.modr;
 });
 Clazz.defineMethod (c$, "newModel", 
 function (modelNo) {
@@ -252,6 +266,7 @@ if (this.asc.iSet > 0 && this.asc.getAtomSetAtomCount (this.asc.iSet) == 0) this
  else if (!this.isMMCIF || !this.finalizeSubclass ()) this.applySymmetryAndSetTrajectory ();
 var n = this.asc.atomSetCount;
 if (n > 1) this.asc.setCollectionName ("<collection of " + n + " models>");
+if (this.pdbID != null) this.asc.setCurrentModelInfo ("pdbID", this.pdbID);
 this.finalizeReaderASCR ();
 this.addHeader ();
 if (this.haveAromatic) this.addJmolScript ("calculate aromatic");
@@ -300,11 +315,14 @@ this.asc.xtalSymmetry = null;
 Clazz.overrideMethod (c$, "finalizeSubclassSymmetry", 
 function (haveSymmetry) {
 var sym = (haveSymmetry ? this.asc.getXSymmetry ().getBaseSymmetry () : null);
-if (this.modDim > 0 && sym != null) {
+if (sym != null && sym.getSpaceGroup () == null) {
+this.appendLoadNote ("Invalid or missing space group operations!");
+sym = null;
+}if (this.modDim > 0 && sym != null) {
 this.addLatticeVectors ();
 this.asc.setTensors ();
 this.getModulationReader ().setModulation (true, sym);
-this.mr.finalizeModulation ();
+this.modr.finalizeModulation ();
 }if (this.isMagCIF) {
 this.asc.setNoAutoBond ();
 if (sym != null) {
@@ -327,10 +345,14 @@ Clazz.defineMethod (c$, "nextAtomSet",
 function () {
 this.asc.setCurrentModelInfo ("isCIF", Boolean.TRUE);
 if (this.asc.iSet >= 0) {
-if (this.isMMCIF) this.setModelPDB (true);
-this.asc.newAtomSet ();
-if (this.isMMCIF) this.setModelPDB (true);
-} else {
+if (this.isMMCIF) {
+this.setModelPDB (true);
+if (this.pdbID != null) this.asc.setCurrentModelInfo ("pdbID", this.pdbID);
+}this.asc.newAtomSet ();
+if (this.isMMCIF) {
+this.setModelPDB (true);
+if (this.pdbID != null) this.asc.setCurrentModelInfo ("pdbID", this.pdbID);
+}} else {
 this.asc.setCollectionName (this.thisDataSetName);
 }});
 Clazz.defineMethod (c$, "processChemicalInfo", 
@@ -352,7 +374,7 @@ Clazz.defineMethod (c$, "processSymmetrySpaceGroupName",
  function () {
 if (this.key.indexOf ("_ssg_name") >= 0) {
 this.modulated = true;
-this.latticeType = this.data.substring (0, 1);
+this.$latticeType = this.data.substring (0, 1);
 } else if (this.modulated) {
 return;
 }this.data = this.parser.toUnicode (this.data);
@@ -362,7 +384,7 @@ Clazz.defineMethod (c$, "addLatticeVectors",
  function () {
 this.lattvecs = null;
 if (this.magCenterings != null) {
-this.latticeType = "Magnetic";
+this.$latticeType = "Magnetic";
 this.lattvecs =  new JU.Lst ();
 for (var i = 0; i < this.magCenterings.size (); i++) {
 var s = this.magCenterings.get (i);
@@ -379,23 +401,28 @@ if ((f[j] = JU.PT.parseFloatFraction (s)) != 0) n++;
 if (n >= 2) this.lattvecs.addLast (f);
 }
 this.magCenterings = null;
-} else if (this.latticeType != null && "ABCFI".indexOf (this.latticeType) >= 0) {
+} else if (this.$latticeType != null && "ABCFI".indexOf (this.$latticeType) >= 0) {
 this.lattvecs =  new JU.Lst ();
 try {
-this.ms.addLatticeVector (this.lattvecs, this.latticeType);
+this.ms.addLatticeVector (this.lattvecs, this.$latticeType);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 } else {
 throw e;
 }
 }
-}if (this.lattvecs != null && this.lattvecs.size () > 0 && this.asc.getSymmetry ().addLatticeVectors (this.lattvecs)) this.appendLoadNote ("Note! " + this.lattvecs.size () + " symmetry operators added for lattice centering " + this.latticeType);
-this.latticeType = null;
+}if (this.lattvecs != null && this.lattvecs.size () > 0 && this.asc.getSymmetry ().addLatticeVectors (this.lattvecs)) {
+this.appendLoadNote ("Note! " + this.lattvecs.size () + " symmetry operators added for lattice centering " + this.$latticeType);
+for (var i = 0; i < this.lattvecs.size (); i++) this.appendLoadNote (JU.PT.toJSON (null, this.lattvecs.get (i)));
+
+}this.$latticeType = null;
 });
 Clazz.defineMethod (c$, "processCellParameter", 
  function () {
 for (var i = J.api.JmolAdapter.cellParamNames.length; --i >= 0; ) if (this.key.equals (J.api.JmolAdapter.cellParamNames[i])) {
-this.setUnitCellItem (i, this.parseFloatStr (this.data));
+var p = this.parseFloatStr (this.data);
+if (this.rotateHexCell && i == 5 && p == 120) p = -1;
+this.setUnitCellItem (i, p);
 return;
 }
 });
@@ -413,6 +440,7 @@ Clazz.defineMethod (c$, "getData",
  function () {
 this.key = this.parser.getTokenPeeked ();
 this.data = this.parser.getNextToken ();
+if (this.debugging && this.data != null && this.data.length > 0 && this.data.charAt (0) != '\0') JU.Logger.debug (">> " + this.key + " " + this.data);
 if (this.data == null) {
 JU.Logger.warn ("CIF ERROR ? end of file; data missing: " + this.key);
 return false;

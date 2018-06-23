@@ -49,6 +49,7 @@ this.mr.discardLinesUntilContains ("END ATOM");
 Clazz.defineMethod (c$, "readBonds", 
  function (bondCount) {
 this.mr.discardLinesUntilContains ("BEGIN BOND");
+if (bondCount == 0) this.mr.asc.setNoAutoBond ();
 for (var i = 0; i < bondCount; ++i) {
 this.rd ();
 var stereo = 0;

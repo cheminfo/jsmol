@@ -3,6 +3,7 @@
 // jsmol.php
 // Bob Hanson hansonr@stolaf.edu 1/11/2013
 //
+// 27 MAR 2018 -- security upgrade
 // 31 MAR 2016 -- https://cactus -> https://cactus
 // 09 Nov 2015 -- bug fix for www.pdb --> www.rcsb
 // 23 Mar 2015 -- checking for missing :// in queries
@@ -93,7 +94,7 @@ $encoding = getValueSimple($values, "encoding", "");
 $call = getValueSimple($values, "call", "getRawDataFromDatabase");
 $query = getValueSimple($values, "query", "https://cactus.nci.nih.gov/chemical/structure/ethanol/file?format=sdf&get3d=True");
 $database = getValueSimple($values, "database", "_");
-
+$test = getValueSimple($values,"test","");
 $imagedata = "";
 $contentType = "";
 $output = "";
@@ -135,11 +136,11 @@ if ($call == "getInfoFromDatabase") {
 	}
 	
 } else if ($call == "getRawDataFromDatabase") {
-	$isBinary = (strpos(".gz", $query) >= 0);
+	$isBinary = (strpos($query, ".gz") >= 0);
 		if ($database != "_")
 			$query = $database.$query;
-		if (strpos($query, '://') == 0) {
-      $output = "";
+		if (strpos(strtolower($query), 'https://') !== 0 && strpos(strtolower($query), 'http://') !== 0) {
+      $output = "invalid url";
     } else if (strpos($query, '?POST?') > 0) {
 			list($query,$data) = explode('?POST?', $query, 2);
 			$context = stream_context_create(array('http' => array(
@@ -149,7 +150,10 @@ if ($call == "getInfoFromDatabase") {
 			);
 			$output = file_get_contents($query, false, $context);
 		} else {
-			$output = file_get_contents($query);
+  		$output = file_get_contents($query);
+      if ($test != "") {
+        $output = $query."<br>".$output;
+      }
 		}
 } else if ($call == "saveFile") {
 	$imagedata = $_REQUEST["data"];//getValueSimple($values, "data", ""); don't want to convert " to _ here

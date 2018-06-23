@@ -80,7 +80,7 @@ JU.Logger.error ("slater for atom " + i + " atomType " + atomType + " was not fo
 return;
 }for (var j = 0; j < slaters.size (); j++) {
 slater = slaters.get (j);
-this.shells.addLast ( Clazz.newIntArray (-1, [i, slater[0], slater[1], slater[2]]));
+this.shells.addLast ( Clazz.newIntArray (-1, [i + 1, slater[0], slater[1] + 1, slater[2]]));
 }
 }
 }if (this.debugging) {
@@ -122,12 +122,12 @@ this.asc.cloneLastAtomSet ();
 } else {
 haveFreq = true;
 iAtom0 -= ac;
-}this.asc.setAtomSetFrequency (null, null, "" + frequencies[i], null);
+}this.asc.setAtomSetFrequency (this.vibrationNumber, null, null, "" + frequencies[i], null);
 if (red_masses != null) this.asc.setAtomSetModelProperty ("ReducedMass", red_masses[red_masses.length - frequencyCount + i] + " AMU");
 if (intensities != null) this.asc.setAtomSetModelProperty ("IRIntensity", intensities[intensities.length - frequencyCount + i] + " D^2/AMU-Angstrom^2");
 }
 this.discardLinesUntilBlank ();
-this.fillFrequencyData (iAtom0, ac, ac, ignore, false, 20, 12, null, 0);
+this.fillFrequencyData (iAtom0, ac, ac, ignore, false, 20, 12, null, 0, null);
 this.readLines (13);
 }
 });

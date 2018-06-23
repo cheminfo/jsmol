@@ -1,11 +1,11 @@
 Clazz.declarePackage ("J.awtjs2d");
-Clazz.load (["javajs.api.GenericPlatform"], "J.awtjs2d.Platform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "$.Rdr", "$.SB", "J.api.Interface", "J.awtjs2d.Display", "$.Image", "$.JSFile", "$.JSFont", "$.Mouse"], function () {
+Clazz.load (["javajs.awt.GenericPlatform"], "J.awtjs2d.Platform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "$.Rdr", "$.SB", "J.api.Interface", "J.awtjs2d.Display", "$.Image", "$.JSFile", "$.JSFont", "$.Mouse"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.canvas = null;
 this.vwr = null;
 this.context = null;
 Clazz.instantialize (this, arguments);
-}, J.awtjs2d, "Platform", null, javajs.api.GenericPlatform);
+}, J.awtjs2d, "Platform", null, javajs.awt.GenericPlatform);
 Clazz.overrideMethod (c$, "setViewer", 
 function (vwr, canvas) {
 {
@@ -23,7 +23,7 @@ this.canvas = canvas;
 java.net.URL.setURLStreamHandlerFactory ( new JU.AjaxURLStreamHandlerFactory ());
 } catch (e) {
 }
-}, "javajs.api.PlatformViewer,~O");
+}, "javajs.awt.PlatformViewer,~O");
 Clazz.overrideMethod (c$, "isSingleThreaded", 
 function () {
 return true;

@@ -119,7 +119,7 @@ this.vectorT2.scale (length / this.vectorT2.length ());
 var ptRef = this.tickInfo.reference;
 if (ptRef == null) {
 this.pointT3.setT (this.vwr.getBoundBoxCenter ());
-if (this.vwr.g.axesMode == 603979810) {
+if (this.vwr.g.axesMode == 603979809) {
 this.pointT3.add3 (1, 1, 1);
 }} else {
 this.pointT3.setT (ptRef);
@@ -196,7 +196,7 @@ if (isDots) {
 var d2 = (dx * dx + dy * dy) / (this.width * this.width);
 if (isNdots) {
 f = (Math.sqrt (d2) / 1.5);
-n = Clazz.floatToInt (f) + 3;
+n = Clazz.floatToInt (f) + 2;
 } else if (d2 < 8) {
 array = J.render.FontLineShapeRenderer.twodots;
 } else if (d2 < 32) {

@@ -34,7 +34,7 @@ case 4115:
 var i = (this.info).intValue ();
 if (i >= 0) this.info = Integer.$valueOf (modelOffset + i);
 return;
-case 1073742032:
+case 1073742031:
 var movie = this.info;
 var frames = movie.get ("frames");
 for (var j = frames.length; --j >= 0; ) frames[j] += modelOffset;
@@ -83,7 +83,7 @@ sm.vwr.displayAtoms (this.bsAtoms, this.id == 1610625028, false, 1275069441, tru
 case 12290:
 sm.vwr.defineAtomSets (this.info);
 return;
-case 1073742032:
+case 1073742031:
 sm.vwr.am.setMovie (this.info);
 return;
 case 4115:
@@ -232,7 +232,7 @@ sm.setShapePropertyBs (this.id, "putty", this.info, this.bsAtoms);
 break;
 }
 if (sb != null) {
-sm.vwr.runScript (sb.toString ());
+sm.vwr.runScriptCautiously (sb.toString ());
 return;
 }if (this.size != -1 || this.rd != null) sm.setShapeSizeBs (this.id, this.size, this.rd, this.bsAtoms);
 if (this.argb != 0) sm.setShapePropertyBs (this.id, color, Integer.$valueOf (this.argb), this.bsAtoms);

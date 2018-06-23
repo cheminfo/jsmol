@@ -20,6 +20,7 @@ this.elementNames =  new JU.Lst ();
 });
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
+this.isPrimitive = true;
 this.setSpaceGroupName ("P1");
 this.setFractionalCoordinates (true);
 this.inputOnly = this.checkFilterKey ("INPUT");
@@ -78,7 +79,7 @@ this.setSymmetry ();
 this.asc.newAtomSet ();
 this.setAtomSetInfo ();
 }var f =  Clazz.newFloatArray (3, 0);
-for (var i = 0; i < 3; i++) this.addPrimitiveLatticeVector (i, this.fillFloatArray (this.fixMinus (this.rd ()), 0, f), 0);
+for (var i = 0; i < 3; i++) this.addExplicitLatticeVector (i, this.fillFloatArray (this.fixMinus (this.rd ()), 0, f), 0);
 
 });
 Clazz.defineMethod (c$, "fixMinus", 
@@ -168,9 +169,9 @@ var iAtom0 = this.asc.ac;
 this.cloneLastAtomSet (this.ac, null);
 if (!ignore[0]) {
 this.asc.iSet = ++pt;
-this.asc.setAtomSetFrequency (null, null, this.line.substring (this.line.indexOf ("2PiTHz") + 6, this.line.indexOf ("c") - 1).trim (), null);
+this.asc.setAtomSetFrequency (this.vibrationNumber, null, null, this.line.substring (this.line.indexOf ("2PiTHz") + 6, this.line.indexOf ("c") - 1).trim (), null);
 }this.rd ();
-this.fillFrequencyData (iAtom0, this.ac, this.ac, ignore, true, 35, 12, null, 0);
+this.fillFrequencyData (iAtom0, this.ac, this.ac, ignore, true, 35, 12, null, 0, null);
 this.rd ();
 }
 });

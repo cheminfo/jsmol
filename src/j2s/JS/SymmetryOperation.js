@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["JU.M4"], "JS.SymmetryOperation", ["java.lang.Float", "JU.Matrix", "$.P3", "$.PT", "$.SB", "$.V3", "JU.Logger", "$.Parser"], function () {
+Clazz.load (["JU.M4"], "JS.SymmetryOperation", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.Matrix", "$.P3", "$.PT", "$.SB", "$.V3", "JU.Logger", "$.Parser"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.xyzOriginal = null;
 this.xyz = null;
@@ -19,6 +19,7 @@ this.timeReversal = 0;
 this.unCentered = false;
 this.isCenteringOp = false;
 this.magOp = 3.4028235E38;
+this.info = null;
 Clazz.instantialize (this, arguments);
 }, JS, "SymmetryOperation", JU.M4);
 Clazz.defineMethod (c$, "setSigma", 
@@ -531,6 +532,23 @@ if (this.getMagneticOp () < 0) m2.scale (-1);
 xyz += "(" + JU.PT.rep (JU.PT.rep (JU.PT.rep (JS.SymmetryOperation.getXYZFromMatrix (m2, false, false, false), "x", "mx"), "y", "my"), "z", "mz") + ")";
 return xyz;
 }, "JU.M4,~S,~B");
+Clazz.defineMethod (c$, "getInfo", 
+function () {
+if (this.info == null) {
+this.info =  new java.util.Hashtable ();
+this.info.put ("xyz", this.xyz);
+if (this.centering != null) this.info.put ("centering", this.centering);
+this.info.put ("index", Integer.$valueOf (this.index));
+this.info.put ("isCenteringOp", Boolean.$valueOf (this.isCenteringOp));
+if (this.linearRotTrans != null) this.info.put ("linearRotTrans", this.linearRotTrans);
+this.info.put ("modulationDimension", Integer.$valueOf (this.modDim));
+this.info.put ("matrix", JU.M4.newM4 (this));
+if (this.magOp != 3.4028235E38) this.info.put ("magOp", Float.$valueOf (this.magOp));
+this.info.put ("id", Integer.$valueOf (this.opId));
+this.info.put ("timeReversal", Integer.$valueOf (this.timeReversal));
+if (this.xyzOriginal != null) this.info.put ("xyzOriginal", this.xyzOriginal);
+}return this.info;
+});
 Clazz.defineStatics (c$,
 "atomTest", null,
 "twelfths",  Clazz.newArray (-1, ["0", "1/12", "1/6", "1/4", "1/3", "5/12", "1/2", "7/12", "2/3", "3/4", "5/6", "11/12"]));
